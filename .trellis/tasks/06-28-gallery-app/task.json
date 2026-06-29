@@ -1,0 +1,36 @@
+{
+  "id": "06-28-gallery-app",
+  "name": "06-28-gallery-app",
+  "title": "类 Danbooru 现代画廊图库应用",
+  "description": "个人图库应用:本地导入 + Danbooru 抓取,深色沉浸式画廊 UI,标签系统(分类着色 + implication 树),安全模式,收藏夹,单用户登录。Next.js + FastAPI + SQLite。",
+  "status": "planning",
+  "dev_type": "feature",
+  "scope": null,
+  "package": null,
+  "priority": "P1",
+  "creator": "Andys1114",
+  "assignee": "Andys1114",
+  "createdAt": "2026-06-28",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": null,
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [
+    "06-29-backend-skeleton"
+  ],
+  "parent": null,
+  "relatedFiles": [
+    "backend/",
+    "frontend/",
+    ".trellis/spec/backend/",
+    ".trellis/spec/frontend/"
+  ],
+  "notes": "复杂任务,含多个可独立验证的子交付物。当前为规划阶段。后续按子任务拆分(后端骨架/标签搜索/媒体管道/抓取器/前端浏览页/详情页等)。因 ZCode Bash 工具在本机损坏(0xC0000142),此任务由 Write 手写创建,待 Bash 修复后补跑 task.py validate。",
+  "meta": {
+    "created_by": "write-tool-manual",
+    "bash_workaround": "ZCode bash fork crash 0xC0000142; created without task.py"
+  }
+}
