@@ -1,0 +1,1 @@
+"""Picture Mangers backend application."""
