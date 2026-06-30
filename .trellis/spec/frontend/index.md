@@ -14,12 +14,12 @@ This directory contains guidelines for frontend development. Fill in each file w
 
 | Guide | Description | Status |
 |-------|-------------|--------|
-| [Directory Structure](./directory-structure.md) | Module organization and file layout | To fill |
-| [Component Guidelines](./component-guidelines.md) | Component patterns, props, composition | To fill |
-| [Hook Guidelines](./hook-guidelines.md) | Custom hooks, data fetching patterns | To fill |
-| [State Management](./state-management.md) | Local state, global state, server state | To fill |
-| [Quality Guidelines](./quality-guidelines.md) | Code standards, forbidden patterns | To fill |
-| [Type Safety](./type-safety.md) | Type patterns, validation | To fill |
+| [Directory Structure](./directory-structure.md) | Next.js App Router layout, modules, naming, media rewrite | Filled |
+| [Component Guidelines](./component-guidelines.md) | Server vs client components, shadcn/ui, Tailwind, tag colors, a11y | Filled |
+| [Hook Guidelines](./hook-guidelines.md) | TanStack Query hooks, polling, mutations, lightbox hook | Filled |
+| [State Management](./state-management.md) | Server/URL/local state split, safe-mode lifecycle | Filled |
+| [Quality Guidelines](./quality-guidelines.md) | Strict TS, forbidden/required patterns, tests, responsive scope | Filled |
+| [Type Safety](./type-safety.md) | TS strict, backend-mirrored types, validation policy | Filled |
 
 ---
 

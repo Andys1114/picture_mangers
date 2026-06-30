@@ -46,15 +46,18 @@
 
 ### F1. 浏览页(瀑布流主页)
 - 无边框瀑布流(CSS columns),等宽列、按高度排布,极小 gap(4px)。
-- hover 卡片浮现控件:收藏 ★、分级色块(右下角)、疑似重复标记(左上角)。
+- hover 卡片浮现控件:收藏 ★、分级色块(右下角)。
 - 顶栏(半透明毛玻璃,滚动渐隐,hover/置顶复现):Logo、搜索框、安全模式开关、登录、导入入口、设置。
 - 左侧可滑出抽屉:标签筛选(按类型折叠 + 热门标签云,点击即加入搜索)。
 - 无限滚动(IntersectionObserver 加载下一页)。
+- **安全模式开关**:状态挂**会话**(后端 `Session.safe_mode`,新会话默认开、自动回安全),不本地持久化;切换即时生效(乐观更新 + 失效查询)。
 
 ### F2. 详情页(lightbox 沉浸)
+- **不是独立路由**,而是叠在浏览页(或收藏页)之上的浮层,由 URL 参数 `?photoId=<id>` 驱动:点图 push 打开、← → replace 翻页(避免后退地狱)、Esc/遮罩/后退键 back 关闭、刷新/直达读参数自动开。**无 `/post/[id]` 路由**。
+- 直达/刷新场景(无列表上下文)禁用 ← → 翻页,需 `GET /api/posts/{id}` 单图接口取数据。
 - 黑底全屏,图片主体在**右侧/居中**。
 - **左侧**半透明浮层信息面板,**默认精简**(ID/尺寸/标签按类型分组首行),可"展开全部"。
-- implication 折叠树:父标签可展开看 implied 子标签。
+- implication 折叠树:父标签可展开看 implied 子标签(数据来自 post_tags 已展开集,非前端递归)。
 - 标签着色:character 蓝 / copyright 紫 / artist 黄 / general 灰 / meta 青。点击标签跳转搜索。
 - 键盘导航:← → 翻页,F 收藏,E 编辑,Esc 返回。
 - 动图自动循环播放,点击暂停/播放。
@@ -97,12 +100,13 @@
 ### F8. 单用户登录
 - 首次启动:DB 无 user 记录 → 访问任意页重定向 `/setup` → 设置用户名+密码(bcrypt)→ 自动登录。之后 `/setup` 不可访问。
 - 登录:校验 bcrypt → 签发 session token,存 HttpOnly cookie。
-- 所有 `/api/*`(除 `/api/auth/login`)强制校验 cookie。
+- 所有 `/api/*`(除 `/api/auth/login`、`/api/auth/status`)强制校验 cookie。
+- **前端鉴权流**:Next.js 中间件只做 cookie 在不在的轻量判断(不查库),受保护路由无 cookie → 跳 `/login?next=...`;`/login`、`/setup` 挂载时调 `GET /api/auth/status`(返回 `{owner_exists}`)自分流——无 owner 跳 `/setup`、有 owner 时 `/setup` 跳 `/login`;客户端 app provider 调 `GET /api/me` 灌入用户 + 当前 session 的 safe_mode。
 - 未登录 → 401 → 前端跳 `/login`。
 
 ## 5. 约束
 
-- **技术栈**:Next.js 15(App Router + TypeScript)前端;FastAPI(Python 3.11+)后端;SQLAlchemy 2.0 + SQLite(WAL 模式)。
+- **技术栈**:Next.js 15(App Router + TypeScript)前端,搭配 **Tailwind CSS + shadcn/ui + lucide-react + TanStack Query**;FastAPI(Python 3.11+)后端;SQLAlchemy 2.0 + SQLite(WAL 模式)。
 - **架构**:前后端分离(方案 A),两个独立进程。
 - **媒体格式**:png/jpg/webp/gif/apng(动图保留动画)。
 - **运维**:个人部署,追求零/低运维。无需 Redis/Celery 等重型依赖(用 APScheduler 轻量任务)。

@@ -56,3 +56,25 @@
 
 **状态**: 文档落地完成,待提交。
 
+---
+
+## 2026-06-30 — 前端 grilling + 前端 spec 落地(子任务 06-30-frontend-spec-landing)
+
+**任务**: 用 `/grill-with-docs` 对前端做压力测试(前端要交给 `/ui-ux-pro-max` 建),敲定决策并落地。
+
+**完成内容**:
+- grilling 敲定 7 条前端决策:技术栈(Next 15 App Router + TS + Tailwind + shadcn/ui + lucide)、渲染取数(客户端为主 + TanStack Query,RSC 只做外壳/中间件)、详情页(`?photoId=` 软导航浮层,无独立 /post/[id] 路由,直达禁用翻页)、图片管线(FastAPI StaticFiles /media + Next rewrite 同源 + Next/Image unoptimized + tier loader,blur-up 暂缓)、安全模式(挂 Session、新会话默认开自动回安全)、鉴权流(中间件挡 cookie + /login /setup 调 /api/auth/status 分流 + provider 调 /api/me)、交付顺序(切片1 设计基座+浏览页+lightbox → 标签/搜索 → 收藏 → 导入/抓取 → 登录/设置;先补后端最小接口不造 mock;桌面优先+窄屏不崩,移动端后议)。
+- 填满 `.trellis/spec/frontend/` 6 个空模板(directory-structure/component-guidelines/hook-guidelines/state-management/quality-guidelines/type-safety),index 全标 Filled。
+- CONTEXT.md 补"前端界面"组(浏览页/详情页 Lightbox/安全模式)。
+- 回改父 PRD:F1 安全模式挂 session、F2 详情页改 ?photoId 软导航、F8 鉴权流细化、第 5 节约束补前端栈。
+
+**关键决策**:
+- 详情页用 `?photoId` query param 软导航而非拦截路由——更简单、贴合 lightbox;翻页用 replace 避免后退地狱,直达场景关闭用 replace 抹参数(不能 back)。
+- 安全模式挂 Session 不挂 User——实现"新会话自动回安全"的防误看语义。
+- 前端不造 mock,等后端最小接口(posts 列表/单图/auth-status/me/media)就位再开切片1。
+
+**待办(后端)**: 新接口 GET /api/posts、GET /api/posts/{id}、GET /api/auth/status、PATCH /api/me/settings、GET /api/me(含 safe_mode)、StaticFiles /media;迁移加 Session.safe_mode(默认 true),连同上一轮的 fav_count 删除/duplicate_of_id/来源唯一索引进同一条迁移。
+
+**状态**: 文档落地完成,待提交。
+
+
