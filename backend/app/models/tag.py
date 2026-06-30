@@ -41,7 +41,11 @@ class PostTag(Base):
 class TagImplication(Base):
     """Antecedent implies consequent: tagging antecedent auto-includes consequent.
 
-    Search expands the chain recursively. Danbooru-imported data populates this.
+    Implications are materialized at write time into ``post_tags`` — when a post
+    is tagged and when an implication is created/changed (existing antecedent
+    posts backfilled). ``post_tags`` therefore always holds the fully-expanded
+    tag set, so search is a plain AND match with no read-time recursion.
+    See ``docs/adr/0001-implication-materialized-at-write-time.md``.
     """
 
     __tablename__ = "tag_implications"

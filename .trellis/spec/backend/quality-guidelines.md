@@ -70,3 +70,4 @@ Until that migration lands, code must not rely on `fav_count` and must treat `du
 - [ ] No non-ASCII in `alembic.ini`.
 - [ ] Search is AND-only over `post_tags` (no read-time recursion); rating/duplicate filters applied.
 - [ ] No `fav_count` field or favorite-count logic introduced.
+- [ ] **Docstrings/comments match the latest ADR** — when an ADR supersedes a design (e.g. ADR-0001 replaces read-time recursion with write-time materialization), no surviving docstring still describes the superseded behavior. Grep the affected terms after landing an ADR change.
