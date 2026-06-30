@@ -32,3 +32,27 @@
 **状态**: 已归档至 archive/2026-06/
 
 **下一步**: 父任务剩余 7 个子任务。建议下一个做子任务 2(标签搜索编译器)或子任务 3(媒体处理管道),两者都只依赖子任务 1,可并行。
+
+---
+
+## 2026-06-30 — grilling 会话 + 领域模型决策落地(子任务 06-30-domain-spec-landing)
+
+**任务**: 用 `/grill-with-docs`(grilling + domain-modeling skill)对现有规范做压力测试,敲定领域模型并落地。
+
+**完成内容**:
+- grilling 一对一访谈,敲定 10 条领域决策:单用户语义(bootstrap-single-user)、标签连带/废弃(只有 implication 无 alias、is_deprecated 独立)、连带防环(写入前反向可达性+闭包带已访问集合)、post_count 语义、收藏(纯收藏夹+默认夹、不统计收藏次数)、重复图(md5+phash 异步、duplicate_of_id、主视图默认隐藏)、评级三档、连带时机(写入时算实)、搜索(本期仅 AND)、抓取去重(source_id 阶段+md5 兜底+部分唯一索引)。
+- 建根目录 `CONTEXT.md`(中文术语表,5 组 14 词)。
+- 建 `docs/adr/0001-implication-materialized-at-write-time.md`(连带写入时算实,最难反悔的决策)。
+- 改 `.trellis/spec/backend/database-guidelines.md`:删 fav_count、post_count 改为 post_tags 行数、递归 CTE 改为仅写入时、新增重复图与抓取去重小节。
+- 改 `.trellis/spec/backend/quality-guidelines.md`:加搜索/评级/重复图语义、禁用 fav_count、禁用读时递归搜索、补检查项。
+- 回改父任务 `06-28-gallery-app` 的 prd.md 与 design.md 消解三处冲突:搜索语法本期仅 AND(NOT/OR/通配留后续)、fav_count 删除、连带机制改写入时算实。顺带对齐 F5/AC4 重复图、design.md 第 3 节查询编译流程与关键设计决策。
+
+**关键决策**:
+- 连带写入时算实而非读时递归——让 post_tags 永远是展开集,搜索变简单、post_count 永远准、删连带是"黏"的。这是 ADR-0001 的核心。
+- 搜索本期砍到只做 AND——回退了原 PRD 的 NOT/OR/通配,用户确认留后续版本。
+- 不统计收藏次数、删 Post.fav_count——回退了原 PRD 的冗余字段。
+
+**待办(留给后续实现子任务)**: 一条 Alembic 迁移要删 Post.fav_count、加 Post.duplicate_of_id(自引用 FK,SET NULL)、加 (source_site,source_id) 部分唯一索引。
+
+**状态**: 文档落地完成,待提交。
+

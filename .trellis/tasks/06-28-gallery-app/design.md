@@ -49,10 +49,12 @@
 | file_size | INTEGER | 字节 |
 | md5 | TEXT UNIQUE | 精确去重 |
 | phash | TEXT | 感知哈希（相似图去重） |
-| is_duplicate | BOOLEAN | 疑似重复标记（phash 命中） |
+| is_duplicate | BOOLEAN | 重复图快筛标记（权威来源为 duplicate_of_id） |
+| duplicate_of_id | INTEGER FK → posts.id | 指向原图；NULL 表示非重复。ondelete=SET NULL。待迁移添加 |
 | rating | TEXT | 'safe' / 'questionable' / 'explicit' |
-| fav_count | INTEGER | 收藏次数（冗余，加速排序） |
 | created_at, updated_at | TIMESTAMP | |
+
+> 注：本期**不设 `fav_count`**（不统计收藏次数）。是否收藏过由 `favorite_items` 成员关系判断。
 
 ### tags（标签表）
 | 字段 | 类型 | 说明 |
@@ -81,7 +83,7 @@
 | status | TEXT | 'active'（默认，抓取数据带来） |
 | | UNIQUE (antecedent_id, consequent_id) | |
 
-语义：打 antecedent 自动等于打 consequent。搜索时递归展开（miku → vocaloid → ...）。
+语义：打 antecedent 自动等于打 consequent。**写入时算实**——打标签（含抓取/导入）当场把前因的整条连带链算出闭包、写进 `post_tags`；连带后加时回填老图。搜索直接查 `post_tags`（AND），不做读时递归。详见 `docs/adr/0001-implication-materialized-at-write-time.md`。
 
 ### favorites / favorite_items（收藏夹/图集）
 | 字段 | 类型 | 说明 |
@@ -105,50 +107,37 @@
 | sessions.expires_at | TIMESTAMP | |
 
 ### 关键设计决策
-- **冗余字段**（post_count / fav_count）：标签云按使用次数排序、按收藏数排序时，避免 JOIN + COUNT，单字段索引直接搞定。
-- **implication 递归展开**：搜索 `miku` 时，先查 implication 链展开成 `{miku, vocaloid, ...}`，再用 IN 查 post_tags。用 SQLite 递归 CTE 实现。
-- **pHash + md5 双重去重**：md5 抓完全相同文件；pHash（Hamming 距离 < 阈值，默认 8）抓"几乎一样的图"（不同分辨率/轻微压缩）。疑似重复仍入库，标 `is_duplicate`，UI 聚合显示由用户决定保留哪张。
+- **冗余字段 `post_count`**：标签云按使用次数排序时避免 JOIN+COUNT。因连带写入时算实，`post_tags` 永远是展开集，故 `post_count` = 该标签在 `post_tags` 的行数，永远准，无需懒重算。**不设 `fav_count`**（不按收藏数排序）。
+- **implication 写入时算实（非读时递归）**：搜索 `miku` 命中 `vocaloid` 是因为打 `miku` 时已把 `vocaloid` 写进 `post_tags`。递归 CTE 仅用于写入时算闭包 + 防环（新建连带前反向可达性检查，成环则 409）。见 ADR-0001。
+- **pHash + md5 双重去重**：md5 抓完全相同文件（直接跳过、不建记录）；pHash（Hamming 距离 < 阈值，默认 8）在导入后异步计算，命中近似则标记 `is_duplicate` 并填 `duplicate_of_id` 指向原图。重复图仍入库但**主视图默认隐藏**，可在专门视图查看、仍可被收藏。
+- **抓取去重**：`(source_site, source_id)` 对非空来源部分唯一索引；抓取列表阶段按此跳过已抓项，下载后 md5 兜底走重复图流程。单来源字段，跨站重复不另建主图。
 - **三档图存储**：thumb（列表小图）、preview（瀑布流中等图）、原图。瀑布流用 preview 避免加载原图。
 
 ---
 
 ## 3. 标签搜索语法与查询编译
 
-### 支持的语法（Danbooru 子集）
+### 支持的语法（本期）
 - `tag1 tag2` — 交集（AND）
-- `-tag1` — 排除（NOT）
-- `~tag1 ~tag2` — 可选（OR，含其一即可）
-- `tag1*` — 通配符（前缀匹配，如 `blue_*` 匹配 `blue_hair`）
 - `rating:safe|questionable|explicit` — 分级过滤
 
-排序：`order:id`（默认）/ `order:favcount` / `order:random`。分页：每页 40 张，无限滚动。
+> **后续版本**再考虑 `-tag1`(NOT)、`~tag1 ~tag2`(OR)、`tag1*`(通配)。本期不做，不写假设其存在的测试。
 
-### 查询编译流程（后端 search service，编译器模式）
+排序：`order:id`（默认，入库时间倒序）/ `order:random`。分页：每页 40 张，无限滚动。**不设 `order:favcount`**（不统计收藏次数）。
 
-1. **Parser** — 把搜索串解析成 token 列表，每条 token 标注类型（AND / NOT / OR / WILD / RATING）。
-2. **Implication 展开** — 对每个正向标签，递归查 implication 链，把 `miku` 展开成 `{miku, vocaloid, music_game, ...}`。用 SQLite 递归 CTE：
-   ```sql
-   WITH RECURSIVE implied(tag_id) AS (
-       SELECT id FROM tags WHERE name = ?
-       UNION
-       SELECT ti.consequent_id
-       FROM tag_implications ti
-       JOIN implied ON ti.antecedent_id = implied.tag_id
-   )
-   SELECT tag_id FROM implied;
-   ```
-3. **Compiler** — 用 SQLAlchemy Core 动态构建参数化查询，组合 AND/NOT/OR/通配：
-   - AND：`post_id IN (SELECT post_id FROM post_tags WHERE tag_id IN (...))`
-   - 多个 AND 条件用 `INTERSECT` 组合
-   - NOT：`posts.id NOT IN (...)`
-   - OR（`~`）：用 `UNION`
-   - 通配：`tags.name LIKE 'blue_%'`
+### 查询编译流程（后端 search service）
+1. **Parser** — 把搜索串解析成 token 列表：正向标签（AND）与 `rating:` token。本期不产生 NOT/OR/WILD token。
+2. **无需读时连带展开** — 因连带在写入时已算实（ADR-0001），`post_tags` 已含展开后的完整标签集。搜索 `miku` 直接匹配 `post_tags` 即可命中 `vocaloid` 的图，**不跑递归 CTE**。
+3. **Compiler** — 用 SQLAlchemy Core 构建参数化查询：
+   - AND：对每个正向标签，`post_id IN (SELECT post_id FROM post_tags WHERE tag_id = ?)`，多标签用 `INTERSECT` 组合。
+   - rating：附加 `posts.rating = ?`（安全模式开启时后端注入 `safe`）。
+   - 默认排除 `duplicate_of_id IS NOT NULL` 的重复图（专门视图才返回）。
 
 ### 安全模式（后端全局注入）
 安全模式开关不在前端搜索框写死，而是**后端全局拦截**：每个查询编译前，若安全模式开启，自动把 `rating:safe` 注入 token 流。前端切换开关即时生效，搜索框保持纯净。**默认开启。**
 
 ### 前端搜索框交互
-标签输入后 chip 化：普通标签按类型着色，排除项红边，通配项单独样式。输入时下拉自动补全（查 tags 表 `name LIKE '...%'` 按 post_count 排序）。
+标签输入后 chip 化：普通标签按类型着色。输入时下拉自动补全（查 tags 表 `name LIKE '...%'` 按 post_count 排序）。
 
 ---
 
@@ -181,8 +170,8 @@
 - **implication 随抓取带回**：从 Danbooru tags 端点批量拉取 implication 关系，建库时拉一次，之后增量。
 
 ### 重复处理策略
-- md5 完全相同 → 直接跳过，不重复入库。
-- phash Hamming 距离 < 阈值（默认 8）→ 标记 `is_duplicate`，仍入库，UI 聚合显示由用户手动决定保留哪张。
+- md5 完全相同 → 直接跳过，不建记录。
+- phash Hamming 距离 < 阈值（默认 8）→ 导入后异步计算，命中则标记 `is_duplicate` 并填 `duplicate_of_id` 指向原图。重复图仍入库，但**主视图默认隐藏**，在专门视图查看、仍可被收藏。
 
 ### 后台任务调度（APScheduler）
 抓取/导入是长任务，走后台线程池不阻塞 API。任务状态存内存（单机够用），前端轮询 `/api/tasks/{id}` 看进度。
@@ -333,7 +322,7 @@ picture_mangers/
 本任务为父任务，含多个可独立验证的交付物。建议拆成以下子任务，每个独立 prd/design/implement + 独立验证。依赖关系写在各子任务的 prd/implement 里，不靠树位置隐含。
 
 1. **后端骨架 + 数据模型 + 单用户认证** — 项目脚手架、ORM 模型、migration、auth 流程（/setup + login + cookie 保护）。无依赖。
-2. **标签搜索编译器** — Parser + implication 递归展开 + Compiler（SQLAlchemy Core）。依赖 1（需要 tags/implications 模型）。
+2. **标签搜索编译器** — Parser + Compiler（SQLAlchemy Core），AND + rating 过滤；连带已在写入时算实，搜索不递归。依赖 1（需要 tags/implications 模型）。
 3. **媒体处理管道** — md5/phash 去重 + Pillow 缩略图生成。依赖 1。
 4. **Danbooru 抓取器** — scraper 抽象 + danbooru 适配器 + implication 批量拉取。依赖 1、3（复用媒体管道）。
 5. **前端骨架 + 浏览页瀑布流** — Next.js 脚手架、顶栏、搜索框、MasonryGrid、无限滚动、安全模式开关。依赖 1、2（需要 posts API + 搜索）。

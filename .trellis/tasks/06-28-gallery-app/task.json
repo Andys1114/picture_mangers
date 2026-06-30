@@ -19,7 +19,8 @@
   "pr_url": null,
   "subtasks": [],
   "children": [
-    "06-29-backend-skeleton"
+    "06-29-backend-skeleton",
+    "06-30-06-30-domain-spec-landing"
   ],
   "parent": null,
   "relatedFiles": [

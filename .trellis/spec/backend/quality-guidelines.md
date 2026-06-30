@@ -20,7 +20,26 @@ business logic in route handlers.
 - **Non-ASCII in `alembic.ini`** — read with locale encoding (GBK here); will crash. English only in that file.
 - **`except: pass` / bare `except`** — either handle + log, or let it propagate to the global handler.
 - **Storing passwords in plaintext or weak hashes** — bcrypt cost=12 only.
+- **Re-introducing `Post.fav_count`** — favorite counts are not tracked (grilling decision). Derive favorited state from `favorite_items` membership instead.
+- **Read-time recursive CTE for search** — implications are materialized at write time (ADR-0001); search is a plain `post_tags` AND match.
 - **Returning `str(exc)` / stack traces to clients** — use the error envelope.
+
+## Search & Display Semantics
+
+- **Search is AND-only this milestone** — query syntax is multiple tags space-separated = AND over `post_tags`. `NOT` (`-tag`), `OR` (`~tag1 ~tag2`), and wildcard (`tag1*`) are **out of scope this milestone** (deferred to a later version). Do not implement them yet; do not write tests assuming they exist.
+- **Search runs on materialized `post_tags`** — because implications are materialized at write time (ADR-0001), search is a plain `post_tags` AND match. No recursive CTE at read time.
+- **Default sort** — by `created_at` / `id` descending (newest first). No popularity sort (no favorite-count field exists).
+- **Rating filter** — `Post.rating` is one of `safe` | `questionable` | `explicit` (default `safe`). The gallery main view and search default to `safe`-only; the caller may explicitly request `questionable` / `explicit` / all. Treat rating as an implicit filter layered on top of the tag query.
+- **Duplicates hidden by default** — posts with `duplicate_of_id IS NOT NULL` are excluded from the gallery main view and from search results unless the caller explicitly requests the duplicates view.
+
+## Domain Field Contract (pending migration)
+
+The initial schema migration predates several grilling decisions. A later subtask must ship a migration that:
+- Drops `Post.fav_count` (favorite counts are not tracked).
+- Adds `Post.duplicate_of_id` (self-FK, `ondelete="SET NULL"`, nullable).
+- Adds a partial unique index on `Post(source_site, source_id)` for non-null sources.
+
+Until that migration lands, code must not rely on `fav_count` and must treat `duplicate_of_id` as not-yet-present.
 
 ## Required Patterns
 
@@ -49,3 +68,5 @@ business logic in route handlers.
 - [ ] ACs covered by tests; `pytest -v` green.
 - [ ] No secrets/passwords/tokens logged.
 - [ ] No non-ASCII in `alembic.ini`.
+- [ ] Search is AND-only over `post_tags` (no read-time recursion); rating/duplicate filters applied.
+- [ ] No `fav_count` field or favorite-count logic introduced.
