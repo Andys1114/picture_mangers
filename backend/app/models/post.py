@@ -1,7 +1,7 @@
 """Post (image) model."""
 from __future__ import annotations
 
-from sqlalchemy import Boolean, Integer, String
+from sqlalchemy import Boolean, ForeignKey, Index, Integer, String, text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base, TimestampMixin
@@ -33,7 +33,24 @@ class Post(TimestampMixin, Base):
 
     md5: Mapped[str] = mapped_column(String(32), unique=True, nullable=False)
     phash: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    # is_duplicate is a fast-filter convenience; the authoritative signal is
+    # `duplicate_of_id IS NOT NULL` (see CONTEXT.md「重复图」).
     is_duplicate: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    duplicate_of_id: Mapped[int | None] = mapped_column(
+        ForeignKey("posts.id", ondelete="SET NULL"), nullable=True
+    )
 
     rating: Mapped[str] = mapped_column(String(16), nullable=False, default="safe")
-    fav_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+
+    __table_args__ = (
+        # Partial unique index: a post records only its first source. Prevents
+        # the same (source_site, source_id) being imported twice under concurrent
+        # scrapes. NULL sources (local imports) are exempt.
+        Index(
+            "ix_posts_source_site_source_id",
+            "source_site",
+            "source_id",
+            unique=True,
+            sqlite_where=text("source_site IS NOT NULL AND source_id IS NOT NULL"),
+        ),
+    )

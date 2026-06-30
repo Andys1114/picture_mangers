@@ -32,14 +32,14 @@ business logic in route handlers.
 - **Rating filter** — `Post.rating` is one of `safe` | `questionable` | `explicit` (default `safe`). The gallery main view and search default to `safe`-only; the caller may explicitly request `questionable` / `explicit` / all. Treat rating as an implicit filter layered on top of the tag query.
 - **Duplicates hidden by default** — posts with `duplicate_of_id IS NOT NULL` are excluded from the gallery main view and from search results unless the caller explicitly requests the duplicates view.
 
-## Domain Field Contract (pending migration)
+## Domain Field Contract
 
-The initial schema migration predates several grilling decisions. A later subtask must ship a migration that:
+The initial schema migration (`f3d99311f0cf`) predates several grilling decisions. Migration `74035bafb648` ships the alignment:
 - Drops `Post.fav_count` (favorite counts are not tracked).
 - Adds `Post.duplicate_of_id` (self-FK, `ondelete="SET NULL"`, nullable).
-- Adds a partial unique index on `Post(source_site, source_id)` for non-null sources.
+- Adds a partial unique index `ix_posts_source_site_source_id` on `Post(source_site, source_id)` for non-null sources (`sqlite_where` predicate).
 
-Until that migration lands, code must not rely on `fav_count` and must treat `duplicate_of_id` as not-yet-present.
+The migration is hand-written (not autogenerate) because Alembic cannot reliably detect a partial index's WHERE predicate; it is fully reversible (`downgrade -1`). The model mirrors this in `app/models/post.py`. The business logic that *consumes* `duplicate_of_id` / the partial index (search, duplicate handling, scrape dedup) is still out of scope and implemented in later milestones.
 
 ## Required Patterns
 

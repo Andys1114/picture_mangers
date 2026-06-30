@@ -35,7 +35,7 @@ foreign keys are enforced on every connection. Schema is owned by Alembic —
 - **Two-stage dedup** — on import, compute `md5` first; if an existing post has the same `md5`, skip entirely (exact duplicate, no row created). `phash` (perceptual hash) is computed **asynchronously** after import; near-matches mark the new post as a duplicate.
 - **`duplicate_of_id`** — a self-referencing nullable FK on `Post` (`ForeignKey("posts.id", ondelete="SET NULL")`) pointing at the chosen original. The boolean `is_duplicate` is a fast-filter convenience; the authoritative signal is `duplicate_of_id IS NOT NULL`.
 - **Hidden by default** — duplicates are hidden from the gallery main view (they have a dedicated view) but may still be added to favorites.
-- **Pending model change** — `Post.duplicate_of_id` does not yet exist in the initial schema migration; a later subtask adds it via a new Alembic migration. `Post.fav_count` (present in the initial schema) is to be **dropped** by that same later migration.
+- **Schema alignment shipped** — migration `74035bafb648` adds `Post.duplicate_of_id` and drops `Post.fav_count` (which the initial schema `f3d99311f0cf` had carried). The model in `app/models/post.py` mirrors this. The *business logic* that consumes these fields (duplicate detection, search dedup) lands in later milestones.
 
 ## Scrape Dedup (Source)
 

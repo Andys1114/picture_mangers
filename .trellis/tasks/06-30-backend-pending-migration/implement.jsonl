@@ -1,1 +1,5 @@
-{"_example": "Fill with {\"file\": \"<path>\", \"reason\": \"<why>\"}. Put spec/research files only — no code paths. Run `python .trellis/scripts/get_context.py --mode packages` to list available specs. Delete this line once real entries are added."}
+{"file": ".trellis/spec/backend/database-guidelines.md", "reason": "三项 schema 变更的权威口径：post_count 重述、No fav_count、duplicate_of_id 自引用 FK ondelete=SET NULL、(source_site, source_id) 部分唯一索引、Pending model change 段、render_as_batch/autogenerate 注意事项"}
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "Forbidden 条款（Re-introducing fav_count）与 Domain Field Contract (pending migration) 段：本迁移就是交付该契约；Code Review Checklist 含 fav_count/search 校验项"}
+{"file": "docs/adr/0001-implication-materialized-at-write-time.md", "reason": "连带写入时算实决策——决定 post_count 为何永远准、为何读时不递归；duplicate_of_id/去重语义与计数稳定性相关"}
+{"file": "CONTEXT.md", "reason": "中文术语表定义：Post 无被收藏数字段、duplicate_of_id 指向原图且 is_duplicate 非 authoritative、来源只记最早一个 site+id；作为语义对齐基准"}
+{"file": ".trellis/spec/guides/cross-layer-thinking-guide.md", "reason": "schema 变更跨 model+迁移+测试三层，需按跨层核对清单保证层间一致（索引/FK/默认值在各层同步）"}
