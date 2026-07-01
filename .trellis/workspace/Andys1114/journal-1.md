@@ -78,3 +78,36 @@
 **状态**: 文档落地完成,待提交。
 
 
+
+
+## Session 1: 前端骨架+浏览页 与 最小后端端点
+
+**Date**: 2026-07-01
+**Task**: 前端骨架+浏览页 与 最小后端端点
+**Branch**: `main`
+
+### Summary
+
+用 Trellis 工作流交付 06-30-frontend-skeleton-browse（父 design #5）。先补 spec 合规的最小后端端点（Session.safe_mode + migration、/api/auth/me + settings PATCH、/api/posts 列表/详情、/media StaticFiles、search AND 服务、NotFoundError、post schemas、test_posts 11 例，pytest 25/25 绿、dev seed 脚本），再前端真接零 mock（Next 15 + TS strict + Tailwind + shadcn 风格 UI + TanStack Query：鉴权流 middleware+providers+setup/login/settings、浏览页毛玻璃顶栏+搜索框+安全模式开关+CSS columns 瀑布流+无限滚动+卡片 hover；lint/tsc/build 干净、端到端联调通过）。期间 before-dev 拦截到方案违反 spec（禁前端 mock + safe_mode 服务端权威），改走先补后端端点路径并更新 spec。修复一处 dev server .next 缓存脏导致 main-app.js 404 卡在加载中的问题。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `085a07f` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
