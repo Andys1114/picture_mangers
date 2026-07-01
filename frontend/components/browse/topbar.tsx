@@ -1,6 +1,6 @@
 "use client";
 
-import { LogOut, Settings, User } from "lucide-react";
+import { Images, LogOut, Settings, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -38,17 +38,20 @@ export function Topbar() {
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
       className={cn(
-        "fixed top-0 inset-x-0 z-40 h-14 border-b border-border backdrop-blur-md bg-background/70 transition-transform duration-200",
-        hidden && !hovering ? "-translate-y-full" : "translate-y-0",
+        "fixed top-0 inset-x-0 z-40 h-14 border-b border-border backdrop-blur-md bg-background/70 transition-all duration-200 ease-out-soft",
+        hidden && !hovering ? "-translate-y-full opacity-0" : "translate-y-0 opacity-100",
       )}
     >
       <div className="h-full mx-auto max-w-[1800px] px-4 flex items-center gap-3">
         <Link
           href="/"
-          className="font-semibold text-foreground shrink-0"
+          className="flex items-center gap-2 font-semibold text-foreground shrink-0"
           aria-label="图库首页"
         >
-          PM Gallery
+          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-accent/15 text-accent">
+            <Images className="h-4 w-4" />
+          </span>
+          <span className="hidden sm:inline">PM Gallery</span>
         </Link>
         <TagDrawer />
         <SearchBox />

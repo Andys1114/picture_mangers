@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { AuthCard } from "@/components/common/auth-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { api, ApiError } from "@/lib/api";
 import { useSetup } from "@/hooks/useAuth";
 
@@ -46,15 +48,8 @@ export default function SetupPage() {
   if (checking) return <div className="p-8 text-muted">加载中…</div>;
 
   return (
-    <main className="min-h-dvh flex items-center justify-center p-4">
-      <form
-        onSubmit={onSubmit}
-        className="w-full max-w-sm space-y-4 rounded-xl border border-border bg-surface p-6"
-      >
-        <div>
-          <h1 className="text-xl font-semibold">首次启动</h1>
-          <p className="text-sm text-muted mt-1">创建你的管理员账户（仅此一条）。</p>
-        </div>
+    <AuthCard title="首次启动" description="创建你的管理员账户（仅此一条）。">
+      <form onSubmit={onSubmit} className="space-y-4">
         <div className="space-y-1">
           <label htmlFor="u" className="text-sm">用户名</label>
           <Input
@@ -66,10 +61,12 @@ export default function SetupPage() {
           />
         </div>
         <div className="space-y-1">
-          <label htmlFor="p" className="text-sm">密码（≥ 8 位）</label>
-          <Input
+          <label htmlFor="p" className="text-sm">
+            密码
+            <span className="text-muted ml-1 text-xs">至少 8 位</span>
+          </label>
+          <PasswordInput
             id="p"
-            type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="new-password"
@@ -83,6 +80,6 @@ export default function SetupPage() {
           {setup.isPending ? "创建中…" : "创建并登录"}
         </Button>
       </form>
-    </main>
+    </AuthCard>
   );
 }

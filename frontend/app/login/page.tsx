@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { AuthCard } from "@/components/common/auth-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { api, ApiError } from "@/lib/api";
 import { useLogin } from "@/hooks/useAuth";
 
@@ -42,12 +44,8 @@ export default function LoginPage() {
   if (checking) return <div className="p-8 text-muted">加载中…</div>;
 
   return (
-    <main className="min-h-dvh flex items-center justify-center p-4">
-      <form
-        onSubmit={onSubmit}
-        className="w-full max-w-sm space-y-4 rounded-xl border border-border bg-surface p-6"
-      >
-        <h1 className="text-xl font-semibold">登录</h1>
+    <AuthCard title="登录" description="输入你的账户信息以进入图库。">
+      <form onSubmit={onSubmit} className="space-y-4">
         <div className="space-y-1">
           <label htmlFor="u" className="text-sm">用户名</label>
           <Input
@@ -60,9 +58,8 @@ export default function LoginPage() {
         </div>
         <div className="space-y-1">
           <label htmlFor="p" className="text-sm">密码</label>
-          <Input
+          <PasswordInput
             id="p"
-            type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="current-password"
@@ -74,6 +71,6 @@ export default function LoginPage() {
           {login.isPending ? "登录中…" : "登录"}
         </Button>
       </form>
-    </main>
+    </AuthCard>
   );
 }

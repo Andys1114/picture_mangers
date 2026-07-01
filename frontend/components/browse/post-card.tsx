@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { toast } from "sonner";
 import { mediaUrl } from "@/lib/api";
-import { ratingColor } from "@/lib/colors";
+import { ratingColor, ratingIcon, ratingLabel } from "@/lib/colors";
 import { cn } from "@/lib/utils";
 import type { PostSummary } from "@/lib/types";
 
@@ -13,12 +13,16 @@ interface PostCardProps {
   post: PostSummary;
 }
 
-/** A masonry tile. Hover surfaces a favorite ★ (local optimistic visual only —
- *  the favorites API lands in #8) and a rating color block (bottom-right).
- *  width/height are set explicitly to prevent layout shift (CLS). */
+/** A masonry tile. Hover (or focus) surfaces a favorite ★ and a rating chip
+ *  over a bottom gradient; the image fades in on load to avoid a flash of
+ *  empty surface. width/height are set explicitly to prevent layout shift.
+ *  The favorite ★ is local optimistic visual only — the favorites API lands
+ *  in #8. */
 export function PostCard({ post }: PostCardProps) {
   const [fav, setFav] = useState(post.favorite);
+  const [loaded, setLoaded] = useState(false);
   const rc = ratingColor(post.rating);
+  const RatingIcon = ratingIcon(post.rating);
 
   const onFav = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -28,7 +32,7 @@ export function PostCard({ post }: PostCardProps) {
   };
 
   return (
-    <article className="group relative mb-1 overflow-hidden rounded-md bg-surface">
+    <article className="group relative mb-1 overflow-hidden rounded-lg bg-surface shadow-e1 transition duration-200 ease-out-soft hover:scale-[1.02] hover:shadow-e2 hover:z-10">
       <Image
         src={mediaUrl(post.preview_path)}
         alt={`图片 ${post.id}`}
@@ -36,28 +40,47 @@ export function PostCard({ post }: PostCardProps) {
         height={post.height}
         loading="lazy"
         unoptimized
-        className="w-full h-auto block"
+        onLoad={() => setLoaded(true)}
+        className={cn(
+          "w-full h-auto block transition-opacity duration-300",
+          loaded ? "opacity-100" : "opacity-0",
+        )}
       />
-      {/* Hover overlay */}
-      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors pointer-events-none group-hover:pointer-events-auto" />
+      {!loaded && (
+        <div className="absolute inset-0 shimmer animate-shimmer" aria-hidden />
+      )}
+
+      {/* Bottom gradient overlay — replaces a flat black wash. */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/70 to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
+
+      {/* Rating chip: color + icon + label (not color alone). */}
+      <span
+        className={cn(
+          "absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-full border border-white/10 px-2 py-0.5 text-[11px] font-medium opacity-0 transition-opacity duration-200 group-hover:opacity-100",
+          "bg-black/40 backdrop-blur-sm",
+          rc.text,
+        )}
+        title={`分级：${post.rating}`}
+      >
+        <RatingIcon className="h-3 w-3" />
+        {ratingLabel(post.rating)}
+      </span>
+
+      {/* Favorite ★ — visible on hover/focus and on touch (card-fav). */}
       <button
         type="button"
         onClick={onFav}
         aria-pressed={fav}
         aria-label={fav ? "取消收藏" : "收藏"}
         className={cn(
-          "absolute top-2 right-2 h-9 w-9 rounded-full flex items-center justify-center backdrop-blur-sm transition-opacity opacity-0 group-hover:opacity-100 cursor-pointer focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
-          fav ? "bg-safe/90 text-white" : "bg-black/50 text-white hover:bg-black/70",
+          "card-fav absolute top-2 right-2 h-9 w-9 rounded-full flex items-center justify-center backdrop-blur-sm transition-all duration-200 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
+          fav
+            ? "bg-safe/90 text-white opacity-100"
+            : "bg-black/50 text-white hover:bg-black/70",
         )}
       >
         <Star className="h-4 w-4" fill={fav ? "currentColor" : "none"} />
       </button>
-      {/* Rating color block */}
-      <span
-        className={cn("absolute bottom-0 right-0 h-1.5 w-12", rc.bg)}
-        aria-label={`分级：${post.rating}`}
-        title={`分级：${post.rating}`}
-      />
     </article>
   );
 }

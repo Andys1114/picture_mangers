@@ -13,9 +13,11 @@ function BrowseView() {
     <MasonryGrid
       pages={q.data?.pages.map((p) => p.data) ?? []}
       isLoading={q.isLoading}
+      isError={q.isError}
       isFetchingNextPage={q.isFetchingNextPage}
       hasNextPage={!!q.hasNextPage}
       fetchNextPage={() => q.fetchNextPage()}
+      refetch={() => q.refetch()}
     />
   );
 }

@@ -1,3 +1,5 @@
+import type { LucideIcon } from "lucide-react";
+import { Shield, ShieldAlert, ShieldX } from "lucide-react";
 import type { Rating, TagCategory } from "./types";
 
 /** Rating → Tailwind class for the colored corner block on a card. */
@@ -9,6 +11,31 @@ export function ratingColor(r: Rating): { bg: string; text: string } {
       return { bg: "bg-questionable", text: "text-questionable" };
     case "explicit":
       return { bg: "bg-explicit", text: "text-explicit" };
+  }
+}
+
+/** Rating → lucide icon, so the rating chip conveys meaning via icon+text+color
+ *  (not color alone — spec: color-not-only). */
+export function ratingIcon(r: Rating): LucideIcon {
+  switch (r) {
+    case "safe":
+      return Shield;
+    case "questionable":
+      return ShieldAlert;
+    case "explicit":
+      return ShieldX;
+  }
+}
+
+/** Rating → Chinese label for the chip. */
+export function ratingLabel(r: Rating): string {
+  switch (r) {
+    case "safe":
+      return "safe";
+    case "questionable":
+      return "q";
+    case "explicit":
+      return "e";
   }
 }
 

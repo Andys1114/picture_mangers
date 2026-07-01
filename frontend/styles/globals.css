@@ -17,6 +17,13 @@
     --safe: 142 71% 45%; /* #22c55e */
     --questionable: 45 93% 47%; /* #eab308 */
     --explicit: 0 84% 60%; /* #ef4444 */
+
+    /* Elevation scale (cards / floating layers). */
+    --elevation-1: 0 1px 2px hsl(0 0% 0% / 0.4);
+    --elevation-2: 0 8px 30px hsl(0 0% 0% / 0.5);
+    /* Skeleton shimmer stops. */
+    --shimmer-from: 240 5% 9%;
+    --shimmer-to: 240 4% 14%;
   }
 }
 
@@ -67,4 +74,24 @@
 }
 .masonry > * {
   break-inside: avoid;
+}
+
+/* Skeleton shimmer: a slow gradient sweep across the placeholder. */
+.shimmer {
+  background-image: linear-gradient(
+    90deg,
+    hsl(var(--shimmer-from)) 0%,
+    hsl(var(--shimmer-to)) 50%,
+    hsl(var(--shimmer-from)) 100%
+  );
+  background-size: 200% 100%;
+  background-position: 200% 0;
+}
+
+/* Touch devices have no hover: keep the card favorite button visible so it is
+   operable without a pointer-hover affordance (spec: hover-vs-tap). */
+@media (hover: none) {
+  .card-fav {
+    opacity: 1 !important;
+  }
 }

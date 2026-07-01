@@ -25,20 +25,36 @@ const config: Config = {
         explicit: "hsl(var(--explicit) / <alpha-value>)",
       },
       fontFamily: {
-        sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
-        mono: ["JetBrains Mono", "ui-monospace", "monospace"],
+        sans: ["var(--font-sans)", "Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        mono: ["var(--font-mono)", "JetBrains Mono", "ui-monospace", "monospace"],
+      },
+      boxShadow: {
+        e1: "var(--elevation-1)",
+        e2: "var(--elevation-2)",
       },
       borderRadius: {
         xl: "0.75rem",
+      },
+      transitionTimingFunction: {
+        "out-soft": "cubic-bezier(0.22, 1, 0.36, 1)",
       },
       keyframes: {
         "fade-in": {
           from: { opacity: "0" },
           to: { opacity: "1" },
         },
+        "fade-in-up": {
+          from: { opacity: "0", transform: "translateY(8px)" },
+          to: { opacity: "1", transform: "none" },
+        },
+        shimmer: {
+          to: { backgroundPosition: "-200% 0" },
+        },
       },
       animation: {
         "fade-in": "fade-in 150ms ease-out",
+        "fade-in-up": "fade-in-up 200ms cubic-bezier(0.22, 1, 0.36, 1) both",
+        shimmer: "shimmer 1.4s ease-in-out infinite",
       },
     },
   },
