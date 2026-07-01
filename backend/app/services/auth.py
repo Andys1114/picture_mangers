@@ -30,7 +30,11 @@ def verify_password(password: str, password_hash: str) -> bool:
 
 
 def create_session(db: Session, user: User) -> str:
-    """Issue a random token, persist a session row, return the token."""
+    """Issue a random token, persist a session row, return the token.
+
+    New sessions default to safe_mode=True (server-authoritative; the gallery
+    main view injects rating=safe while this is on).
+    """
     token = secrets.token_urlsafe(32)
     expires_at = datetime.now(timezone.utc) + timedelta(days=settings.session_expire_days)
     db.add(
@@ -38,10 +42,29 @@ def create_session(db: Session, user: User) -> str:
             id=token,
             user_id=user.id,
             expires_at=expires_at.replace(tzinfo=None),  # SQLite stores naive datetimes
+            safe_mode=True,
         )
     )
     db.commit()
     return token
+
+
+def get_session_row(db: Session, token: str | None) -> SessionRow | None:
+    """Return the live session row for a token, or None.
+
+    Unlike validate_session (which returns the User), this returns the row so
+    callers can read/modify per-session fields like safe_mode. Expired/missing
+    tokens resolve to None.
+    """
+    if not token:
+        return None
+    row = db.get(SessionRow, token)
+    if row is None:
+        return None
+    # Naive datetimes are interpreted as UTC.
+    if row.expires_at <= datetime.utcnow():
+        return None
+    return row
 
 
 def validate_session(db: Session, token: str | None) -> User | None:

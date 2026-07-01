@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Dark immersive gallery (design.md §5). Light mode is not a target this
+       milestone; the root <html> always carries `dark`. Tokens are HSL triples
+       so Tailwind's <alpha-value> works for translucency. */
+    --background: 240 6% 4%; /* #0a0a0b */
+    --surface: 240 5% 9%; /* #141416 */
+    --border: 240 4% 13%; /* #1f1f23 */
+    --foreground: 0 0% 90%; /* #e5e5e7 */
+    --muted: 240 4% 55%; /* #8a8a90 */
+    --accent: 217 91% 60%; /* #3b82f6 */
+    --accent-foreground: 0 0% 100%;
+    --safe: 142 71% 45%; /* #22c55e */
+    --questionable: 45 93% 47%; /* #eab308 */
+    --explicit: 0 84% 60%; /* #ef4444 */
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+  html {
+    color-scheme: dark;
+  }
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    -webkit-font-smoothing: antialiased;
+  }
+  /* Respect reduced motion: disable non-essential animations. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* Masonry: CSS columns, equal-width, tiny 4px gap (PRD F1). */
+.masonry {
+  column-gap: 4px;
+  column-count: 2;
+}
+@media (min-width: 768px) {
+  .masonry {
+    column-count: 3;
+  }
+}
+@media (min-width: 1024px) {
+  .masonry {
+    column-count: 4;
+  }
+}
+@media (min-width: 1280px) {
+  .masonry {
+    column-count: 5;
+  }
+}
+.masonry > * {
+  break-inside: avoid;
+}

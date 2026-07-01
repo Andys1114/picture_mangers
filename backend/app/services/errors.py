@@ -30,6 +30,13 @@ class ConflictError(AppError):
     code = "conflict"
 
 
+class NotFoundError(AppError):
+    """404 — a referenced resource does not exist."""
+
+    status_code = 404
+    code = "not_found"
+
+
 async def app_error_handler(_request: Request, exc: AppError) -> JSONResponse:
     return JSONResponse(
         status_code=exc.status_code,

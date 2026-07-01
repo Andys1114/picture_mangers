@@ -25,7 +25,8 @@ frontend/
 │   ├── setup/page.tsx        /setup  (public)
 │   ├── settings/page.tsx     /settings
 │   ├── layout.tsx            root layout: providers (TanStack QueryClient), theme
-│   └── middleware.ts         cookie-presence gate → redirect /login
+│   └── middleware.ts (see note)
+├── middleware.ts             cookie-presence gate — Next.js requires this at the project root, NOT under app/. File shown here for layout overview; the real file is frontend/middleware.ts.
 ├── components/
 │   ├── ui/                   shadcn/ui components (source-owned, editable)
 │   ├── browse/               waterfall, card, topbar, search-box, tag-drawer, safe-mode-toggle

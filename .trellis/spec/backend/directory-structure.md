@@ -24,8 +24,8 @@ backend/
 │   ├── deps.py              cross-cutting deps (get_current_user)
 │   ├── models/              SQLAlchemy ORM (one file per aggregate, __init__ exports all)
 │   ├── schemas/             Pydantic request/response models
-│   ├── api/                 route modules; __init__ aggregates into api_router (/api prefix)
-│   └── services/            business logic (auth, errors, future: search, media, scraper)
+│   ├── api/                 route modules; __init__ aggregates into api_router (/api prefix). Implemented: auth, health, posts.
+│   └── services/            business logic. Implemented: auth, errors, search. Future: media, scraper.
 ├── alembic/                 migrations; env.py injects runtime URL + pragmas
 ├── alembic.ini              URL left blank — injected by env.py from app.config
 ├── tests/                   pytest; conftest provides tmp DB + migrated TestClient
@@ -51,7 +51,7 @@ backend/
 - Files: `snake_case.py`.
 - ORM classes: `PascalCase`, `__tablename__` plural (`posts`, `tags`, `post_tags`).
 - Schemas: `<Verb>Request` / `<Entity>Response` (e.g. `SetupRequest`, `UserResponse`).
-- Route modules named after the resource: `auth.py`, `health.py`, future `posts.py`, `tags.py`.
+- Route modules named after the resource: `auth.py`, `health.py`, `posts.py` (implemented), future `tags.py`.
 
 ---
 

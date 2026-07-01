@@ -12,12 +12,14 @@ from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.db import get_db
-from app.deps import get_current_user
-from app.models.user import User
+from app.deps import get_current_session, get_current_user
+from app.models.user import Session, User
 from app.schemas.auth import (
     LoginRequest,
+    MeResponse,
     SetupRequest,
     StatusResponse,
+    UpdateSettingsRequest,
     UserResponse,
 )
 from app.services import auth
@@ -70,6 +72,27 @@ def logout(request: Request, response: Response, db: Session = Depends(get_db)) 
     response.delete_cookie(key=auth.SESSION_COOKIE, path="/")
 
 
-@router.get("/me", response_model=UserResponse)
-def me(user: User = Depends(get_current_user)) -> UserResponse:
-    return UserResponse(id=user.id, username=user.username)
+@router.get("/me", response_model=MeResponse)
+def me(session: Session = Depends(get_current_session)) -> MeResponse:
+    """Current user + per-session safe_mode. Requires a valid session cookie."""
+    user = session.user
+    return MeResponse(id=user.id, username=user.username, safe_mode=session.safe_mode)
+
+
+@router.patch("/me/settings", response_model=MeResponse)
+def update_settings(
+    payload: UpdateSettingsRequest,
+    session: Session = Depends(get_current_session),
+    db: Session = Depends(get_db),
+) -> MeResponse:
+    """Toggle the current session's safe_mode (server-authoritative).
+
+    The gallery main view injects rating=safe while safe_mode is on; toggling
+    invalidates the posts list on the client so it refetches with the new filter.
+    """
+    session.safe_mode = payload.safe_mode
+    db.add(session)
+    db.commit()
+    db.refresh(session)
+    user = session.user
+    return MeResponse(id=user.id, username=user.username, safe_mode=session.safe_mode)

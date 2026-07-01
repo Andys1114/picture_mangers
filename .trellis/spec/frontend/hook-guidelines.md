@@ -48,19 +48,33 @@ Custom hooks live in `hooks/`, named `use*`, one per file. Data fetching, mutati
 
 ---
 
-## Backend Endpoint Contract (pending)
+## Backend Endpoint Contract
 
-These backend endpoints are required by the hooks above and are **not yet implemented** (tracked in the parent task's pending list):
-- `GET /api/posts?tags=&rating=&page=&limit=` — list, AND filter, rating filter, default-exclude duplicates, `safe_mode` injected from session.
-- `GET /api/posts/{id}` — single post (lightbox direct-link).
-- `GET /api/tags` — tag index with counts.
-- `GET /api/me` — user + current session `safe_mode`.
-- `PATCH /api/me/settings { safe_mode }` — update current session's safe_mode.
-- `GET /api/auth/status` — `{ owner_exists }` (no auth).
-- `GET /api/tasks/{id}` — task progress (import/scrape).
-- `GET|POST|DELETE /api/favorites`, `/api/favorites/{id}/items` — favorites + drag-reorder.
+Frontend slice 1 (skeleton + browse) is wired against the **real** backend —
+no frontend mocks for server data (forbidden by `quality-guidelines.md`).
+Status of the endpoints the hooks above consume:
 
-Do not build frontend mocks — frontend slice 1 starts after the minimal backend endpoints (`/api/posts`, `/api/posts/{id}`, `/api/auth/status`, `/api/me`, StaticFiles `/media`) land.
+**Implemented** (landed with `06-30-frontend-skeleton-browse`):
+- `GET /api/auth/status` → `{ setup_required: boolean }` (no auth). Drives `/login` vs `/setup` self-routing.
+- `POST /api/auth/setup` `{username, password≥8}` → `UserResponse {id, username}` + sets `gallery_session` cookie. 409 if a user already exists.
+- `POST /api/auth/login` `{username, password}` → `UserResponse` + cookie. 401 on bad credentials.
+- `POST /api/auth/logout` → 204, clears cookie.
+- `GET /api/auth/me` → `MeResponse {id, username, safe_mode}`. 401 without a valid session. **`safe_mode` is per-session and server-authoritative** — read it here, never persist locally.
+- `PATCH /api/auth/me/settings` `{safe_mode: boolean}` → `MeResponse`. Toggles the current session's safe_mode; the gallery list refetches with the new rating filter.
+- `GET /api/posts?tags=&page=&limit=&order=` → `{data: PostSummary[], meta: {page, total}}`. AND over materialized `post_tags`; `safe_mode=true` (from the session) forces `rating=safe`; duplicates (`duplicate_of_id IS NOT NULL`) excluded; default `order=id` (newest first), `limit` default 40. 401 without session.
+- `GET /api/posts/{id}` → `PostDetailResponse` (full fields + expanded `tags: TagResponse[]`). 404 `not_found` if missing.
+- `GET /media/...` — static files served by FastAPI `StaticFiles` (same-origin via the Next rewrite). No auth on the static mount.
+
+**Still pending** (later subtasks):
+- `GET /api/tags` — tag index with counts (#7).
+- `GET /api/tags/tree` — implication tree (#7).
+- `GET /api/posts/{id}/next` — prev/next for lightbox flip (#6).
+- `GET /api/tasks/{id}` — task progress polling (#8).
+- `GET|POST|DELETE /api/favorites`, `/api/favorites/{id}/items` — favorites + drag-reorder (#8). Until then, the post-card ★ is local optimistic visual only (`favorite` is server-fixed to `false`).
+
+> Path note: auth endpoints live under `/api/auth/*` (the auth router prefix), not `/api/*` root. The frontend `lib/api.ts` is the single source of truth for these paths.
+
+Do not build frontend mocks for any pending endpoint — wait for it to land.
 
 ---
 

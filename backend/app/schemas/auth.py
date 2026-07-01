@@ -19,5 +19,19 @@ class UserResponse(BaseModel):
     username: str
 
 
+class MeResponse(BaseModel):
+    """Current user + per-session safe_mode (returned by /me)."""
+
+    id: int
+    username: str
+    safe_mode: bool
+
+
+class UpdateSettingsRequest(BaseModel):
+    """PATCH /me/settings body — toggle the current session's safe_mode."""
+
+    safe_mode: bool
+
+
 class StatusResponse(BaseModel):
     setup_required: bool

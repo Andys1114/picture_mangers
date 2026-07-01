@@ -106,18 +106,24 @@ def test_post_schema_matches_grilling_decisions(client: TestClient, tmp_db_url: 
 
 
 def test_migration_downgrade_reverses_schema_changes(tmp_db_url: str) -> None:
-    """AC2: downgrade -1 reverses the pending-schema-align migration —
-    fav_count returns, duplicate_of_id and the partial index disappear."""
+    """AC2: downgrading past the schema-align migration reverses it —
+    fav_count returns, duplicate_of_id and the partial index disappear.
+
+    Head now also includes the session.safe_mode revision on top of the
+    schema-align revision, so we step back to the initial revision to reverse
+    the align migration.
+    """
     from alembic import command
     from alembic.config import Config
 
     cfg = Config("alembic.ini")
     cfg.set_main_option("script_location", "alembic")
     cfg.set_main_option("sqlalchemy.url", tmp_db_url)
-    # tmp_db_url only stands up the engine; upgrade to head first so there is
-    # exactly one revision to step back from.
+    # tmp_db_url only stands up the engine; upgrade to head first.
     command.upgrade(cfg, "head")
-    command.downgrade(cfg, "-1")
+    # Step back past the schema-align migration (74035bafb648) to the initial
+    # schema (f3d99311f0cf), which still carries fav_count.
+    command.downgrade(cfg, "f3d99311f0cf")
 
     path = Path(tmp_db_url.replace("sqlite:///", ""))
     conn = sqlite3.connect(str(path))

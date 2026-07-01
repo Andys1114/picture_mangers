@@ -18,7 +18,7 @@ State is split by category: **server state** in TanStack Query, **URL state** fo
   - `?tags=<...>` — active search (shareable, refresh-stable).
   - `?rating=` — explicit rating override (when safe mode off).
 - **Local UI state** (`useState` / component state): left drawer open/closed, edit mode, drag-in-progress, hover controls. Ephemeral, not persisted.
-- **Session-derived state** (`safe_mode`): comes from the backend session via `useMe()`; **not** stored in localStorage. Toggling calls `useUpdateSafeMode` (PATCH) then invalidates `['posts']`.
+- **Session-derived state** (`safe_mode`): comes from the backend session via `useMe()` (`GET /api/auth/me`); **not** stored in localStorage. Toggling calls `useUpdateSafeMode` (`PATCH /api/auth/me/settings`) then invalidates the posts list.
 
 ---
 
@@ -42,9 +42,9 @@ State is split by category: **server state** in TanStack Query, **URL state** fo
 
 `safe_mode` is **per-session**, stored on the backend `Session` (default `true` on new session/login). The frontend:
 1. `useMe()` reads it on app load and renders the toggle.
-2. Toggle → `useUpdateSafeMode` (optimistic flip + `PATCH /api/me/settings`).
-3. On success → invalidate `['posts']` (and any rating-filtered list) so they refetch with the new filter.
-4. New login → backend new session → `safe_mode=true` again (auto-revert). The frontend just reflects whatever `/api/me` returns.
+2. Toggle → `useUpdateSafeMode` (optimistic flip + `PATCH /api/auth/me/settings`).
+3. On success → invalidate the posts list (via the `postsAll()` key factory prefix) so it refetches with the new filter.
+4. New login → backend new session → `safe_mode=true` again (auto-revert). The frontend just reflects whatever `/api/auth/me` returns.
 
 Do not persist safe_mode in localStorage or URL — it is server-authoritative.
 
