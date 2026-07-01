@@ -111,3 +111,36 @@
 ### Next Steps
 
 - None - task complete
+
+
+## Session 2: 前端视觉美化打磨
+
+**Date**: 2026-07-01
+**Task**: 前端视觉美化打磨
+**Branch**: `main`
+
+### Summary
+
+用 Trellis 工作流交付 07-01-frontend-visual-polish：在已交付骨架上做纯 Tailwind/CSS 视觉打磨，零新依赖、不改功能契约（trellis-check 确认 api/types/hooks/middleware/providers 零修改）。改动：next/font 真正加载 Inter+JetBrains Mono（此前仅声明未加载）、补 elevation/shimmer/focus token；新建 AuthCard（径向渐变+品牌 wordmark）与 PasswordInput（show/hide）复用至 login/setup；settings 分三段卡片；顶栏 logo 加图标+滚动渐隐加 opacity；卡片 hover 微缩放+图片淡入+底部渐变遮罩+分级 chip（图标+标签+色，color-not-only）+★ 触屏始终可见；瀑布流 stagger 入场+shimmer skeleton+空态图标+错误重试；Button press 缩放+统一 ease-out。tsc/lint/build 全干净、e2e 冒烟通过、trellis-check PASS。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `df9e5fb` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
