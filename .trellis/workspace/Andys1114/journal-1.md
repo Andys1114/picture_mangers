@@ -191,3 +191,51 @@
 ### Next Steps
 
 - 父任务 06-28-gallery-app 剩余后端切片：切片 2 剩余（标签 implication 写入时物化 + post_count 维护 + tags CRUD/树端点）、切片 4（Danbooru 抓取器，复用本次 media.ingest）。两者都依赖本切片已交付的摄入内核。
+
+
+## Session 4: 标签 implication 写入侧 + tags 端点 (切片2剩余)
+
+**Date**: 2026-07-03
+**Task**: 07-03-backend-tag-write-side（父任务 06-28-gallery-app 切片 2 剩余）
+**Branch**: `main`
+
+### Summary
+
+用 Trellis 工作流交付标签系统写入侧：services/tags.py 实现 ADR-0001 三不变量——tag_post 算整条连带闭包(A→B→C)一次性写进 post_tags、create_implication 防环(反向可达性检查,自环/成环抛 ConflictError 409)+ 回填现有前因 post、post_count 写时 ±1 维护(复合主键去重幂等)。配套标签资源 CRUD 端点(GET 列表/tree/详情、POST、PATCH)。让标签系统从「读取侧能搜、写入靠 seed 手插」闭环到「打标签→物化→post_count 准→标签页有数据→可 CRUD」。为切片4(抓取)的「带回标签→物化入库」铺好复用入口(tag_post 服务函数)。决策点与用户敲定：打标签/implication 均只做服务不做端点(端点留给切片6详情页编辑)、回填同步、不做删除 implication / DELETE tag(黏语义)。闭包实现选 BFS+visited 而非递归 CTE(SQLAlchemy 2.0 在 SQLite 的递归 CTE 构造繁琐,BFS 语义等价、单用户量级够),spec 已回写偏差。
+
+### Main Changes
+
+- `backend/app/services/tags.py`（新增）：closure_of(BFS+visited,write-time only)、tag_post(get-or-create+闭包+写post_tags去重+post_count±1)、create_implication(自环检查+反向可达性防环+插入+回填)、create_tag/update_tag/list_tags/get_tag/tag_tree。
+- `backend/app/api/tags.py`（新增）：GET /api/tags(搜索/类别/排序)、GET /api/tags/tree、GET /api/tags/{id}、POST、PATCH。route 薄调 service,全部 Depends(get_current_user)。/tree 在 /{id} 前注册避免路径捕获。
+- `backend/app/schemas/tag.py`（新增）：复用 post.TagResponse,新增 TagCreateRequest/TagUpdateRequest/TagTreeNode/TagListResponse/TagTreeResponse。category 用正则约束(general/character/copyright/artist/meta)。
+- `backend/app/schemas/__init__.py`：导出 tag schemas。
+- `backend/app/api/__init__.py`：挂 tags.router。
+- `backend/tests/test_tags.py`（新增 8 例）：AC1 物化闭包、AC2 防环、自环、AC3 回填、AC5 post_count幂等、AC6 CRUD端点(含401)、tree结构、AC7 端到端(ingest→tag_post→search搜到)。
+- 2 个 backend spec 回写：directory-structure(services/api 加 tags)、database-guidelines(CTE→BFS 偏差明确化、post_count 维护流程、防环细节)。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `aca32ca` | feat(backend): 标签 implication 写入侧 + tags 端点 (切片2剩余) |
+| (auto) | chore(task): archive 07-03-backend-tag-write-side |
+
+### Testing
+
+- [OK] pytest -q 全量 39 passed（原 31 + 新增 8 tags），10.15s
+- [OK] AC1-AC7 + 自环全过；端到端(ingest Post→tag_post→GET /api/posts?tags= 搜到)闭环验证
+- [OK] spec 自查：search.py 无读时递归、防环 409、route 薄调 service(6处)、无 create_all/raw SQL/fav_count
+
+### Key Decisions
+
+- 闭包 BFS 而非递归 CTE：spec 原偏好递归 CTE(write-time only),但 SQLAlchemy 2.0 在 SQLite 的递归 CTE 构造繁琐且易错。BFS+visited 语义等价、单用户量级性能够、visited 集合天然就是 ADR 要求的防环兜底。spec 已回写此偏差,未来量大可换回 CTE 不改调用方。
+- 打标签/implication 只做服务不做端点：切片4 抓取调服务函数不走 HTTP;打标签端点的真实用户是详情页编辑(切片6 PATCH /api/posts/{id})。本切片聚焦物化闭环,不扩 API 表面。
+- 不做删除(黏语义)：ADR-0001 删 implication 不撤老图标签,语义重;删 tag CASCADE post_tags 会丢打标记录。本切片只做创建,删除留后续。
+
+### Status
+
+[OK] **Completed & archived → archive/2026-07/**
+
+### Next Steps
+
+- 父任务 06-28-gallery-app 剩余后端切片：切片4(Danbooru 抓取器,复用本次 tag_post + 切片3 media.ingest,能端到端「抓取→入库→物化标签」)。写入侧与摄入内核均已就位,抓取器是最后一块数据进入拼图。
