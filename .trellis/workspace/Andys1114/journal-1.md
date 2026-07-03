@@ -144,3 +144,50 @@
 ### Next Steps
 
 - None - task complete
+
+
+## Session 3: 媒体处理管道 + 最小 Post 摄入 (切片3)
+
+**Date**: 2026-07-03
+**Task**: 07-01-backend-media-pipeline（父任务 06-28-gallery-app 切片 3）
+**Branch**: `main`
+
+### Summary
+
+用 Trellis 工作流推进后端「数据进不来」的卡点：交付 `services/media.py` 摄入内核（md5 精确去重、imagehash phash 同步算值存字段、Pillow thumb/preview 缩略图、动图取首帧保留动画、落盘 `posts/{id}/` 并写 Post 行），可被切片 4（抓取）/切片 8（导入 API）直接复用。迁移 `seed_dev.py` 用真管道造数（dev 库从此是真缩略图 + 真 phash）。零 schema 变更、零 API 端点、不做任务调度——纯可复用内核。决策点与用户敲定：边界=服务+最小Post写入（非纯函数，解 id 先有鸡先有蛋）、phash 用 imagehash 库（稳健性优先，接受新依赖）、phash 同步算值但查邻标记 duplicate 留异步（与 spec「phash 异步」调和：算值快、查邻慢）、md5 命中抛可恢复 DuplicateError、seed_dev 一并迁移。期间 imagehash 拉 scipy 55MB 在 hermes venv 反复超时，用户手动装好后继续。
+
+### Main Changes
+
+- `backend/app/services/media.py`（新增）：compute_md5 / compute_phash(imagehash) / make_thumbnails(150/850, RGB白底, ImageOps.contain) / ingest（11 步流程：md5→去重→Pillow解码→phash→缩略图→Post占位→flush拿id→建目录落盘→回填相对路径→commit；动图 seek(0) 首帧做缩略图、original 存原始 bytes 保留动画）。
+- `backend/app/services/errors.py`：新增 DuplicateError(AppError) 409 code=duplicate。
+- `backend/scripts/seed_dev.py`：删手写落盘+Post 构造，改循环调 media.ingest，DuplicateError 捕获后 continue 保幂等；目录结构 {md5}/→{id}/；清理无用 import。
+- `backend/tests/test_media.py`（新增 6 例）：AC1 落盘+写库、AC2 md5去重、AC3 phash（纹理图对照 Hamming 距离，纯色图 DCT 退化不能测区分力）、AC4 缩略图尺寸+GIF首帧静态、AC6 落盘失败事务回滚。
+- `backend/pyproject.toml`：加 pillow>=10.0 + imagehash>=4.3。
+- 4 个 backend spec 回写：database-guidelines（dedup 契约精确化——phash 算值同步/查邻异步）、quality-guidelines（Domain Field Contract 状态）、error-handling（补 NotFoundError+DuplicateError）、directory-structure（services 实现状态+media.py 示例）。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `e10352b` | feat(backend): 媒体处理管道 + 最小 Post 摄入 (切片3) |
+| (auto) | chore(task): archive 07-01-backend-media-pipeline |
+
+### Testing
+
+- [OK] pytest -q 全量 31 passed（原 25 + 新增 6 media），10.91s
+- [OK] AC5 seed_dev 实跑：12 posts，phash 12/12 非空、preview≠original、目录 posts/{id}/
+- [OK] spec 自查：无 fav_count 生产代码、无 create_all runtime、无 raw SQL、imagehash 记入 pyproject
+
+### Key Decisions
+
+- phash 算值同步/查邻异步：spec 原写「phash 异步后算」，本切片调和为「算 hash 值快→同步存字段；扫库找近邻慢→留切片4/8 调度器」。ingest 后 Post 的 phash 非空但 is_duplicate=False、duplicate_of_id=None。
+- id 先有鸡先有蛋：ingest 先 flush（不发 INSERT 的 COMMIT 但拿自增 id）→ 用 id 建目录落盘 → 回填路径 → commit。落盘失败因未 commit，session 回滚不留半残行（AC6 验证）。
+- 测试 fixture 教训：pHash 对纯色图退化（DCT 只有 DC 分量，不同纯色塌缩成同一 hash）——AC3 改用纹理图（梯度+棋盘 XOR）测区分力。GIF 多帧需每帧 RGB 内容不同，P mode 单色帧会被 Pillow 合并成 n_frames=1。
+
+### Status
+
+[OK] **Completed & archived → archive/2026-07/**
+
+### Next Steps
+
+- 父任务 06-28-gallery-app 剩余后端切片：切片 2 剩余（标签 implication 写入时物化 + post_count 维护 + tags CRUD/树端点）、切片 4（Danbooru 抓取器，复用本次 media.ingest）。两者都依赖本切片已交付的摄入内核。
