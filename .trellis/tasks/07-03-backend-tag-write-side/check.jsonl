@@ -1,0 +1,3 @@
+{"file": "docs/adr/0001-implication-materialized-at-write-time.md", "reason": "校验三不变量:写入时物化(post_tags是展开集)、后加回填、黏删除(本切片不删implication不撤标签)、防环409+visited兜底"}
+{"file": ".trellis/spec/backend/database-guidelines.md", "reason": "校验:post_count写时±1无懒重算、PostTag复合主键去重、递归CTE仅write-time(读取侧search.py未改)、无fav_count、无create_all、参数化查询"}
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "校验:防环ConflictError 409、route无业务逻辑(调service)、AppError子类stable code、全函数类型注解+future annotations、AC覆盖测试"}

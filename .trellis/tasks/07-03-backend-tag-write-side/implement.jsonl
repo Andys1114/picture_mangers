@@ -1,0 +1,5 @@
+{"file": "docs/adr/0001-implication-materialized-at-write-time.md", "reason": "写入侧权威契约:写入时物化闭包(A→B→C一次性写post_tags)、后加回填、黏删除、防环反向可达性+visited兜底。本切片的核心实现依据"}
+{"file": ".trellis/spec/backend/database-guidelines.md", "reason": "Tag.post_count=post_tags行数写时±1维护、PostTag复合主键、TagImplication unique pair、递归CTE仅write-time、ondelete CASCADE、ORM/Core参数化查询"}
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "搜索本期AND-only(不破读取侧)、防环ConflictError 409、业务逻辑不在route、AppError子类带stable code、类型注解+future annotations"}
+{"file": ".trellis/tasks/06-28-gallery-app/design.md", "reason": "父§3搜索语法/§6 tags端点(GET列表/tree/详情、POST新建、PATCH改)是本切片端点设计源头;§8切片拆分定位本切片为切片2剩余"}
+{"file": "CONTEXT.md", "reason": "连带/废弃标签/搜索术语定义——确保实现用词与项目术语表一致(前因/后果/物化/黏删除),避免别名误用"}

@@ -15,6 +15,13 @@ from app.schemas.post import (
     PostSummaryResponse,
     TagResponse,
 )
+from app.schemas.tag import (
+    TagCreateRequest,
+    TagListResponse,
+    TagTreeNode,
+    TagTreeResponse,
+    TagUpdateRequest,
+)
 
 __all__ = [
     "Envelope",
@@ -28,7 +35,12 @@ __all__ = [
     "PostSummaryResponse",
     "SetupRequest",
     "StatusResponse",
+    "TagCreateRequest",
+    "TagListResponse",
     "TagResponse",
+    "TagTreeNode",
+    "TagTreeResponse",
+    "TagUpdateRequest",
     "UpdateSettingsRequest",
     "UserResponse",
 ]
