@@ -24,8 +24,8 @@ backend/
 │   ├── deps.py              cross-cutting deps (get_current_user)
 │   ├── models/              SQLAlchemy ORM (one file per aggregate, __init__ exports all)
 │   ├── schemas/             Pydantic request/response models
-│   ├── api/                 route modules; __init__ aggregates into api_router (/api prefix). Implemented: auth, health, posts, tags.
-│   ├── services/            business logic. Implemented: auth, errors, search, media, tags, scrape. Future: import API endpoints (slice 8).
+│   ├── api/                 route modules; __init__ aggregates into api_router (/api prefix). Implemented: auth, health, posts, tags, favorites.
+│   ├── services/            business logic. Implemented: auth, errors, search, media, tags, scrape, favorites. Future: import API endpoints (slice 8).
 │   └── scrapers/            site-specific upstream adapters (pure HTTP, no DB/FastAPI). Implemented: base (Scraper ABC + ScrapedPost), danbooru. Future: gelbooru/moebooru.
 ├── alembic/                 migrations; env.py injects runtime URL + pragmas
 ├── alembic.ini              URL left blank — injected by env.py from app.config
@@ -52,7 +52,7 @@ backend/
 - Files: `snake_case.py`.
 - ORM classes: `PascalCase`, `__tablename__` plural (`posts`, `tags`, `post_tags`).
 - Schemas: `<Verb>Request` / `<Entity>Response` (e.g. `SetupRequest`, `UserResponse`).
-- Route modules named after the resource: `auth.py`, `health.py`, `posts.py`, `tags.py` (implemented).
+- Route modules named after the resource: `auth.py`, `health.py`, `posts.py`, `tags.py`, `favorites.py` (implemented).
 
 
 

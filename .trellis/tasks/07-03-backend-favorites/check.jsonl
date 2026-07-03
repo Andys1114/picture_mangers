@@ -1,0 +1,3 @@
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "校验:无 fav_count 字段/逻辑、route 薄调 service(无业务逻辑)、AppError 子类(NotFoundError/ConflictError)带 stable code、类型注解+future annotations、AC 覆盖测试"}
+{"file": ".trellis/spec/backend/database-guidelines.md", "reason": "校验:FavoriteItem 复合主键去重、ondelete CASCADE、参数化查询、零 schema 变更"}
+{"file": ".trellis/tasks/06-28-gallery-app/prd.md", "reason": "校验 F7 语义:默认夹星标 toggle、不统计收藏次数(无 fav_count)、position 排序、一张图可同时在默认夹和命名夹"}

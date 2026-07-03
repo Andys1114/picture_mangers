@@ -1,0 +1,5 @@
+{"file": ".trellis/tasks/06-28-gallery-app/prd.md", "reason": "父 F7 收藏夹语义(多夹/默认夹/星标=加入移出默认夹/不统计收藏次数/position排序)是本切片的核心需求依据"}
+{"file": ".trellis/tasks/06-28-gallery-app/design.md", "reason": "父§6 favorites 端点清单(GET列表/POST新建/GET详情含posts/POST加项/DELETE移项/PATCH调序)是端点设计源头"}
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "禁 fav_count(硬约束)、业务逻辑不在 route、AppError 子类带 stable code、类型注解+future annotations"}
+{"file": ".trellis/spec/backend/database-guidelines.md", "reason": "复合主键(FavoriteItem favorite_id+post_id)、ondelete CASCADE、ORM/Core 参数化查询"}
+{"file": "CONTEXT.md", "reason": "收藏夹/默认收藏夹/收藏动作术语——确保实现用词与项目术语表一致(星标=默认夹别名动作、不统计次数)"}

@@ -11,13 +11,14 @@ from sqlalchemy.orm import Session
 from app.db import get_db
 from app.deps import get_current_session, get_current_user
 from app.models.user import Session, User
+from app.schemas.favorite import StarToggleResponse
 from app.schemas.post import (
     PostDetailResponse,
     PostListResponse,
     PostSummaryResponse,
     TagResponse,
 )
-from app.services import search
+from app.services import favorites, search
 
 router = APIRouter(prefix="/posts", tags=["posts"])
 
@@ -86,3 +87,17 @@ def get_post(
             for t in tag_rows
         ],
     )
+
+
+@router.post("/{post_id}/favorite", response_model=StarToggleResponse)
+def toggle_favorite(
+    post_id: int,
+    _user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> StarToggleResponse:
+    """Star/unstar a post — toggle its membership in the default collection.
+
+    Returns the new state so the client can sync the button without a re-fetch.
+    """
+    favorited = favorites.toggle_star(db, post_id)
+    return StarToggleResponse(favorited=favorited)
