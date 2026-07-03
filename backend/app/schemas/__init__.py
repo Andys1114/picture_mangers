@@ -30,6 +30,13 @@ from app.schemas.tag import (
     TagTreeResponse,
     TagUpdateRequest,
 )
+from app.schemas.task import (
+    ScanRequest,
+    ScrapeRequest,
+    TaskCancelResponse,
+    TaskCreateResponse,
+    TaskStatusResponse,
+)
 
 __all__ = [
     "Envelope",
@@ -46,10 +53,15 @@ __all__ = [
     "PostDetailResponse",
     "PostListResponse",
     "PostSummaryResponse",
+    "ScanRequest",
+    "ScrapeRequest",
     "SetupRequest",
     "StarToggleResponse",
     "StatusResponse",
     "TagCreateRequest",
+    "TaskCancelResponse",
+    "TaskCreateResponse",
+    "TaskStatusResponse",
     "TagListResponse",
     "TagResponse",
     "TagTreeNode",

@@ -1,0 +1,4 @@
+{"file": ".trellis/tasks/06-28-gallery-app/design.md", "reason": "父§4 后台任务调度(APScheduler线程池/任务状态内存/前端轮询)+本地导入路径A(递归扫描+mtime增量+无标签)+§6 import端点是本切片设计源头"}
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "业务逻辑不在 route、AppError 子类带 stable code、类型注解+future annotations、复用而非重写 scrape_to_db/media.ingest"}
+{"file": ".trellis/spec/backend/database-guidelines.md", "reason": "Alembic 迁移规范(autogenerate+审查+可逆)、ORM 2.0 风格(mapped_column)、ondelete CASCADE、SQLite WAL 单写者(并行任务写串行)、参数化查询"}
+{"file": ".trellis/spec/backend/logging-guidelines.md", "reason": "后台任务可能跑久/失败——日志记录任务状态变化与错误，避免静默失败"}

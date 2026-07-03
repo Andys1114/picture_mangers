@@ -13,6 +13,7 @@ dependencies = [
     "python-multipart>=0.0.6",
     "pillow>=10.0",
     "imagehash>=4.3",
+    "apscheduler>=3.10",
 ]
 
 [project.optional-dependencies]

@@ -1,0 +1,3 @@
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "校验:route薄调service(无业务逻辑)、复用scrape_to_db/media.ingest未重写、AppError子类带stable code、类型注解+future annotations、AC覆盖测试"}
+{"file": ".trellis/spec/backend/database-guidelines.md", "reason": "校验:scan_history迁移可逆(autogenerate审查)、ORM 2.0风格、path unique约束、后台线程独立session(不共享请求session)、SQLite WAL并行写一致"}
+{"file": ".trellis/tasks/06-28-gallery-app/design.md", "reason": "校验父§4契约:任务状态内存(不持久化可接受)、前端轮询/api/tasks/{id}进度(processed/total/duplicates)、本地导入增量mtime、APScheduler线程池"}

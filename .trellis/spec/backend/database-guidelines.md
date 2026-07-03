@@ -39,6 +39,9 @@ foreign keys are enforced on every connection. Schema is owned by Alembic —
 - **Hidden by default** — duplicates are hidden from the gallery main view (they have a dedicated view) but may still be added to favorites.
 - **md5 exact dedup shipped** — `services/media.py:ingest` implements the md5-skip stage (raises `DuplicateError`, code `duplicate`, HTTP 409). The phash neighbor-lookup + `duplicate_of_id` assignment + search dedup-filter still land in later slices.
 
+- **`scan_history` table (slice 8)** — migration `ffcb2b9d04bb` adds `scan_history(id, path unique, mtime, scanned_at)` to track locally-imported files for incremental re-scans (skip unchanged files by mtime without re-reading bytes). Reversible (`downgrade -1` drops the table). The model is in `app/models/scan_history.py`.
+- **Background-task DB sessions are independent** — worker threads (APScheduler `BackgroundScheduler`) create their own `SessionLocal()`; never share a request's session across threads (SQLAlchemy sessions aren't thread-safe). Each file/step commits so progress persists and transactions stay short.
+
 ## Scrape Dedup (Source)
 
 - **`(source_site, source_id)` partial unique index** — for non-null sources, a partial unique index on `Post(source_site, source_id)` prevents the same site+id from being imported twice, even under concurrent scrapes.

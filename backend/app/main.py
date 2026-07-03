@@ -7,6 +7,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.api import api_router
 from app.config import settings
+from app.services import tasks as task_scheduler
 from app.services.errors import AppError, app_error_handler, unhandled_exception_handler
 
 app = FastAPI(title="Picture Mangers API", version="0.1.0")
@@ -31,6 +32,13 @@ app.mount("/media", StaticFiles(directory=str(_media_dir)), name="media")
 # Unified error envelope: AppError subclasses + a catch-all for unexpected faults.
 app.add_exception_handler(AppError, app_error_handler)
 app.add_exception_handler(Exception, unhandled_exception_handler)
+
+
+# Background task scheduler (APScheduler). Started lazily on first job submit;
+# the shutdown hook stops it cleanly so the process can exit. See services/tasks.py.
+@app.on_event("shutdown")
+def _shutdown_scheduler() -> None:
+    task_scheduler.shutdown_scheduler()
 
 
 @app.get("/")
