@@ -11,6 +11,8 @@ dependencies = [
     "pydantic-settings>=2.1",
     "bcrypt>=4.1",
     "python-multipart>=0.0.6",
+    "pillow>=10.0",
+    "imagehash>=4.3",
 ]
 
 [project.optional-dependencies]

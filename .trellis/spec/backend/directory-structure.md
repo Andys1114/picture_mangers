@@ -25,7 +25,7 @@ backend/
 │   ├── models/              SQLAlchemy ORM (one file per aggregate, __init__ exports all)
 │   ├── schemas/             Pydantic request/response models
 │   ├── api/                 route modules; __init__ aggregates into api_router (/api prefix). Implemented: auth, health, posts.
-│   └── services/            business logic. Implemented: auth, errors, search. Future: media, scraper.
+│   └── services/            business logic. Implemented: auth, errors, search, media. Future: scraper.
 ├── alembic/                 migrations; env.py injects runtime URL + pragmas
 ├── alembic.ini              URL left blank — injected by env.py from app.config
 ├── tests/                   pytest; conftest provides tmp DB + migrated TestClient
@@ -53,10 +53,11 @@ backend/
 - Schemas: `<Verb>Request` / `<Entity>Response` (e.g. `SetupRequest`, `UserResponse`).
 - Route modules named after the resource: `auth.py`, `health.py`, `posts.py` (implemented), future `tags.py`.
 
----
+
 
 ## Examples
 
 - Clean layered route: `app/api/auth.py` (thin handlers delegating to `app/services/auth.py`).
+- Media ingestion kernel (no route — pure service): `app/services/media.py` (`ingest` + md5/phash/thumbnails).
 - Engine + pragmas + dependency: `app/db.py`.
 - Model aggregate with association tables: `app/models/tag.py` (Tag + PostTag + TagImplication).

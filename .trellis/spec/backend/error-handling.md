@@ -20,8 +20,10 @@ Defined in `app/services/errors.py`:
 - `AppError` — base. Carries `status_code` (default 400), `code` (default `"error"`), and a user-facing `message`.
 - `UnauthorizedError` — 401, code `"unauthorized"`.
 - `ConflictError` — 409, code `"conflict"`.
+- `NotFoundError` — 404, code `"not_found"`. Raised when a referenced resource (e.g. a post id) does not exist.
+- `DuplicateError` — 409, code `"duplicate"`. Raised by `services/media.ingest` when an incoming image's md5 already exists; the caller decides whether to skip silently, log, or count it.
 
-Add a new subclass when a new HTTP semantics is needed (e.g. `NotFoundError` for 404 in later subtasks). For a one-off error, raise `AppError(msg, status_code=..., code=...)` inline.
+Add a new subclass when a new HTTP semantics is needed. For a one-off error, raise `AppError(msg, status_code=..., code=...)` inline.
 
 ## Error Handling Patterns
 

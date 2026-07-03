@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/backend/database-guidelines.md", "reason": "Duplicate Images 两阶段去重(md5同步跳过/phash异步)、duplicate_of_id 权威信号、post_count 维护、ORM/Core 参数化查询、create_all 禁用——ingest 实现的直接约束"}
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "禁 fav_count、业务逻辑不进 route、AppError 子类带 stable code、类型注解+future annotations、create_all/raw SQL 禁用——编码规范"}
+{"file": ".trellis/tasks/06-28-gallery-app/design.md", "reason": "父任务 §4 共享媒体处理管道(6步)与重复处理策略是本切片的设计源头;§8 切片拆分定位本切片为切片3"}
+{"file": "docs/adr/0001-implication-materialized-at-write-time.md", "reason": "写时物化决策——本切片不碰标签物化,但需理解为何 ingest 只写 Post 不动 post_tags(物化逻辑属切片2剩余)"}

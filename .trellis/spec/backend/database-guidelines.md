@@ -32,10 +32,10 @@ foreign keys are enforced on every connection. Schema is owned by Alembic —
 
 ## Duplicate Images (Post)
 
-- **Two-stage dedup** — on import, compute `md5` first; if an existing post has the same `md5`, skip entirely (exact duplicate, no row created). `phash` (perceptual hash) is computed **asynchronously** after import; near-matches mark the new post as a duplicate.
+- **Two-stage dedup** — on import, compute `md5` first; if an existing post has the same `md5`, the ingest raises `DuplicateError` (exact duplicate, no row created). `phash` (perceptual hash) is split across two phases: the **hash value is computed synchronously and stored** on the Post row during ingest (`services/media.py:ingest`); the **near-neighbor lookup** that would set `is_duplicate`/`duplicate_of_id` runs **asynchronously** after import (a later slice's scheduler). So an ingested post always has `phash` set but leaves `is_duplicate=False` and `duplicate_of_id=None` until the async pass marks it.
 - **`duplicate_of_id`** — a self-referencing nullable FK on `Post` (`ForeignKey("posts.id", ondelete="SET NULL")`) pointing at the chosen original. The boolean `is_duplicate` is a fast-filter convenience; the authoritative signal is `duplicate_of_id IS NOT NULL`.
 - **Hidden by default** — duplicates are hidden from the gallery main view (they have a dedicated view) but may still be added to favorites.
-- **Schema alignment shipped** — migration `74035bafb648` adds `Post.duplicate_of_id` and drops `Post.fav_count` (which the initial schema `f3d99311f0cf` had carried). The model in `app/models/post.py` mirrors this. The *business logic* that consumes these fields (duplicate detection, search dedup) lands in later milestones.
+- **md5 exact dedup shipped** — `services/media.py:ingest` implements the md5-skip stage (raises `DuplicateError`, code `duplicate`, HTTP 409). The phash neighbor-lookup + `duplicate_of_id` assignment + search dedup-filter still land in later slices.
 
 ## Scrape Dedup (Source)
 

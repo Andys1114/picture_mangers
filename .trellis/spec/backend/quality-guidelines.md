@@ -39,7 +39,7 @@ The initial schema migration (`f3d99311f0cf`) predates several grilling decision
 - Adds `Post.duplicate_of_id` (self-FK, `ondelete="SET NULL"`, nullable).
 - Adds a partial unique index `ix_posts_source_site_source_id` on `Post(source_site, source_id)` for non-null sources (`sqlite_where` predicate).
 
-The migration is hand-written (not autogenerate) because Alembic cannot reliably detect a partial index's WHERE predicate; it is fully reversible (`downgrade -1`). The model mirrors this in `app/models/post.py`. The business logic that *consumes* `duplicate_of_id` / the partial index (search, duplicate handling, scrape dedup) is still out of scope and implemented in later milestones.
+The migration is hand-written (not autogenerate) because Alembic cannot reliably detect a partial index's WHERE predicate; it is fully reversible (`downgrade -1`). The model mirrors this in `app/models/post.py`. The business logic that *consumes* these fields is landing incrementally: the **md5 exact-dedup stage** ships in `services/media.py:ingest` (raises `DuplicateError`, code `duplicate`); the **phash neighbor-lookup + `duplicate_of_id` assignment** and **scrape-list source dedup** still land in later slices.
 
 ## Required Patterns
 

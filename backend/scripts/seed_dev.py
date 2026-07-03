@@ -10,10 +10,8 @@ none exists. Not imported by tests; not production code.
 """
 from __future__ import annotations
 
-import hashlib
 import struct
 import zlib
-from pathlib import Path
 
 from sqlalchemy import select
 
@@ -79,40 +77,31 @@ def _get_or_create_tag(db, name: str, category: str) -> Tag:  # type: ignore[no-
     return tag
 
 
-def _seed_posts(db, media: Path) -> None:  # type: ignore[no-untyped-def]
+def _seed_posts(db) -> None:  # type: ignore[no-untyped-def]
+    """Seed posts via the real media pipeline (services/media.ingest).
+
+    Replaces the earlier hand-rolled byte-writing + Post construction so dev
+    data uses real thumbnails + phash. Dedup is delegated to ingest's md5 check:
+    a DuplicateError means the post was already seeded (idempotent skip).
+    Tag attachment stays here — materialization of implications is the import
+    pipeline subtask's job, and seed inserts the materialized rows directly.
+    """
+    from app.services import media as media_svc
+    from app.services.errors import DuplicateError
+
     created = 0
+    skipped = 0
     for w, h, rgb, rating, tags in _POSTS:
         png = _png_solid(w, h, rgb)
-        md5 = hashlib.md5(png).hexdigest()
-        if db.execute(select(Post.id).where(Post.md5 == md5)).first() is not None:
+        try:
+            post = media_svc.ingest(
+                db, png,
+                source_site="local", source_id=None, source_url=None,
+                file_ext="png", is_animated=False, rating=rating,
+            )
+        except DuplicateError:
+            skipped += 1
             continue
-        rel = f"posts/{md5}"
-        post_dir = media / rel
-        post_dir.mkdir(parents=True, exist_ok=True)
-        (post_dir / "original.png").write_bytes(png)
-        (post_dir / "preview.png").write_bytes(png)  # dev: preview == original (no pipeline yet)
-        (post_dir / "thumb.png").write_bytes(png)
-        post = Post(
-            source_site="local",
-            source_id=None,
-            source_url=None,
-            file_path=f"{rel}/original.png",
-            thumb_path=f"{rel}/thumb.png",
-            preview_path=f"{rel}/preview.png",
-            file_ext="png",
-            is_animated=False,
-            width=w,
-            height=h,
-            file_size=len(png),
-            md5=md5,
-            phash=None,
-            is_duplicate=False,
-            duplicate_of_id=None,
-            rating=rating,
-        )
-        db.add(post)
-        db.commit()
-        db.refresh(post)
         # Materialized tag set: implications expanded at write time. For the
         # miku->vocaloid demo we insert both rows directly (the real write-time
         # closure logic lands with the import pipeline subtask).
@@ -122,7 +111,7 @@ def _seed_posts(db, media: Path) -> None:  # type: ignore[no-untyped-def]
             tag.post_count += 1
         db.commit()
         created += 1
-    print(f"posts ready ({created} new, {len(_POSTS) - created} already present)")
+    print(f"posts ready ({created} new, {skipped} already present)")
 
 
 def main() -> None:
@@ -130,7 +119,7 @@ def main() -> None:
     media.mkdir(parents=True, exist_ok=True)
     with SessionLocal() as db:
         _ensure_user(db)
-        _seed_posts(db, media)
+        _seed_posts(db)
     print(f"media dir: {media}")
     print("done. start the API with:  uvicorn app.main:app --reload --port 8000")
 

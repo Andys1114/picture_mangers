@@ -37,6 +37,19 @@ class NotFoundError(AppError):
     code = "not_found"
 
 
+class DuplicateError(AppError):
+    """409 — an exact duplicate (same md5) was rejected at ingest.
+
+    Raised by the media pipeline when an incoming image's md5 already exists.
+    The caller (scraper/import) decides whether to skip silently, log, or count
+    it as a duplicate hit — the service itself never silently swallows it.
+    See ``database-guidelines.md``「Duplicate Images」(md5 exact dedup).
+    """
+
+    status_code = 409
+    code = "duplicate"
+
+
 async def app_error_handler(_request: Request, exc: AppError) -> JSONResponse:
     return JSONResponse(
         status_code=exc.status_code,

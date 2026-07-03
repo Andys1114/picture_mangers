@@ -1,0 +1,2 @@
+{"file": ".trellis/spec/backend/database-guidelines.md", "reason": "校验:ingest 是否符合两阶段去重语义(md5同步跳过)、相对路径存储、duplicate_of_id/is_duplicate 未被本切片赋值(留异步)、无 fav_count、无 create_all、参数化查询"}
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "校验:DuplicateError 是否 AppError 子类带 stable code、全函数类型注解+future annotations、无业务逻辑泄露、编码规范合规、AC 覆盖测试"}
