@@ -384,3 +384,56 @@
 ### Next Steps
 
 - 后端只剩 import 任务调度（切片8）：POST /api/import/scan + /import/scrape + GET /api/tasks/{id} + APScheduler 后台调度，接已交付 scrape_to_db。这是最后一块后端。其余父任务子任务偏前端（切片6详情页 lightbox、切片7标签页+搜索框、切片8导入页UI+收藏UI）。
+
+
+## Session 8: import 任务调度 + 进度端点 (切片8后端, 后端最后一块)
+
+**Date**: 2026-07-03
+**Task**: 07-03-backend-import-tasks（父任务 06-28-gallery-app 切片8后端）
+**Branch**: `main`
+
+### Summary
+
+用 Trellis 工作流交付后端最后一块：import 任务调度 + 进度端点。services/tasks.py（APScheduler BackgroundScheduler max_workers=3 调度内核 + 内存任务状态 dict+Lock + submit_scan/submit_scrape/get_task/cancel_task 协作式取消 + 后台线程独立 SessionLocal 线程安全）、services/import_service.py（本地扫描编排：递归 walk + stat mtime 查 scan_history 跳过未变 + 读 bytes → media.ingest + 更新 scan_history + 进度更新）、api/import_.py（避开 import 关键字，4 端点 POST /import/scan、POST /import/scrape、GET /tasks/{id}、POST /tasks/{id}/cancel，全认证 route 薄调 service）、models/scan_history.py + 迁移 ffcb2b9d04bb（scan_history 表 path unique+mtime+scanned_at，可逆）、main.py（BackgroundScheduler 启动+shutdown 钩子）。复用 scrape_to_db + media.ingest 不改只调。决策点与用户连续拍板取完整方案：APScheduler（非 threading）、scan_history 表增量（非全扫md5去重）、多任务并行（max_workers=3 非串行）、任务取消做（非首版不做）、scrape 测 FakeScraper 注入。测试用 patch 同步 scheduler（add_job 直接调函数）避免异步测试复杂。
+
+### Main Changes
+
+- `backend/app/services/tasks.py`（新增）：TaskState dataclass + _tasks dict+_tasks_lock + BackgroundScheduler 单例(max_workers=3) + submit_scan/submit_scrape/get_task/cancel_task + _run_scan/_run_scrape（后台线程独立 SessionLocal，延迟 import 避免循环）。
+- `backend/app/services/import_service.py`（新增）：scan_directory（递归 walk + SUPPORTED_EXTS + stat mtime 查 scan_history 跳过 + 读 bytes → media.ingest + 更新 scan_history + 进度 + is_cancelled 检查）。
+- `backend/app/api/import_.py`（新增）：4 端点 route 薄调 tasks service，全 Depends(get_current_user)。
+- `backend/app/models/scan_history.py`（新增）+ 迁移 ffcb2b9d04bb：ScanHistory(id/path unique/mtime/scanned_at)。
+- `backend/app/main.py`：+BackgroundScheduler shutdown 钩子（on_event，deprecation 警告但功能正常）。
+- `backend/app/schemas/task.py`（新增）：Scan/Scrape/TaskCreate/TaskStatus/TaskCancel。
+- `backend/pyproject.toml`：+apscheduler>=3.10。
+- `backend/tests/test_import_tasks.py`（新增 6 例）：patch 同步 scheduler，AC2+AC3 scan端到端+增量、AC4 scrape fake、AC5 取消、AC6 并发、AC7 401。
+- 2 个 backend spec 回写：directory-structure（加 import_/tasks/import_service/scan_history + import_ 命名说明）、database-guidelines（加 scan_history 表 + 后台线程独立 session 约束）。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| (feat) | feat(backend): import 任务调度 + 进度端点 (切片8后端, 后端最后一块) |
+| (auto) | chore(task): archive 07-03-backend-import-tasks |
+
+### Testing
+
+- [OK] pytest -q 全量 63 passed（原 57 + 新 6 import_tasks），19.02s
+- [OK] AC1-AC7 全过；scan端到端+增量跳过+scrape fake+取消+并发+401
+- [OK] spec 自查：复用 scrape_to_db/media.ingest、route 薄调 service（7处）、后台线程独立 SessionLocal（2处）、scan_history 迁移可逆、apscheduler 记入 pyproject
+
+### Key Decisions
+
+- APScheduler（非 threading）：用户拍板取完整方案。BackgroundScheduler max_workers=3 多任务并行。main.py shutdown 钩子避免阻塞进程退出。
+- scan_history 表增量（非全扫md5去重）：用户拍板。stat mtime 跳过未变文件，避免重读 bytes。新表+迁移，可逆。
+- 多任务并行（max_workers=3）：用户拍板。SQLite WAL 单写者并行写串行等待，但启动不阻塞。
+- 任务取消协作式：cancel_requested 标志 + worker 循环检查退出，status=cancelled。
+- 测试 patch 同步 scheduler：add_job 直接调函数，避免异步轮询测试。取消测试用 _Deferred scheduler 手动控制执行时机。
+- 后台线程独立 SessionLocal：SQLAlchemy session 非线程安全，worker 建 own session，每文件 commit 保持短事务 + 进度持久化。
+
+### Status
+
+[OK] **Completed & archived → archive/2026-07/**
+
+### Next Steps
+
+- **后端全部交付完毕**。父任务 06-28-gallery-app 后端端点全齐（auth/posts/tags/favorites/import+tasks，28 个端点 + 服务层 media.ingest/tag_post/scrape_to_db/post_edit/favorites/tasks/import_service）。剩余父任务子任务全偏前端：切片6（详情页 lightbox）、切片7（标签页+搜索框chip）、切片8（导入页UI+收藏UI，接本次 import/tasks 端点 + favorites 端点）。后端无更多纯后端切片，后续工作转前端。
