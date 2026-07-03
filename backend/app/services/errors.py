@@ -50,6 +50,19 @@ class DuplicateError(AppError):
     code = "duplicate"
 
 
+class ScraperError(AppError):
+    """502 — a scraper adapter exhausted its retries or hit an unrecoverable
+    upstream error (network failure, persistent 5xx, malformed response).
+
+    Raised by scraper adapters (``app/scrapers/``) after rate-limited retries
+    are exhausted. The orchestration service (``services/scrape.py``) catches
+    it per-post to isolate failures without aborting the whole batch.
+    """
+
+    status_code = 502
+    code = "scraper_error"
+
+
 async def app_error_handler(_request: Request, exc: AppError) -> JSONResponse:
     return JSONResponse(
         status_code=exc.status_code,

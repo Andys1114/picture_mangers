@@ -1,0 +1,2 @@
+{"file": ".trellis/spec/backend/database-guidelines.md", "reason": "校验:两阶段去重(source 列表查跳过+md5 DuplicateError)、source 部分唯一索引不被绕过、implication 复用 create_implication 防环+回填、单一来源、无 fav_count"}
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "校验:scraper 层+services/scrape.py 不导入 fastapi、AppError 子类(ScraperError)带 stable code、复用 ingest/tag_post 未重写、类型注解+future annotations、AC 覆盖测试、无真实网络请求"}

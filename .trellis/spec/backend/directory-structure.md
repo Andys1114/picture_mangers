@@ -25,7 +25,8 @@ backend/
 │   ├── models/              SQLAlchemy ORM (one file per aggregate, __init__ exports all)
 │   ├── schemas/             Pydantic request/response models
 │   ├── api/                 route modules; __init__ aggregates into api_router (/api prefix). Implemented: auth, health, posts, tags.
-│   └── services/            business logic. Implemented: auth, errors, search, media, tags. Future: scraper.
+│   ├── services/            business logic. Implemented: auth, errors, search, media, tags, scrape. Future: import API endpoints (slice 8).
+│   └── scrapers/            site-specific upstream adapters (pure HTTP, no DB/FastAPI). Implemented: base (Scraper ABC + ScrapedPost), danbooru. Future: gelbooru/moebooru.
 ├── alembic/                 migrations; env.py injects runtime URL + pragmas
 ├── alembic.ini              URL left blank — injected by env.py from app.config
 ├── tests/                   pytest; conftest provides tmp DB + migrated TestClient
@@ -59,5 +60,6 @@ backend/
 
 - Clean layered route: `app/api/auth.py` (thin handlers delegating to `app/services/auth.py`).
 - Media ingestion kernel (no route — pure service): `app/services/media.py` (`ingest` + md5/phash/thumbnails).
+- Scraper adapter + orchestration split: `app/scrapers/danbooru.py` (pure HTTP: search/fetch/download, rate-limit, retry) vs `app/services/scrape.py` (DB glue: download→`media.ingest`→`tags.tag_post`, two-stage dedup). Scraper knows nothing about DB; orchestrator knows nothing about HTTP specifics.
 - Engine + pragmas + dependency: `app/db.py`.
 - Model aggregate with association tables: `app/models/tag.py` (Tag + PostTag + TagImplication).

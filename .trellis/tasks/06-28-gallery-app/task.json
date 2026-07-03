@@ -25,7 +25,8 @@
     "06-30-frontend-skeleton-browse",
     "07-01-frontend-visual-polish",
     "07-01-backend-media-pipeline",
-    "07-03-backend-tag-write-side"
+    "07-03-backend-tag-write-side",
+    "07-03-backend-danbooru-scraper"
   ],
   "parent": null,
   "relatedFiles": [

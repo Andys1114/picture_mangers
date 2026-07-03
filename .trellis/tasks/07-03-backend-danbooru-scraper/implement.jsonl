@@ -1,0 +1,4 @@
+{"file": ".trellis/tasks/06-28-gallery-app/design.md", "reason": "父§4 抓取路径 B(scraper 抽象/ScrapedPost/限速重试/implication 批量拉取/两阶段去重)+§6 import 端点是本切片设计源头;§8 切片拆分定位本切片为切片4"}
+{"file": ".trellis/spec/backend/database-guidelines.md", "reason": "Scrape Dedup 两阶段(source 列表查跳过+md5 走 duplicate 流)、(source_site,source_id) 部分唯一索引、单一来源、implication 写时物化+防环——编排服务直接依据"}
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "业务逻辑不在 route(本切片无 route)、AppError 子类带 stable code、类型注解+future annotations、复用而非重写 ingest/tag_post"}
+{"file": "CONTEXT.md", "reason": "来源(source_site/source_id/source_url/单一来源)/连带(implication 物化)/抓取去重术语——确保 scraper 字段命名与项目术语表一致"}

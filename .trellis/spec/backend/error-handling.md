@@ -22,6 +22,7 @@ Defined in `app/services/errors.py`:
 - `ConflictError` — 409, code `"conflict"`.
 - `NotFoundError` — 404, code `"not_found"`. Raised when a referenced resource (e.g. a post id) does not exist.
 - `DuplicateError` — 409, code `"duplicate"`. Raised by `services/media.ingest` when an incoming image's md5 already exists; the caller decides whether to skip silently, log, or count it.
+- `ScraperError` — 502, code `"scraper_error"`. Raised by scraper adapters (`app/scrapers/`) after rate-limited retries are exhausted (network failure, persistent 5xx, malformed response). The orchestration service (`services/scrape.py`) catches it per-post to isolate failures without aborting the batch.
 
 Add a new subclass when a new HTTP semantics is needed. For a one-off error, raise `AppError(msg, status_code=..., code=...)` inline.
 
