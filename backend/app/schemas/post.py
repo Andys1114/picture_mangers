@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class TagResponse(BaseModel):
@@ -50,3 +50,27 @@ class PostListResponse(BaseModel):
 
     data: list[PostSummaryResponse]
     meta: PageMeta
+
+
+class PostUpdateRequest(BaseModel):
+    """Partial update for PATCH /api/posts/{id}.
+
+    ``tags`` (when present) is a full-replacement tag-name list — the post's
+    tag set becomes exactly this (existing tags not in the list are removed,
+    new ones are added via the implication-materializing tag_post). ``rating``
+    is optional. Either field may be omitted to leave it untouched.
+    """
+
+    tags: list[str] | None = None
+    rating: str | None = Field(default=None, pattern=r"^(safe|questionable|explicit)$")
+
+
+class PostNextResponse(BaseModel):
+    """Prev/next post ids for the detail-page keyboard navigation.
+
+    Computed over the global id-desc view (excluding duplicates), independent
+    of any tag/safe_mode filter — the detail page navigates the whole gallery.
+    """
+
+    prev_id: int | None
+    next_id: int | None

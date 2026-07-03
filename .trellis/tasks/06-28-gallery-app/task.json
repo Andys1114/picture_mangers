@@ -27,7 +27,8 @@
     "07-01-backend-media-pipeline",
     "07-03-backend-tag-write-side",
     "07-03-backend-danbooru-scraper",
-    "07-03-backend-favorites"
+    "07-03-backend-favorites",
+    "07-03-backend-post-edit"
   ],
   "parent": null,
   "relatedFiles": [

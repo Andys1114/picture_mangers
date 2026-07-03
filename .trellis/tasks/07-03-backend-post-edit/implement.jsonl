@@ -1,0 +1,4 @@
+{"file": ".trellis/tasks/06-28-gallery-app/design.md", "reason": "父§6 posts 端点(PATCH改标签/分级、DELETE删、GET /next翻页上下文)是本切片端点设计源头"}
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "业务逻辑不在 route、AppError 子类带 stable code、类型注解+future annotations、复用而非重写 tag_post"}
+{"file": ".trellis/spec/backend/database-guidelines.md", "reason": "ondelete CASCADE(删post级联post_tags/favorite_items)、post_count写时维护(删post_tags要-1)、duplicate_of_id排重(next排除)、ORM/Core参数化查询"}
+{"file": "docs/adr/0001-implication-materialized-at-write-time.md", "reason": "黏删除语义——删post_tags行是per-post的(不撤implication关系)，全量替换标签时删差集不影响其他post的物化集"}

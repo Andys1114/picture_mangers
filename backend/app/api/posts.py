@@ -5,7 +5,7 @@ envelope {data, meta}; detail returns the full post with its expanded tag set.
 """
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from app.db import get_db
@@ -15,10 +15,12 @@ from app.schemas.favorite import StarToggleResponse
 from app.schemas.post import (
     PostDetailResponse,
     PostListResponse,
+    PostNextResponse,
     PostSummaryResponse,
+    PostUpdateRequest,
     TagResponse,
 )
-from app.services import favorites, search
+from app.services import favorites, post_edit, search
 
 router = APIRouter(prefix="/posts", tags=["posts"])
 
@@ -101,3 +103,55 @@ def toggle_favorite(
     """
     favorited = favorites.toggle_star(db, post_id)
     return StarToggleResponse(favorited=favorited)
+
+
+@router.get("/{post_id}/next", response_model=PostNextResponse)
+def get_next(
+    post_id: int,
+    _user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> PostNextResponse:
+    """Prev/next post ids for detail-page keyboard navigation (id-desc view)."""
+    prev_id, next_id = post_edit.next_post(db, post_id)
+    return PostNextResponse(prev_id=prev_id, next_id=next_id)
+
+
+@router.patch("/{post_id}", response_model=PostDetailResponse)
+def update_post(
+    post_id: int,
+    payload: PostUpdateRequest,
+    _user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> PostDetailResponse:
+    """Edit a post — full-replace tags (when provided) and/or change rating."""
+    post = post_edit.update_post(db, post_id, tag_names=payload.tags, rating=payload.rating)
+    tag_rows = search.tags_for_post(db, post_id)
+    return PostDetailResponse(
+        id=post.id,
+        preview_path=post.preview_path,
+        width=post.width,
+        height=post.height,
+        rating=post.rating,
+        is_animated=post.is_animated,
+        favorite=False,
+        file_path=post.file_path,
+        thumb_path=post.thumb_path,
+        source_site=post.source_site,
+        source_url=post.source_url,
+        md5=post.md5,
+        created_at=post.created_at,
+        tags=[
+            TagResponse(id=t.id, name=t.name, category=t.category, post_count=t.post_count)
+            for t in tag_rows
+        ],
+    )
+
+
+@router.delete("/{post_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_post(
+    post_id: int,
+    _user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> None:
+    """Delete a post — removes its media directory and DB row (cascade)."""
+    post_edit.delete_post(db, post_id)
