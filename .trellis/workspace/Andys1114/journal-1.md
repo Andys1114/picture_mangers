@@ -337,3 +337,50 @@
 ### Next Steps
 
 - 后端剩余端点：post 编辑/删除/next（切片6后端依赖）、import 任务调度+进度端点（切片8，接已交付 scrape_to_db）。父任务后端能力基本就位（auth/posts/tags/favorites/scrape/media），剩 post 编辑删除 + 导入任务调度两块。
+
+
+## Session 7: post 编辑/删除/next 端点 (切片6后端)
+
+**Date**: 2026-07-03
+**Task**: 07-03-backend-post-edit（父任务 06-28-gallery-app 切片6后端）
+**Branch**: `main`
+
+### Summary
+
+用 Trellis 工作流交付详情页 lightbox 的后端依赖：services/post_edit.py（update_post 全量替换标签——差集加调 tag_post 物化 + 差集删 post_tags + post_count-1、改 rating、部分更新；delete_post 删物理文件 rmtree + db.delete 级联 post_tags/favorite_items；next_post id desc 相邻排重图返回 prev/next id）、api/posts.py 加 PATCH/DELETE/GET /next 三个端点（全认证 route 薄调 service）、schemas/post.py 加 PostUpdateRequest + PostNextResponse。复用 tag_post 做加标签（物化闭包），补「移除标签」逻辑在 post_edit（删 post_tags 不撤 implication，ADR-0001 黏语义只针对 implication 关系本身，per-post 删标签安全）。决策点与用户敲定：标签全量替换（编辑心智是完整新列表，前端无需算 add/remove）、DELETE 删物理文件（避免孤儿堆积，文件删在 DB 删前失败可重试）、next 全局 id desc 不过滤（design §6 未提过滤，详情页翻页是全局浏览上下文）。
+
+### Main Changes
+
+- `backend/app/services/post_edit.py`（新增）：update_post（全量替换：差集加 tag_post 物化 + 差集删 post_tags + post_count-1；改 rating；部分更新）、delete_post（rmtree 物理文件 + db.delete 级联）、next_post（id desc 相邻，排重图 duplicate_of_id IS NOT NULL，prev/next）。
+- `backend/app/api/posts.py`：+PATCH /{post_id}（改标签/分级）、+DELETE /{post_id}（删）、+GET /{post_id}/next（翻页上下文），全 Depends(get_current_user)。
+- `backend/app/schemas/post.py`：+PostUpdateRequest(tags?/rating? pattern)、+PostNextResponse(prev_id?/next_id?)，补 Field import。
+- `backend/tests/test_post_edit.py`（新增 5 例）：AC1 全量替换标签+post_count±1、AC2+AC3 rating/部分更新、AC4 删post+级联+文件+404、AC5 next翻页(首尾null)、AC6 401。
+- database-guidelines spec 回写（post_count 维护补 post_edit 删减路径）。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| (feat) | feat(backend): post 编辑/删除/next 端点 (切片6后端) |
+| (auto) | chore(task): archive 07-03-backend-post-edit |
+
+### Testing
+
+- [OK] pytest -q 全量 57 passed（原 52 + 新 5 post_edit），14.38s
+- [OK] AC1-AC6 全过；全量替换标签物化正确、删post级联+文件、next翻页首尾null
+- [OK] spec 自查：复用 tag_post 未重写（post_edit 第69行）、route 薄调 service（3处）、零 schema 变更（仍3迁移）
+
+### Key Decisions
+
+- 标签全量替换：「编辑标签」心智是完整新列表，前端传完整 tags，服务端算差集（加调 tag_post 物化、删 post_tags + post_count-1）。比增量（add_tags/remove_tags）更直观，前端无需算差集。
+- 删 post_tags 不撤 implication：ADR-0001 黏删除针对 implication 关系本身（删 implication 不撤老图标签）；per-post 删 post_tags 行只影响这个 post 的标签集，不影响其他 post 或 implication 关系。全量替换删差集安全。
+- DELETE 删物理文件在 DB 删前：文件删失败时 post 仍在可重试；反之 DB 删了文件留孤儿指向不存在文件更糟。rmtree 失败抛异常，DB 未删。
+- next 全局 id desc 不过滤：design §6 说「翻页上下文」未提过滤；详情页翻页是全局浏览，不是搜索结果内翻页。排重图仍排除（与列表视图一致）。
+
+### Status
+
+[OK] **Completed & archived → archive/2026-07/**
+
+### Next Steps
+
+- 后端只剩 import 任务调度（切片8）：POST /api/import/scan + /import/scrape + GET /api/tasks/{id} + APScheduler 后台调度，接已交付 scrape_to_db。这是最后一块后端。其余父任务子任务偏前端（切片6详情页 lightbox、切片7标签页+搜索框、切片8导入页UI+收藏UI）。
