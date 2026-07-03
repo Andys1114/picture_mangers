@@ -239,3 +239,51 @@
 ### Next Steps
 
 - 父任务 06-28-gallery-app 剩余后端切片：切片4(Danbooru 抓取器,复用本次 tag_post + 切片3 media.ingest,能端到端「抓取→入库→物化标签」)。写入侧与摄入内核均已就位,抓取器是最后一块数据进入拼图。
+
+
+## Session 5: Danbooru 抓取器 (切片4)
+
+**Date**: 2026-07-03
+**Task**: 07-03-backend-danbooru-scraper（父任务 06-28-gallery-app 切片 4）
+**Branch**: `main`
+
+### Summary
+
+用 Trellis 工作流交付后端「数据进入」最后一块拼图：scraper 抽象（scrapers/base.py：Scraper ABC + ScrapedPost/ScrapedTag dataclass）+ Danbooru 适配器（scrapers/danbooru.py：匿名公共 API、time.sleep 限速、指数退避重试、search/fetch/fetch_implications、按 API 文档字段映射）+ 编排服务（services/scrape.py：scrape_to_db 两阶段去重 source 列表查跳过下载 + md5 DuplicateError、download→media.ingest→tag_post、错误隔离单张失败不中断整批；bootstrap_implications 拉远程 implication 图复用 create_implication 防环409跳过）。复用切片3 media.ingest + 切片2剩余 tag_post/create_implication（不改只调）。决策点与用户敲定：Cloudflare 403 拦截 Danbooru 公共 API（JS challenge 非 UA 能绕）→ 全 mock 测试（FakeScraper + httpx.MockTransport），真实抓取留给用户配 HTTPS_PROXY 后 httpx 自动认、不在 AC 内；编排放 services/scrape.py 跨层胶水（scraper 只管 HTTP、orchestrator 只管 DB）；限速 time.sleep 非令牌桶（单线程单用户够）。
+
+### Main Changes
+
+- `backend/app/scrapers/base.py`（新增）：Scraper 抽象基类（search/fetch 抽象 + download 具体默认 httpx GET）、ScrapedPost/ScrapedTag dataclass、rate_limit_sleep 测试可 patch 包装。
+- `backend/app/scrapers/danbooru.py`（新增）：DanbooruScraper——_get（限速+指数退避重试 429/5xx/网络错误，max_retries 耗尽抛 ScraperError）、search/fetch/fetch_implications、_parse_post 字段映射（id/file_url→image_url/file_ext/rating s/q/e/g→safe/questionable/explicit/tag_string_general|character|copyright|artist|meta→5类/animated 检测）。
+- `backend/app/services/scrape.py`（新增）：ScrapeResult dataclass（new/duplicate/failed）、scrape_to_db（两阶段去重 + ingest + tag_post + 错误隔离）、bootstrap_implications（拉远程 implication 复用 create_implication 防环跳过）。
+- `backend/app/services/errors.py`：加 ScraperError(AppError 502 code=scraper_error)。
+- `backend/tests/test_scrape.py`（新增 7 例）：AC3 两阶段去重（source 跳过下载 + md5 DuplicateError）、AC4 ingest+物化、AC6 错误隔离、AC5 implication bootstrap（环跳过）、AC2 danbooru parser + 429 重试（httpx.MockTransport）+ 重试耗尽抛 ScraperError。
+- 2 个 backend spec 回写：directory-structure（加 scrapers 包 + scrape service + scraper/orchestration 分层示例）、error-handling（补 ScraperError 错误类型）。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `fd29b17` | feat(backend): Danbooru 抓取器 (scraper 抽象 + danbooru 适配器 + 编排服务, 切片4) |
+| (auto) | chore(task): archive 07-03-backend-danbooru-scraper |
+
+### Testing
+
+- [OK] pytest -q 全量 46 passed（原 39 + 新 7 scrape），14.13s
+- [OK] AC1-AC6 全过；danbooru parser 字段映射 + 429 重试 + 重试耗尽 ScraperError 全验证
+- [OK] spec 自查：scrapers/+services/scrape.py 不导入 fastapi（纯服务）、media.py/tags.py 未改（只调）、零 schema 变更（仍 3 迁移）、测试无真实网络请求
+
+### Key Decisions
+
+- Cloudflare 403 → 全 mock 测试：Danbooru 公共 API 被 Cloudflare JS challenge 拦截（非 UA/referer 能绕）。切片价值在抽象+编排逻辑，FakeScraper + httpx.MockTransport 能验证正确性。真实可达是运维问题（用户配 HTTPS_PROXY 后 httpx 自动认，代码不改）。AC 诚实标注「真实抓取不保证可达」。
+- scraper/orchestration 分层：scrapers/ 只管 HTTP（取元数据+字节，不导入 fastapi/不碰 DB），services/scrape.py 是跨层胶水（调 scraper + media.ingest + tag_post + create_implication）。让 scraper 可独立测试、orchestrator 可换数据源。
+- 限速 time.sleep 非令牌桶：单线程单用户场景，令牌桶过度工程。rate_limit_sleep 包装便于测试 patch 为 0。
+- httpx.Client 注入：DanbooruScraper 构造接受 client 参数，测试注入 httpx.MockTransport 伪造响应，无真实网络。
+
+### Status
+
+[OK] **Completed & archived → archive/2026-07/**
+
+### Next Steps
+
+- 后端「数据进入路径」三件套（media.ingest + tag_post 物化 + scraper 编排）已全部就位。剩余父任务子任务偏前端：切片6（详情页 lightbox）、切片7（标签页+搜索框 chip）、切片8（导入页 + 收藏夹——导入页接 POST /api/import/scrape 端点 + APScheduler 后台调度 + /api/tasks/{id} 进度轮询，复用本次 scrape_to_db）。后端至此无纯后端切片剩余，后续后端工作随切片8 的导入 API 端点 + 任务调度展开。
