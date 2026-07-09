@@ -23,7 +23,7 @@ export function AuthCard({ title, description, children, footer, className }: Au
         <div className="flex flex-col items-center gap-2 text-center">
           <div className="flex items-center gap-2">
             <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent/15 text-accent">
-              <Images className="h-5 w-5" />
+              <Images aria-hidden className="h-5 w-5" />
             </span>
             <span className="text-lg font-semibold tracking-tight">PM Gallery</span>
           </div>

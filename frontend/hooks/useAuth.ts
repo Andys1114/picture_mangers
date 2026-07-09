@@ -2,6 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { api } from "@/lib/api";
 import { queryKeys } from "@/lib/queryClient";
 
@@ -52,5 +53,6 @@ export function useLogout() {
       qc.clear();
       router.replace("/login");
     },
+    onError: () => toast.error("退出失败，请重试"),
   });
 }

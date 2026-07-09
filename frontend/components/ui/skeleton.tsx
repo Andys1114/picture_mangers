@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn("shimmer animate-shimmer rounded-md", className)}
+      className={cn("shimmer relative overflow-hidden rounded-md", className)}
       {...props}
     />
   );

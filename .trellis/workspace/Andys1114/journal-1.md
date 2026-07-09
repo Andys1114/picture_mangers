@@ -437,3 +437,32 @@
 ### Next Steps
 
 - **后端全部交付完毕**。父任务 06-28-gallery-app 后端端点全齐（auth/posts/tags/favorites/import+tasks，28 个端点 + 服务层 media.ingest/tag_post/scrape_to_db/post_edit/favorites/tasks/import_service）。剩余父任务子任务全偏前端：切片6（详情页 lightbox）、切片7（标签页+搜索框chip）、切片8（导入页UI+收藏UI，接本次 import/tasks 端点 + favorites 端点）。后端无更多纯后端切片，后续工作转前端。
+
+
+---
+
+## 2026-07-04 · 07-03-ui-spec-polish（UI 规范打磨）
+
+### What Happened
+
+- 多智能体三段流水线完成全前端 UI 规范打磨：审计（10 维度 x 34 文件 + 按文件对抗复核，31 agents，raw 98 → 确认 92：10 high / 28 medium / 54 low，否决 5）→ 实施（13 个文件互斥工作包并行，23 文件 +338/-149）→ 检查（5 组闭环核对 + 3 个 trellis-check 回归猎手：0 missed，7 partial 与 6 条新回归全部在主会话补修）。
+- 十条 high 全修：--accent 调深 #2563eb（按钮白字 3.63→5.17:1）、顶栏 focus-within 键盘唤回（一处清四条同根）、Sheet 焦点圈闭/还原/X 钮/滚动锁、瀑布流 CSS columns → JS 贪心分列（追加页零重排）、search-box min-w-0（375px 溢出根因）、router.replace → push + 同步守卫。
+- 运行时冒烟（curl SSR）：登录/画廊/设置三页全部命中新改动标记；tsc + lint 绿。
+
+### Key Decisions
+
+- 瀑布流弃 CSS columns：column-fill balance 每追加一页整列重排（复核员确认无纯 CSS 解法），改组件内贪心分列（前缀稳定），tab 顺序仍列优先（记入 spec Known Deferred）。
+- --explicit 不动（兼任错误文本色），destructive 按钮局部改 bg-red-600；tagCategoryColor 的 text-accent 对比度隐患记入 spec 备忘（当前零调用点，接线时用 *-300 亮色）。
+- 评分角标 scrim bg-black/40 → /90（白图最劣 explicit 4.65:1 达标）；text-[11px] → text-xs。
+- 菜单项禁用态用 disabled:cursor-not-allowed 而非 pointer-events-none（后者让点击穿透误关菜单）。
+- html 加 scrollbar-gutter: stable（滚动锁不再 17px 跳动）；masonry 列数惰性初始化（回退导航不整格重挂）。
+- 用户可见文案全面去黑话（工单号/接口名/实现机制），规则沉淀进 component-guidelines Copy 节。
+
+### Status
+
+[OK] 92 条确认项：83 fixed + 7 partial 补修完 + 1 recorded（虚拟化，架构级）+ 0 missed；回归 6 条全修。待 commit。
+
+### Next Steps
+
+- 建议真人过一遍交互走查（键盘全流程 + 三档宽度），静态复核已覆盖但浏览器实操未做。
+- 前端切片继续：切片6 lightbox / 切片7 标签chip / 切片8 导入UI（接已交付后端端点）。

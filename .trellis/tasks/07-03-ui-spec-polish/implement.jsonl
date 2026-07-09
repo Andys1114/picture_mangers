@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "组件/样式/无障碍约定：token 化、tagCategoryColor、真按钮、键盘一等公民——所有修复必须遵守"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "禁用/必需模式与代码评审清单（no any、键盘对等、深色对比度、桌面优先范围）"}
+{"file": ".trellis/spec/frontend/type-safety.md", "reason": "TS strict 约定，改组件 props 时遵守"}
+{"file": ".trellis/tasks/07-03-ui-spec-polish/research/ui-audit-findings.md", "reason": "多智能体审计确认的违规清单（本任务的修复依据，逐条对应 implement.md 勾选项）"}

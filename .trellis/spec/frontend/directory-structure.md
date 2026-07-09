@@ -20,10 +20,10 @@ frontend/
 │   │   ├── tags/page.tsx     /tags
 │   │   ├── favorites/        /favorites, /favorites/[id]
 │   │   ├── import/page.tsx   /import
-│   │   └── scrape/page.tsx   /scrape
+│   │   ├── scrape/page.tsx   /scrape
+│   │   └── settings/page.tsx /settings
 │   ├── login/page.tsx        /login  (public)
 │   ├── setup/page.tsx        /setup  (public)
-│   ├── settings/page.tsx     /settings
 │   ├── layout.tsx            root layout: providers (TanStack QueryClient), theme
 │   └── middleware.ts (see note)
 ├── middleware.ts             cookie-presence gate — Next.js requires this at the project root, NOT under app/. File shown here for layout overview; the real file is frontend/middleware.ts.

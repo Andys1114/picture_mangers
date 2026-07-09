@@ -48,7 +48,14 @@ TypeScript strict, Tailwind + shadcn/ui, TanStack Query. Quality bars: typed API
 
 - **Desktop-first** this milestone. Breakpoints: waterfall column count scales with viewport; topbar/drawer adapt.
 - **Narrow-screen grace**: layout must not break/overflow below ~768px, but no dedicated mobile touch UX (drag-reorder may be desktop-only with a keyboard fallback).
+- Flex children that must shrink (e.g. the topbar search form) need explicit `min-w-0` — the `min-width: auto` default is the usual 375px-overflow culprit.
 - **Dedicated mobile** is deferred to a later version.
+
+## Known Deferred (recorded, do not re-report)
+
+- **List virtualization** for the infinite waterfall (masonry-grid keeps all loaded cards in the DOM). Architectural; revisit when libraries have thousands of posts.
+- **Waterfall tab order is column-major** (greedy column split): DOM order follows columns, not visual rows. Inherent to the layout; acceptable for a gallery.
+- The masonry layout is JS greedy-split flex columns (prefix-stable so appended pages never move rendered cards) — do NOT "simplify" it back to CSS `column-count`; that reflows every card on each appended page.
 
 ---
 

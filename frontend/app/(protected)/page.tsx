@@ -2,7 +2,7 @@
 
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { MasonryGrid } from "@/components/browse/masonry-grid";
+import { MasonryGrid, MasonrySkeleton } from "@/components/browse/masonry-grid";
 import { useInfinitePosts } from "@/hooks/useInfinitePosts";
 
 function BrowseView() {
@@ -16,7 +16,7 @@ function BrowseView() {
       isError={q.isError}
       isFetchingNextPage={q.isFetchingNextPage}
       hasNextPage={!!q.hasNextPage}
-      fetchNextPage={() => q.fetchNextPage()}
+      fetchNextPage={q.fetchNextPage}
       refetch={() => q.refetch()}
     />
   );
@@ -24,8 +24,9 @@ function BrowseView() {
 
 export default function BrowsePage() {
   return (
-    <main className="pb-8">
-      <Suspense fallback={<div className="p-8 text-muted">加载中…</div>}>
+    <main className="pb-8 mx-auto max-w-[1800px]">
+      <h1 className="sr-only">图库</h1>
+      <Suspense fallback={<MasonrySkeleton />}>
         <BrowseView />
       </Suspense>
     </main>

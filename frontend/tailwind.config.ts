@@ -47,14 +47,20 @@ const config: Config = {
           from: { opacity: "0", transform: "translateY(8px)" },
           to: { opacity: "1", transform: "none" },
         },
-        shimmer: {
-          to: { backgroundPosition: "-200% 0" },
+        "slide-in-left": {
+          from: { opacity: "0", transform: "translateX(-16px)" },
+          to: { opacity: "1", transform: "none" },
+        },
+        "slide-in-right": {
+          from: { opacity: "0", transform: "translateX(16px)" },
+          to: { opacity: "1", transform: "none" },
         },
       },
       animation: {
-        "fade-in": "fade-in 150ms ease-out",
+        "fade-in": "fade-in 150ms cubic-bezier(0.22, 1, 0.36, 1)",
         "fade-in-up": "fade-in-up 200ms cubic-bezier(0.22, 1, 0.36, 1) both",
-        shimmer: "shimmer 1.4s ease-in-out infinite",
+        "slide-in-left": "slide-in-left 200ms cubic-bezier(0.22, 1, 0.36, 1) both",
+        "slide-in-right": "slide-in-right 200ms cubic-bezier(0.22, 1, 0.36, 1) both",
       },
     },
   },

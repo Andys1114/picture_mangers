@@ -27,7 +27,7 @@ export function ratingIcon(r: Rating): LucideIcon {
   }
 }
 
-/** Rating → Chinese label for the chip. */
+/** Rating → short chip label (Danbooru convention: safe/q/e). */
 export function ratingLabel(r: Rating): string {
   switch (r) {
     case "safe":

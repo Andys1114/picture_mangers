@@ -14,18 +14,18 @@ export function TagDrawer() {
         type="button"
         onClick={() => setOpen(true)}
         aria-label="打开标签筛选"
-        className="inline-flex items-center gap-1.5 h-10 px-3 rounded-md text-sm text-foreground hover:bg-surface cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        className="inline-flex items-center gap-1.5 h-10 px-3 rounded-md text-sm font-medium text-foreground hover:bg-surface cursor-pointer transition duration-150 ease-out-soft active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
       >
-        <Tags className="h-4 w-4" />
+        <Tags className="h-4 w-4" aria-hidden />
         <span className="hidden sm:inline">标签</span>
       </button>
       <Sheet open={open} onOpenChange={setOpen} aria-label="标签筛选">
         <div className="p-4 border-b border-border flex items-center justify-between">
           <h2 className="font-medium">标签筛选</h2>
         </div>
-        <div className="p-4 text-sm text-muted">
-          标签树数据待 #7 接入（GET /api/tags）。届时这里按类型折叠展示热门标签。
-        </div>
+        <p className="p-4 text-sm text-muted leading-relaxed">
+          标签筛选即将上线：届时这里会按分类展示热门标签。
+        </p>
       </Sheet>
     </>
   );

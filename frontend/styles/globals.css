@@ -12,7 +12,7 @@
     --border: 240 4% 13%; /* #1f1f23 */
     --foreground: 0 0% 90%; /* #e5e5e7 */
     --muted: 240 4% 55%; /* #8a8a90 */
-    --accent: 217 91% 60%; /* #3b82f6 */
+    --accent: 221 83% 53%; /* #2563eb */
     --accent-foreground: 0 0% 100%;
     --safe: 142 71% 45%; /* #22c55e */
     --questionable: 45 93% 47%; /* #eab308 */
@@ -33,6 +33,10 @@
   }
   html {
     color-scheme: dark;
+    /* Keep focus/anchor scroll targets clear of the 56px fixed top bar. */
+    scroll-padding-top: 4.5rem;
+    /* Reserve the scrollbar slot so modal scroll-locks don't shift the page. */
+    scrollbar-gutter: stable;
   }
   body {
     background-color: hsl(var(--background));
@@ -47,45 +51,38 @@
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
+      animation-delay: 0ms !important;
       scroll-behavior: auto !important;
     }
   }
 }
 
-/* Masonry: CSS columns, equal-width, tiny 4px gap (PRD F1). */
-.masonry {
-  column-gap: 4px;
-  column-count: 2;
-}
-@media (min-width: 768px) {
-  .masonry {
-    column-count: 3;
-  }
-}
-@media (min-width: 1024px) {
-  .masonry {
-    column-count: 4;
-  }
-}
-@media (min-width: 1280px) {
-  .masonry {
-    column-count: 5;
-  }
-}
-.masonry > * {
-  break-inside: avoid;
-}
-
-/* Skeleton shimmer: a slow gradient sweep across the placeholder. */
+/* Skeleton shimmer: a slow gradient sweep across the placeholder. The sweep is
+   a transform on ::after (compositor-friendly; animating background-position
+   repaints every frame). .shimmer sets no `position` of its own — unlayered
+   CSS would beat Tailwind's positioning utilities — so users must already be
+   positioned. */
 .shimmer {
+  overflow: hidden;
+  background-color: hsl(var(--shimmer-from));
+}
+.shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
   background-image: linear-gradient(
     90deg,
-    hsl(var(--shimmer-from)) 0%,
-    hsl(var(--shimmer-to)) 50%,
-    hsl(var(--shimmer-from)) 100%
+    transparent,
+    hsl(var(--shimmer-to)),
+    transparent
   );
-  background-size: 200% 100%;
-  background-position: 200% 0;
+  animation: shimmer-sweep 1.4s ease-in-out infinite;
+}
+@keyframes shimmer-sweep {
+  to {
+    transform: translateX(100%);
+  }
 }
 
 /* Touch devices have no hover: keep the card favorite button visible so it is

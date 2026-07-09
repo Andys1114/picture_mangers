@@ -38,18 +38,20 @@ export function Topbar() {
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
       className={cn(
-        "fixed top-0 inset-x-0 z-40 h-14 border-b border-border backdrop-blur-md bg-background/70 transition-all duration-200 ease-out-soft",
-        hidden && !hovering ? "-translate-y-full opacity-0" : "translate-y-0 opacity-100",
+        "fixed top-0 inset-x-0 z-40 h-14 border-b border-border backdrop-blur-md bg-background/70 transition-[transform,opacity] duration-200 ease-out-soft",
+        hidden && !hovering
+          ? "-translate-y-full opacity-0 focus-within:translate-y-0 focus-within:opacity-100"
+          : "translate-y-0 opacity-100",
       )}
     >
       <div className="h-full mx-auto max-w-[1800px] px-4 flex items-center gap-3">
         <Link
           href="/"
           className="flex items-center gap-2 font-semibold text-foreground shrink-0"
-          aria-label="图库首页"
+          aria-label="PM Gallery 图库首页"
         >
           <span className="flex h-7 w-7 items-center justify-center rounded-md bg-accent/15 text-accent">
-            <Images className="h-4 w-4" />
+            <Images className="h-4 w-4" aria-hidden />
           </span>
           <span className="hidden sm:inline">PM Gallery</span>
         </Link>
@@ -59,24 +61,29 @@ export function Topbar() {
         <DropdownMenu
           align="end"
           aria-label="账户菜单"
-          trigger={<User className="h-5 w-5" />}
+          className="max-w-[16rem]"
+          trigger={<User className="h-5 w-5" aria-hidden />}
         >
-          <div className="px-3 py-2 text-xs text-muted border-b border-border mb-1">
+          <div
+            className="px-3 py-2 text-xs text-muted border-b border-border mb-1 truncate"
+            title={me.data?.username ?? "未登录"}
+          >
             {me.data?.username ?? "未登录"}
           </div>
           <DropdownMenuItem
             className="flex items-center gap-2"
             onClick={() => router.push("/settings")}
           >
-            <Settings className="h-4 w-4" />
+            <Settings className="h-4 w-4" aria-hidden />
             设置
           </DropdownMenuItem>
+          <div role="separator" className="my-1 border-t border-border" />
           <DropdownMenuItem
             className="flex items-center gap-2 text-explicit"
             onClick={() => logout.mutate()}
             disabled={logout.isPending}
           >
-            <LogOut className="h-4 w-4" />
+            <LogOut className="h-4 w-4" aria-hidden />
             退出登录
           </DropdownMenuItem>
         </DropdownMenu>
