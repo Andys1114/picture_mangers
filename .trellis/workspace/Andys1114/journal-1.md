@@ -499,3 +499,36 @@
 ### Next Steps
 
 - None - task complete
+
+
+## Session 4: 后端审计修复：41 条确认项全部落地
+
+**Date**: 2026-07-11
+**Task**: 后端审计修复：41 条确认项全部落地
+**Branch**: `main`
+
+### Summary
+
+按 docs/backend-audit-2026-07-04.md 修复全部 41 条确认项（高4/中11/低26）：5 个 trellis-implement 并行实现 + 6 个 trellis-check 对抗复核（含变异测试验证）。测试 63→121 例全绿。关键沉淀：alembic fileConfig 需 disable_existing_loggers=False（否则 app logger 被禁用）；tag_post 事务所有权 commit 参数约定；worker 循环 except 必须 rollback；/media 认证路由替代 StaticFiles。规范文档四处同步更新。遗留：requirements.txt 缺 pillow/imagehash/apscheduler 为既有漂移未处理；迁移改名撞唯一索引的理论边界接受 fail-loud。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `a76155a` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
