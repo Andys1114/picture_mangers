@@ -22,6 +22,7 @@ export interface Tag {
   name: string;
   category: TagCategory;
   post_count: number;
+  is_deprecated: boolean;
 }
 
 /** List-item shape (no full tag set, to keep payload small). */

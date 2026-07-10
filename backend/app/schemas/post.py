@@ -11,6 +11,9 @@ class TagResponse(BaseModel):
     name: str
     category: str
     post_count: int
+    # Deprecated tags stay attached to posts but clients should de-emphasize
+    # them; defaults False so older payload builders remain valid.
+    is_deprecated: bool = False
 
 
 class PostSummaryResponse(BaseModel):
@@ -22,9 +25,8 @@ class PostSummaryResponse(BaseModel):
     height: int
     rating: str
     is_animated: bool
-    # Whether the current user has this post in their default favorite.
-    # Favorites API lands in a later subtask; until then this is always False
-    # (favorited state is derived from favorite_items membership, never a count).
+    # True when the post is in the default (star) collection — derived from
+    # favorite_items membership, never a count (grilling decision).
     favorite: bool = False
 
 
@@ -69,7 +71,8 @@ class PostNextResponse(BaseModel):
     """Prev/next post ids for the detail-page keyboard navigation.
 
     Computed over the global id-desc view (excluding duplicates), independent
-    of any tag/safe_mode filter — the detail page navigates the whole gallery.
+    of any tag filter — the detail page navigates the whole gallery. Safe mode
+    (when on for the session) skips non-safe posts, matching the gallery.
     """
 
     prev_id: int | None

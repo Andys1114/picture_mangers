@@ -19,7 +19,10 @@ duplicate signal, everything else is a real failure.
 """
 from __future__ import annotations
 
+import logging
+from collections.abc import Callable
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -28,6 +31,11 @@ from app.models.post import Post
 from app.scrapers.base import Scraper, ScrapedPost
 from app.services import media, tags
 from app.services.errors import ConflictError, DuplicateError
+
+if TYPE_CHECKING:
+    from app.services.tasks import TaskState
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -45,66 +53,95 @@ def scrape_to_db(
     query: str,
     *,
     limit: int = 20,
+    state: "TaskState | None" = None,
+    is_cancelled: Callable[[], bool] | None = None,
 ) -> ScrapeResult:
     """Search ``query`` via ``scraper``, download + ingest each post, tag it.
 
     Returns a ``ScrapeResult`` with new/duplicate/failed counts. Each post is
     processed independently — one failure never aborts the batch.
+
+    ``state`` and ``is_cancelled`` are optional task-integration hooks (both
+    default to None so direct callers keep the old signature): ``state.total``
+    is set once the search returns and ``state.processed`` advances per post;
+    ``is_cancelled`` is polled before each post — True stops the batch and
+    returns the counts so far.
     """
     result = ScrapeResult()
     posts = scraper.search(query, limit=limit)
+    if state is not None:
+        state.total = len(posts)
 
     for sp in posts:
-        # Stage 1: source dedup — skip if (source_site, source_id) already imported.
-        existing = db.execute(
-            select(Post.id).where(
-                Post.source_site == scraper.source_site,
-                Post.source_id == sp.source_id,
-            )
-        ).first()
-        if existing is not None:
-            result.duplicate += 1
-            continue
+        if is_cancelled is not None and is_cancelled():
+            return result
 
-        # Download the image bytes.
         try:
-            data = scraper.download(sp.image_url)
-        except Exception:
-            result.failed += 1
-            continue
+            # Stage 1: source dedup — skip if (source_site, source_id) already imported.
+            existing = db.execute(
+                select(Post.id).where(
+                    Post.source_site == scraper.source_site,
+                    Post.source_id == sp.source_id,
+                )
+            ).first()
+            if existing is not None:
+                result.duplicate += 1
+                continue
 
-        # Stage 2: ingest (md5 dedup raises DuplicateError; source partial
-        # unique index also enforces source dedup at the DB level as a
-        # belt-and-suspenders against races).
-        try:
-            post = media.ingest(
-                db, data,
-                source_site=scraper.source_site,
-                source_id=sp.source_id,
-                source_url=sp.source_url,
-                file_ext=sp.file_ext,
-                is_animated=sp.is_animated,
-                rating=sp.rating,
-            )
-        except DuplicateError:
-            result.duplicate += 1
-            continue
-        except Exception:
-            result.failed += 1
-            continue
+            # Download the image bytes.
+            try:
+                data = scraper.download(sp.image_url)
+            except Exception as exc:
+                logger.warning("scrape download failed source_id=%s err=%s", sp.source_id, exc)
+                db.rollback()
+                result.failed += 1
+                continue
 
-        # Materialize the scraped tags onto the new post (closure + post_count
-        # handled by tag_post).
-        try:
-            tags.tag_post(db, post.id, [t.name for t in sp.tags])
-        except Exception:
-            # The post was ingested but tagging failed — count as failed but
-            # the post still exists (partial ingest; acceptable, user can
-            # re-tag via the future edit endpoint).
-            result.failed += 1
-            continue
+            # Stage 2: ingest (md5 dedup raises DuplicateError; source partial
+            # unique index also enforces source dedup at the DB level as a
+            # belt-and-suspenders against races).
+            try:
+                post = media.ingest(
+                    db, data,
+                    source_site=scraper.source_site,
+                    source_id=sp.source_id,
+                    source_url=sp.source_url,
+                    file_ext=sp.file_ext,
+                    is_animated=sp.is_animated,
+                    rating=sp.rating,
+                )
+            except DuplicateError:
+                db.rollback()
+                result.duplicate += 1
+                continue
+            except Exception as exc:
+                # Discard any half-flushed Post so it cannot ride along with a
+                # later post's commit.
+                logger.warning("scrape ingest failed source_id=%s err=%s", sp.source_id, exc)
+                db.rollback()
+                result.failed += 1
+                continue
 
-        result.new += 1
+            # Materialize the scraped tags onto the new post (closure + post_count
+            # handled by tag_post).
+            try:
+                tags.tag_post(db, post.id, [t.name for t in sp.tags])
+            except Exception as exc:
+                # The post was ingested but tagging failed — count as failed but
+                # the post still exists (partial ingest; acceptable, user can
+                # re-tag via the future edit endpoint).
+                logger.warning(
+                    "scrape tagging failed source_id=%s post_id=%s err=%s",
+                    sp.source_id, post.id, exc,
+                )
+                db.rollback()
+                result.failed += 1
+                continue
+
+            result.new += 1
+        finally:
+            if state is not None:
+                state.processed += 1
 
     return result
 

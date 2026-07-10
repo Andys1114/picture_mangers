@@ -1,0 +1,6 @@
+{"file": ".trellis/spec/backend/directory-structure.md", "reason": "分层约束：routes stay thin、服务层职责，#21/#31 相关"}
+{"file": ".trellis/spec/backend/database-guidelines.md", "reason": "ORM/迁移/post_count 不变量约定，#3/#4/#11/#38 相关"}
+{"file": ".trellis/spec/backend/error-handling.md", "reason": "统一错误信封与异常吞咽禁令，#1/#16/#28/#36 相关"}
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "禁止 str(exc) 返回客户端等红线，#36 相关"}
+{"file": ".trellis/spec/backend/logging-guidelines.md", "reason": "日志点要求（任务生命周期/登录/重试），#39 相关"}
+{"file": "docs/backend-audit-2026-07-04.md", "reason": "审计报告原文：41 条发现的证据、触发场景、最小修复与复核意见"}

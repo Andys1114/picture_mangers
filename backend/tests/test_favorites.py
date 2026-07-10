@@ -237,3 +237,42 @@ def test_404_on_missing(client: TestClient, media_dir: Path, db) -> None:
     # Star a missing post.
     r = client.post("/api/posts/999999/favorite")
     assert r.status_code == 404
+
+
+# --- unique names + default-collection robustness ---------------------------
+
+def test_create_favorite_duplicate_name_conflict(client: TestClient, media_dir: Path, db) -> None:
+    # audit #11: names identify collections, so creating a second collection
+    # with a taken name is a 409 instead of a silent duplicate row.
+    _setup(client)
+    assert client.post("/api/favorites", json={"name": "dup"}).status_code == 201
+    r = client.post("/api/favorites", json={"name": "dup"})
+    assert r.status_code == 409
+    assert r.json()["error"]["code"] == "conflict"
+
+    # No second row was created.
+    rows = db.execute(select(Favorite).where(Favorite.name == "dup")).scalars().all()
+    assert len(rows) == 1
+
+
+def test_star_reuses_manually_created_default_collection(client: TestClient, media_dir: Path, db) -> None:
+    # audit #11: a collection created by hand under the reserved default name
+    # is reused by the star toggle — one row, no MultipleResultsFound 500.
+    _setup(client)
+    pid = _ingest_post(db, media_dir, (7, 7, 7))
+    fav_id = client.post(
+        "/api/favorites", json={"name": favorites.DEFAULT_FAVORITE_NAME}
+    ).json()["id"]
+
+    r = client.post(f"/api/posts/{pid}/favorite")
+    assert r.status_code == 200
+    assert r.json()["favorited"] is True
+
+    rows = db.execute(
+        select(Favorite).where(Favorite.name == favorites.DEFAULT_FAVORITE_NAME)
+    ).scalars().all()
+    assert [f.id for f in rows] == [fav_id], "star must reuse the existing row"
+    members = db.execute(
+        select(FavoriteItem).where(FavoriteItem.favorite_id == fav_id)
+    ).scalars().all()
+    assert [m.post_id for m in members] == [pid]

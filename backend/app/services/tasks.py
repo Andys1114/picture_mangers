@@ -13,6 +13,7 @@ must not cross request/worker boundaries.
 """
 from __future__ import annotations
 
+import logging
 import secrets
 import threading
 from dataclasses import dataclass, field
@@ -20,6 +21,8 @@ from datetime import datetime, timezone
 
 from apscheduler.executors.pool import ThreadPoolExecutor
 from apscheduler.schedulers.background import BackgroundScheduler
+
+logger = logging.getLogger(__name__)
 
 
 def _now() -> datetime:
@@ -34,6 +37,7 @@ class TaskState:
 
     task_id: str
     kind: str  # "scan" | "scrape"
+    params: str = ""  # submission parameters; identity key for dedup
     status: str = "pending"  # pending|running|completed|failed|cancelled
     processed: int = 0
     total: int = 0
@@ -65,32 +69,52 @@ def _get_scheduler() -> BackgroundScheduler:
 
 
 def shutdown_scheduler() -> None:
-    """Stop the scheduler (call on app shutdown)."""
+    """Stop the scheduler (call on app shutdown). Cancellation is broadcast to
+    every task first so in-flight workers exit at their next poll — the pool
+    threads are non-daemon and would otherwise block interpreter exit until a
+    long scan/scrape finishes naturally."""
     global _scheduler
     if _scheduler is not None:
+        with _tasks_lock:
+            for state in _tasks.values():
+                state.cancel_requested = True
         _scheduler.shutdown(wait=False)
         _scheduler = None
 
 
-def _register(kind: str) -> TaskState:
-    task_id = secrets.token_hex(8)
-    state = TaskState(task_id=task_id, kind=kind)
+def _register(kind: str, params: str) -> tuple[TaskState, bool]:
+    """Return ``(state, created)``. If a task with the same kind + params is
+    still pending/running, return it instead of registering a duplicate — a
+    double submission would race two workers over the same files."""
     with _tasks_lock:
+        for existing in _tasks.values():
+            if (
+                existing.kind == kind
+                and existing.params == params
+                and existing.status in ("pending", "running")
+            ):
+                return existing, False
+        task_id = secrets.token_hex(8)
+        state = TaskState(task_id=task_id, kind=kind, params=params)
         _tasks[task_id] = state
-    return state
+        return state, True
 
 
 def submit_scan(path: str) -> str:
-    """Submit a local-scan job; returns the task id immediately."""
-    state = _register("scan")
-    _get_scheduler().add_job(_run_scan, args=[state.task_id, path], id=state.task_id)
+    """Submit a local-scan job; returns the task id immediately. Resubmitting
+    the same path while a scan of it is pending/running returns that task's id."""
+    state, created = _register("scan", params=path)
+    if created:
+        _get_scheduler().add_job(_run_scan, args=[state.task_id, path], id=state.task_id)
     return state.task_id
 
 
 def submit_scrape(query: str, limit: int) -> str:
-    """Submit a scrape job; returns the task id immediately."""
-    state = _register("scrape")
-    _get_scheduler().add_job(_run_scrape, args=[state.task_id, query, limit], id=state.task_id)
+    """Submit a scrape job; returns the task id immediately. Resubmitting the
+    same query+limit while one is pending/running returns that task's id."""
+    state, created = _register("scrape", params=f"{query}|{limit}")
+    if created:
+        _get_scheduler().add_job(_run_scrape, args=[state.task_id, query, limit], id=state.task_id)
     return state.task_id
 
 
@@ -129,18 +153,24 @@ def _run_scan(task_id: str, path: str) -> None:
     if state is None:
         return
     state.status = "running"
+    logger.info("scan task started task_id=%s path=%s", task_id, path)
     db = SessionLocal()
     try:
         import_service.scan_directory(task_id, path, state, _is_cancelled, db)
-    except Exception as exc:  # pragma: no cover - defensive
+    except Exception:
+        logger.exception("scan task failed task_id=%s path=%s", task_id, path)
         state.status = "failed"
-        state.error = str(exc)
+        state.error = "导入失败，请查看服务器日志"
         state.finished_at = _now()
         return
     finally:
         db.close()
     state.status = "cancelled" if state.cancel_requested else "completed"
     state.finished_at = _now()
+    logger.info(
+        "scan task finished task_id=%s status=%s processed=%d total=%d duplicates=%d failed=%d",
+        task_id, state.status, state.processed, state.total, state.duplicates, state.failed,
+    )
 
 
 def _run_scrape(task_id: str, query: str, limit: int) -> None:
@@ -155,19 +185,27 @@ def _run_scrape(task_id: str, query: str, limit: int) -> None:
     if state is None:
         return
     state.status = "running"
+    logger.info("scrape task started task_id=%s query=%s limit=%d", task_id, query, limit)
     db = SessionLocal()
     try:
         scraper = DanbooruScraper()
-        result = scrape_svc.scrape_to_db(db, scraper, query, limit=limit)
-        state.processed = state.total = result.new + result.duplicate + result.failed
+        result = scrape_svc.scrape_to_db(
+            db, scraper, query, limit=limit,
+            state=state, is_cancelled=lambda: _is_cancelled(task_id),
+        )
         state.duplicates = result.duplicate
         state.failed = result.failed
-    except Exception as exc:
+    except Exception:
+        logger.exception("scrape task failed task_id=%s query=%s", task_id, query)
         state.status = "failed"
-        state.error = str(exc)
+        state.error = "抓取失败，请查看服务器日志"
         state.finished_at = _now()
         return
     finally:
         db.close()
     state.status = "cancelled" if state.cancel_requested else "completed"
     state.finished_at = _now()
+    logger.info(
+        "scrape task finished task_id=%s status=%s processed=%d total=%d duplicates=%d failed=%d",
+        task_id, state.status, state.processed, state.total, state.duplicates, state.failed,
+    )

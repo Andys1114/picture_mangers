@@ -7,18 +7,20 @@ touches the real ``backend/media``.
 from __future__ import annotations
 
 import io
+import sqlite3
 from pathlib import Path
 
 import imagehash
 import pytest
 from PIL import Image
 from fastapi.testclient import TestClient
+from sqlalchemy import text
 
 from app import db as db_module
 from app.config import settings
 from app.models.post import Post
 from app.services import media
-from app.services.errors import DuplicateError
+from app.services.errors import AppError, DuplicateError
 
 
 # --- fixtures --------------------------------------------------------------
@@ -252,3 +254,56 @@ def test_ingest_rollback_on_disk_failure(client: TestClient, media_dir: Path, db
     # The failed row was flushed but never committed; rollback discards it.
     db.rollback()
     assert db.query(Post).count() == 0
+
+
+# --- file_ext whitelist (audit #6) -------------------------------------------
+
+def test_ingest_rejects_non_whitelisted_file_ext(client: TestClient, media_dir: Path, db) -> None:
+    """audit #6: ingest whitelists file_ext before touching disk or DB — a
+    traversal-shaped or unknown extension raises a validation AppError and
+    leaves no row and no file behind."""
+    data = _png_bytes(16, 16, (7, 7, 7))
+    for bad_ext in ("png/../../evil", "png\\..\\evil", "exe", "", "png ", "p.n.g"):
+        with pytest.raises(AppError) as exc:
+            media.ingest(
+                db, data,
+                source_site="local", source_id=None, source_url=None,
+                file_ext=bad_ext, is_animated=False,
+            )
+        assert exc.value.code == "validation_error", bad_ext
+        assert exc.value.status_code == 400, bad_ext
+
+    assert db.query(Post).count() == 0
+    assert not (media_dir / "posts").exists(), "nothing may be written for a rejected ext"
+
+
+def test_ingest_normalizes_file_ext_case(client: TestClient, media_dir: Path, db) -> None:
+    """audit #6: uppercase extensions are accepted but normalized to lowercase
+    so on-disk names and DB paths stay consistent."""
+    data = _png_bytes(16, 16, (8, 8, 8))
+    post = media.ingest(
+        db, data,
+        source_site="local", source_id=None, source_url=None,
+        file_ext="PNG", is_animated=False,
+    )
+    assert post.file_ext == "png"
+    assert post.file_path == f"posts/{post.id}/original.png"
+    assert (media_dir / post.file_path).exists()
+
+
+# --- sqlite busy_timeout (audit #14) ------------------------------------------
+
+def test_sqlite_busy_timeout_on_test_engine(client: TestClient, db) -> None:
+    """audit #14: connections wait for the write lock (busy_timeout=30000)
+    instead of failing fast — ingest holds a write txn across disk file IO."""
+    assert db.execute(text("PRAGMA busy_timeout")).scalar_one() == 30000
+
+
+def test_app_engine_pragma_sets_busy_timeout() -> None:
+    """audit #14: the app engine's connect hook sets the same busy_timeout."""
+    conn = sqlite3.connect(":memory:")
+    try:
+        db_module._set_sqlite_pragma(conn, None)
+        assert conn.execute("PRAGMA busy_timeout").fetchone()[0] == 30000
+    finally:
+        conn.close()

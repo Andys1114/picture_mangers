@@ -7,12 +7,15 @@ plain AND over post_tags per ADR-0001).
 """
 from __future__ import annotations
 
+import logging
+
 from fastapi.testclient import TestClient
 
 from app import db as db_module
 from app.models.post import Post
 from app.models.tag import PostTag, Tag
 from app.models.user import Session as SessionRow
+from app.services import search
 
 
 def _setup(client: TestClient) -> None:
@@ -210,3 +213,105 @@ def test_token_row_survives_safe_mode_off(client: TestClient) -> None:
         row = db.get(SessionRow, token)
         assert row is not None
         assert row.safe_mode is False
+
+
+def test_favorite_field_derived_from_membership(client: TestClient) -> None:
+    # audit #10 + #31: list/detail/patch derive `favorite` from the default
+    # collection's favorite_items membership (no more hardcoded False).
+    _setup(client)
+    with db_module.SessionLocal() as db:
+        starred_id = _add_post(db, rating="safe", md5="a" * 32)
+        plain_id = _add_post(db, rating="safe", md5="b" * 32)
+
+    # Nothing starred yet — everything reads False.
+    by_id = {p["id"]: p["favorite"] for p in client.get("/api/posts").json()["data"]}
+    assert by_id == {starred_id: False, plain_id: False}
+
+    assert client.post(f"/api/posts/{starred_id}/favorite").json()["favorited"] is True
+
+    # List reflects membership per post.
+    by_id = {p["id"]: p["favorite"] for p in client.get("/api/posts").json()["data"]}
+    assert by_id == {starred_id: True, plain_id: False}
+    # Detail too.
+    assert client.get(f"/api/posts/{starred_id}").json()["favorite"] is True
+    assert client.get(f"/api/posts/{plain_id}").json()["favorite"] is False
+    # PATCH response too.
+    r = client.patch(f"/api/posts/{starred_id}", json={"rating": "safe"})
+    assert r.status_code == 200
+    assert r.json()["favorite"] is True
+
+    # Unstar — reads flip back to False.
+    assert client.post(f"/api/posts/{starred_id}/favorite").json()["favorited"] is False
+    assert client.get(f"/api/posts/{starred_id}").json()["favorite"] is False
+
+
+def test_safe_mode_covers_detail_and_next(client: TestClient) -> None:
+    # audit #30: safe_mode also applies to GET /posts/{id} and /posts/{id}/next,
+    # not just the list view.
+    _setup(client)  # fresh session defaults to safe_mode=True
+    with db_module.SessionLocal() as db:
+        safe_old = _add_post(db, rating="safe", md5="a" * 32)
+        explicit = _add_post(db, rating="explicit", md5="b" * 32)
+        safe_new = _add_post(db, rating="safe", md5="c" * 32)
+
+    # Detail of a non-safe post 404s while safe_mode is on.
+    r = client.get(f"/api/posts/{explicit}")
+    assert r.status_code == 404
+    assert r.json()["error"]["code"] == "not_found"
+    # ...and so does its /next (the current post itself is hidden).
+    assert client.get(f"/api/posts/{explicit}/next").status_code == 404
+
+    # Navigation skips the explicit post in both directions.
+    assert client.get(f"/api/posts/{safe_new}/next").json() == {
+        "prev_id": None,
+        "next_id": safe_old,
+    }
+    assert client.get(f"/api/posts/{safe_old}/next").json() == {
+        "prev_id": safe_new,
+        "next_id": None,
+    }
+
+    # safe_mode off — detail and adjacency see the explicit post again.
+    assert client.patch("/api/auth/me/settings", json={"safe_mode": False}).status_code == 200
+    assert client.get(f"/api/posts/{explicit}").status_code == 200
+    assert client.get(f"/api/posts/{safe_new}/next").json()["next_id"] == explicit
+
+
+def test_validation_error_uses_envelope(client: TestClient) -> None:
+    # audit #16: FastAPI request-validation failures (422) must use the
+    # unified error envelope instead of the default {"detail": [...]}.
+    _setup(client)
+    r = client.get("/api/posts", params={"page": 0})
+    assert r.status_code == 422
+    body = r.json()
+    assert "detail" not in body
+    assert body["error"]["code"] == "validation_error"
+    assert "page" in body["error"]["message"]
+
+
+def test_unhandled_exception_is_logged_and_enveloped(
+    client: TestClient, monkeypatch, caplog
+) -> None:
+    # audit #39: the catch-all handler records the traceback server-side while
+    # the client still gets the generic 500 envelope.
+    _setup(client)
+    token = client.cookies["gallery_session"]
+
+    def boom(*args, **kwargs):  # type: ignore[no-untyped-def]
+        raise RuntimeError("boom")
+
+    monkeypatch.setattr(search, "list_posts", boom)
+    from app.main import app
+
+    with TestClient(app, raise_server_exceptions=False) as c:
+        c.cookies.set("gallery_session", token)
+        with caplog.at_level(logging.ERROR, logger="app.services.errors"):
+            r = c.get("/api/posts")
+
+    assert r.status_code == 500
+    assert r.json() == {"error": {"code": "internal_error", "message": "服务器内部错误"}}
+    records = [rec for rec in caplog.records if rec.name == "app.services.errors"]
+    assert records, "unhandled exception must be logged"
+    assert records[0].levelname == "ERROR"
+    assert "unhandled exception" in records[0].getMessage()
+    assert records[0].exc_info is not None, "traceback must be attached"

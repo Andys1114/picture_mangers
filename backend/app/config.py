@@ -27,7 +27,6 @@ class Settings(BaseSettings):
     media_dir: str = "./media"
 
     # Auth / sessions
-    secret_key: str = "dev-secret-change-me"
     session_expire_days: int = 30
     # Cookie Secure flag — False for local dev (no HTTPS), True in production.
     secure_cookie: bool = False

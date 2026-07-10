@@ -28,11 +28,15 @@ SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False, futu
 if settings.database_url.startswith("sqlite"):
     @event.listens_for(engine, "connect")
     def _set_sqlite_pragma(dbapi_conn, _record):  # type: ignore[no-untyped-def]
-        """Enable WAL, foreign keys, and relaxed synchronous flush."""
+        """Enable WAL, foreign keys, relaxed synchronous flush, and a busy timeout."""
         cur = dbapi_conn.cursor()
         cur.execute("PRAGMA journal_mode=WAL")
         cur.execute("PRAGMA foreign_keys=ON")
         cur.execute("PRAGMA synchronous=NORMAL")
+        # Writers wait up to 30s for the lock instead of failing fast with
+        # "database is locked" — ingest holds a write transaction across disk
+        # file IO, so concurrent workers/requests need headroom.
+        cur.execute("PRAGMA busy_timeout=30000")
         cur.close()
 
 

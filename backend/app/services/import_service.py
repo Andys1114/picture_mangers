@@ -3,13 +3,14 @@
 Walks a directory recursively, skipping files whose ``scan_history`` mtime
 matches the current ``os.path.getmtime`` (already scanned, unchanged). New /
 changed files are read into bytes and handed to ``media.ingest`` (which md5-
-dedups and writes the Post). ``scan_history`` is updated after each ingest so a
-re-scan skips it next time.
+dedups and writes the Post). ``scan_history`` is updated after each ingest —
+including md5 duplicates — so a re-scan skips the file next time.
 
 Local imports carry no tags (parent PRD F5) — tagging is a manual later action.
 """
 from __future__ import annotations
 
+import logging
 import os
 from collections.abc import Callable
 from pathlib import Path
@@ -24,6 +25,8 @@ from app.services.errors import DuplicateError
 
 if TYPE_CHECKING:
     from app.services.tasks import TaskState
+
+logger = logging.getLogger(__name__)
 
 # Supported local-import extensions (parent design.md §4).
 SUPPORTED_EXTS = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".apng"}
@@ -48,7 +51,7 @@ def scan_directory(
     """
     files = sorted(
         p for p in _walk_files(root)
-        if p.suffix.lower() in SUPPORTED_EXTS and p.stat().st_size <= MAX_FILE_BYTES
+        if p.suffix.lower() in SUPPORTED_EXTS and _within_size_limit(p)
     )
     state.total = len(files)
 
@@ -59,7 +62,8 @@ def scan_directory(
         path_str = str(p)
         try:
             mtime = os.path.getmtime(path_str)
-        except OSError:
+        except OSError as exc:
+            logger.warning("scan stat failed path=%s err=%s", path_str, exc)
             state.failed += 1
             state.processed += 1
             continue
@@ -85,18 +89,44 @@ def scan_directory(
                 file_ext=ext, is_animated=is_animated, rating="safe",
             )
         except DuplicateError:
+            db.rollback()
             state.duplicates += 1
-        except Exception:
+            # The file itself is unchanged — record it so the next scan skips
+            # re-reading (and re-hashing) this duplicate.
+            _record_scan_history(db, path_str, mtime)
+        except Exception as exc:
+            # Discard any half-flushed state (e.g. a Post row whose files were
+            # never written) so it cannot ride along with the next file's commit.
+            db.rollback()
             state.failed += 1
+            logger.warning("ingest failed path=%s err=%s", path_str, exc)
         else:
-            # Record / update scan_history so the next scan can skip.
-            if hist is not None:
-                hist.mtime = mtime
-            else:
-                db.add(ScanHistory(path=path_str, mtime=mtime))
-            db.commit()
+            _record_scan_history(db, path_str, mtime)
 
         state.processed += 1
+
+
+def _record_scan_history(db: Session, path: str, mtime: float) -> None:
+    """Insert or update the ``scan_history`` row for ``path`` and commit, so
+    the next scan's mtime check can skip the file."""
+    hist = db.execute(
+        select(ScanHistory).where(ScanHistory.path == path)
+    ).scalar_one_or_none()
+    if hist is not None:
+        hist.mtime = mtime
+    else:
+        db.add(ScanHistory(path=path, mtime=mtime))
+    db.commit()
+
+
+def _within_size_limit(p: Path) -> bool:
+    """True if ``p`` stats within MAX_FILE_BYTES. Files that vanish or become
+    unreadable between the walk and the stat are skipped instead of failing
+    the whole scan."""
+    try:
+        return p.stat().st_size <= MAX_FILE_BYTES
+    except OSError:
+        return False
 
 
 def _walk_files(root: str):

@@ -19,7 +19,7 @@ from app.config import settings
 from app.models.favorite import FavoriteItem
 from app.models.post import Post
 from app.models.tag import PostTag, Tag
-from app.services import favorites, media, tags
+from app.services import favorites, media, post_edit, tags
 
 
 # --- fixtures --------------------------------------------------------------
@@ -180,3 +180,130 @@ def test_edit_requires_auth(client: TestClient, media_dir: Path, db) -> None:
     ):
         r = getattr(client, method)(path, **kwargs)
         assert r.status_code == 401, f"{method.upper()} {path} needs auth, got {r.status_code}"
+
+
+# --- regression: implication closure survives full-replace -------------------
+
+def test_update_post_replace_keeps_implication_closure(
+    client: TestClient, media_dir: Path, db
+) -> None:
+    # audit #3: with miku→vocaloid, PATCH {tags:["miku"]} materializes
+    # {miku, vocaloid}; the remove phase must not strip the consequent.
+    _setup(client)
+    pid = _ingest(db, media_dir, (11, 22, 33))
+    miku = tags.create_tag(db, "miku", "character")
+    voc = tags.create_tag(db, "vocaloid", "general")
+    tags.create_implication(db, miku.id, voc.id)
+
+    r = client.patch(f"/api/posts/{pid}", json={"tags": ["miku"]})
+    assert r.status_code == 200, r.text
+    assert _tag_names_for_post(db, pid) == {"miku", "vocaloid"}, (
+        "materialized consequent must survive the replace"
+    )
+    db.expire_all()
+    assert db.get(Tag, miku.id).post_count == 1
+    assert db.get(Tag, voc.id).post_count == 1
+
+    # Replacing away the antecedent removes the whole closure (and only then).
+    r = client.patch(f"/api/posts/{pid}", json={"tags": ["plain"]})
+    assert r.status_code == 200, r.text
+    assert _tag_names_for_post(db, pid) == {"plain"}
+    db.expire_all()
+    assert db.get(Tag, miku.id).post_count == 0
+    assert db.get(Tag, voc.id).post_count == 0
+
+
+# --- regression: delete decrements post_count --------------------------------
+
+def test_delete_post_decrements_post_count(client: TestClient, media_dir: Path, db) -> None:
+    # audit #4: deleting a post decrements each of its tags' post_count
+    # (clamped at 0) even though the post_tags rows go via FK CASCADE.
+    _setup(client)
+    p1 = _ingest(db, media_dir, (21, 22, 23))
+    p2 = _ingest(db, media_dir, (24, 25, 26))
+    tags.tag_post(db, p1, ["shared", "only_p1"])
+    tags.tag_post(db, p2, ["shared"])
+
+    # Force a drifted counter to prove the clamp: only_p1 has one post_tags
+    # row but its counter already says 0.
+    only = db.execute(select(Tag).where(Tag.name == "only_p1")).scalar_one()
+    only.post_count = 0
+    db.commit()
+
+    r = client.delete(f"/api/posts/{p1}")
+    assert r.status_code == 204
+
+    db.expire_all()
+    shared = db.execute(select(Tag).where(Tag.name == "shared")).scalar_one()
+    assert shared.post_count == 1, "2 → 1 after deleting one of the two tagged posts"
+    only = db.execute(select(Tag).where(Tag.name == "only_p1")).scalar_one()
+    assert only.post_count == 0, "clamped at 0, not driven negative"
+
+
+# --- regression: update_post is a single transaction -------------------------
+
+def test_update_post_atomic_on_midway_failure(
+    client: TestClient, media_dir: Path, db, monkeypatch
+) -> None:
+    # audit #9: a failure after the add phase must leave neither the rating
+    # change nor the added tags behind — no committed union middle state.
+    _setup(client)
+    pid = _ingest(db, media_dir, (31, 32, 33))
+    tags.tag_post(db, pid, ["orig"])
+
+    real_tag_post = tags.tag_post
+
+    def tag_post_then_boom(*args, **kwargs):
+        real_tag_post(*args, **kwargs)
+        raise RuntimeError("boom after add phase")
+
+    monkeypatch.setattr(post_edit.tags, "tag_post", tag_post_then_boom)
+    with pytest.raises(RuntimeError):
+        post_edit.update_post(db, pid, tag_names=["orig", "added"], rating="explicit")
+
+    db.expire_all()
+    assert db.get(Post, pid).rating == "safe", "rating change must roll back"
+    assert _tag_names_for_post(db, pid) == {"orig"}, "no old∪new union state"
+    assert db.execute(
+        select(Tag).where(Tag.name == "added")
+    ).scalar_one_or_none() is None, "the new tag's get-or-create rolled back too"
+
+
+# --- regression: tag get-or-create race --------------------------------------
+
+def test_update_post_survives_tag_create_race(
+    client: TestClient, media_dir: Path, db, monkeypatch
+) -> None:
+    # audit #32: a concurrent session committing the same new tag name between
+    # our SELECT and flush must not fail the update — the pass is rerun and
+    # adopts the winner's row.
+    _setup(client)
+    pid = _ingest(db, media_dir, (41, 42, 43))
+    tags.tag_post(db, pid, ["orig"])
+
+    other = db_module.SessionLocal()
+    real_flush = db.flush
+    fired: list[bool] = []
+
+    def racing_flush(*args, **kwargs):
+        pending_raced = any(isinstance(o, Tag) and o.name == "raced" for o in db.new)
+        if pending_raced and not fired:
+            fired.append(True)
+            other.add(Tag(name="raced", category="general", post_count=0))
+            other.commit()
+        return real_flush(*args, **kwargs)
+
+    monkeypatch.setattr(db, "flush", racing_flush)
+    try:
+        post_edit.update_post(db, pid, tag_names=["raced"])
+    finally:
+        other.close()
+
+    assert fired, "the race must actually have been injected"
+    assert _tag_names_for_post(db, pid) == {"raced"}
+    rows = db.execute(select(Tag).where(Tag.name == "raced")).scalars().all()
+    assert len(rows) == 1, "the winner's row is adopted — no duplicate tag"
+    db.expire_all()
+    assert db.get(Tag, rows[0].id).post_count == 1
+    orig = db.execute(select(Tag).where(Tag.name == "orig")).scalar_one()
+    assert orig.post_count == 0, "the replaced-away tag was still decremented"

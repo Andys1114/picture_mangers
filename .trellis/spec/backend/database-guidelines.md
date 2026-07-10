@@ -17,7 +17,7 @@ foreign keys are enforced on every connection. Schema is owned by Alembic —
 - **Declarative 2.0 style** — `class Base(DeclarativeBase)`, `Mapped[T]` + `mapped_column(...)`.
 - **One `__tablename__` per table**, plural (`posts`, `tags`, `post_tags`).
 - **Shared mixins** for repeated column groups: `TimestampMixin` (created_at/updated_at with `server_default=func.current_timestamp()`).
-- **Denormalized counter `post_count` only** — `Tag.post_count` is kept on the tag row and equals the number of `post_tags` rows for that tag. Because implications are materialized at write time (see ADR-0001), `post_tags` always holds the fully-expanded tag set, so `post_count` is always accurate and needs no lazy recompute / dirty flag. It is bumped by whatever service mutates `post_tags` — currently `services/tags.py:tag_post` and `create_implication` backfill (add-only this slice; the ADR's sticky-delete rule means there is no decrement path yet).
+- **Denormalized counter `post_count` only** — `Tag.post_count` is kept on the tag row and equals the number of `post_tags` rows for that tag. Because implications are materialized at write time (see ADR-0001), `post_tags` always holds the fully-expanded tag set, so `post_count` is always accurate and needs no lazy recompute / dirty flag. It is bumped by whatever service mutates `post_tags` — see "post_count maintained at write time" below for the full list of mutation sites.
 - **No `fav_count`** — favorite counts are **not** tracked. Whether a post was favorited is derived from membership in a `favorite_items` row; there is no `Post.fav_count` column. Do not re-introduce one.
 - **Association tables** use composite primary keys: `PostTag(post_id, tag_id)`, `FavoriteItem(favorite_id, post_id)`.
 - **Foreign keys** specify `ondelete="CASCADE"` so deletes propagate.
@@ -30,7 +30,30 @@ foreign keys are enforced on every connection. Schema is owned by Alembic —
 - **Implication closure — write-time only** — a tag's full implication closure (antecedent → consequent, transitively) is computed only at **write time**: when a post is tagged (`services/tags.py:tag_post`, manual or scrape/import) and when an implication is created and existing antecedent posts are backfilled (`services/tags.py:create_implication`). The closure is materialized into `post_tags` so reads never recurse; search is a plain `post_tags` AND match.
 - **Closure implementation: BFS with visited-set, not a recursive CTE** — the closure is computed by an application-layer BFS over the `tag_implications` adjacency (visited set guards against pre-existing cycles). A recursive CTE was the original spec preference, but SQLAlchemy 2.0's recursive-CTE construction on SQLite is finicky enough that the BFS form is clearer and semantically equivalent for single-user scale. If a future scale demands it, a recursive CTE can replace the BFS without changing any caller.
 - **Implication cycle prevention** — before inserting a new implication `A→B`, `services/tags.py` runs a reverse-reachability check ("can B already reach A?") via the same closure BFS. If yes, the new edge would form a cycle → reject with `ConflictError` (409). Self-loops (`A→A`) are also rejected. The visited-set in the BFS is the belt-and-suspenders guard against any pre-existing cycle. See ADR-0001.
-- **`post_count` maintained at write time** — `Tag.post_count` is bumped by whatever service mutates `post_tags`: `tag_post` (+1 on add, slice 2), `create_implication` backfill (+1, slice 2), and `post_edit.update_post` (−1 on full-replace remove, slice 6 backend). It always equals the number of `post_tags` rows for that tag; no lazy recompute. Tag/implication deletion is still absent (ADR-0001 "sticky delete"); the `post_edit` decrement only removes a tag from one post, never retracts an implication.
+- **`post_count` maintained at write time** — `Tag.post_count` is bumped by whatever service mutates `post_tags`: `tag_post` (+1 on add), `create_implication` backfill (+1, batched), `post_edit.update_post` (−1 on full-replace remove), and `post_edit.delete_post` (−1 per tag before `db.delete(post)`). The delete case is easy to miss: the `post_tags` rows vanish via FK CASCADE *behind the ORM's back*, so any new delete path MUST decrement `post_count` itself first (clamped at 0) or the counter drifts upward permanently (audit 2026-07-04 #4). It always equals the number of `post_tags` rows for that tag; no lazy recompute. Implication deletion is still absent (ADR-0001 "sticky delete"); the `post_edit` decrements only remove tags from one post, never retract an implication.
+
+### Convention: transaction ownership for multi-step writes
+
+**What**: A service that composes several mutations into one logical operation owns the transaction; reusable sub-services take a `commit: bool = True` keyword so composed calls become flush-only. Example: `tags.tag_post(db, post_id, names, commit=False)` inside `post_edit.update_post` — the whole PATCH (rating + add closure + remove) is a single commit at the end, with `db.rollback()` on any failure.
+
+**Why**: `tag_post`'s internal commit mid-`update_post` persisted a "union" middle state when the remove phase failed (audit #9) — the client got a 500 but half the write was already durable.
+
+**Rules**:
+- `commit=True` (default): the callee owns commit AND recovery — on a lost get-or-create race (`IntegrityError` on `Tag.name` unique), roll back and rerun the whole pass once.
+- `commit=False`: flush only; errors propagate; the caller must `db.rollback()` and may retry the pass as a unit.
+- Worker loops that isolate per-item failures (`scan_directory`, `scrape_to_db`) MUST call `db.rollback()` in **every** `except` branch — including "benign" ones like `DuplicateError`. A dirty session otherwise commits half-flushed rows with the *next* item, or poisons the loop with `PendingRollbackError` (audit #1/#2/#7).
+
+```python
+# Wrong — dirty session rides into the next iteration's commit
+except Exception:
+    state.failed += 1
+
+# Correct
+except Exception as exc:
+    db.rollback()
+    state.failed += 1
+    logger.warning("ingest failed path=%s err=%s", path_str, exc)
+```
 
 ## Duplicate Images (Post)
 
@@ -52,7 +75,8 @@ foreign keys are enforced on every connection. Schema is owned by Alembic —
 
 - **Schema lives in migrations, not `create_all`** — lets later subtasks evolve the schema additively.
 - **`alembic/env.py` injects the DB URL** from `app.config` at runtime; `alembic.ini`'s `sqlalchemy.url` is left blank. Do NOT hardcode a URL in the ini.
-- **`render_as_batch=True`** is set in `env.py` so SQLite ALTER TABLE works (batch mode).
+- **`render_as_batch=True`** is set in `env.py` so SQLite ALTER TABLE works (batch mode). Batch mode *recreates* the table — on tables with CASCADE children (e.g. `favorites` → `favorite_items`) prefer a plain `create_index(unique=True)` over a batch-added UNIQUE constraint, or the recreate wipes the children (see migration `0a12b23de454`).
+- **`fileConfig(..., disable_existing_loggers=False)`** in `env.py` — mandatory; see logging-guidelines.md "Common Mistake: Alembic silences app loggers".
 - **Migration engine applies the same pragmas** (WAL, foreign_keys) as runtime, via a `connect` event listener.
 - **autogenerate flow**: `python -m alembic revision --autogenerate -m "..."` then review the generated file (check tables/indexes/constraints) before committing.
 
@@ -65,10 +89,11 @@ def _set_sqlite_pragma(dbapi_conn, _record):
     cur.execute("PRAGMA journal_mode=WAL")
     cur.execute("PRAGMA foreign_keys=ON")
     cur.execute("PRAGMA synchronous=NORMAL")
+    cur.execute("PRAGMA busy_timeout=30000")
     cur.close()
 ```
 
-Both `app/db.py` (runtime) and `alembic/env.py` (migrations) set these.
+Both `app/db.py` (runtime) and `alembic/env.py` (migrations) set these; `tests/conftest.py` mirrors them for the per-test engine. `busy_timeout=30000` exists because ingest holds a write transaction across file IO (`flush` → write files → `commit`) and the scheduler runs up to 3 workers — without it, a >5s write lock turns concurrent writes into `database is locked` errors (audit #14).
 
 ## Encoding Gotcha
 

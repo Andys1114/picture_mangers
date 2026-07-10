@@ -5,11 +5,11 @@ from pydantic import BaseModel, Field
 
 
 class ScanRequest(BaseModel):
-    path: str = Field(min_length=1)
+    path: str = Field(min_length=1, max_length=1024)
 
 
 class ScrapeRequest(BaseModel):
-    query: str = Field(min_length=1)
+    query: str = Field(min_length=1, max_length=512)
     source: str = Field(default="danbooru", pattern=r"^danbooru$")
     limit: int = Field(default=20, ge=1, le=1000)
 

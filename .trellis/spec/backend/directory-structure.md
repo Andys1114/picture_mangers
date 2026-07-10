@@ -18,10 +18,10 @@ FastAPI dependencies.
 ```
 backend/
 ├── app/
-│   ├── main.py              FastAPI app entry: middleware + router + error handlers
+│   ├── main.py              FastAPI app entry: middleware + router + error handlers + authenticated /media file route
 │   ├── config.py            Settings (pydantic-settings, .env-driven)
-│   ├── db.py                engine, SessionLocal, get_db dependency, WAL/FK pragmas
-│   ├── deps.py              cross-cutting deps (get_current_user)
+│   ├── db.py                engine, SessionLocal, get_db dependency, WAL/FK/busy_timeout pragmas
+│   ├── deps.py              cross-cutting deps (get_current_user, get_current_session)
 │   ├── models/              SQLAlchemy ORM (one file per aggregate, __init__ exports all)
 │   ├── schemas/             Pydantic request/response models
 │   ├── api/                 route modules; __init__ aggregates into api_router (/api prefix). Implemented: auth, health, posts, tags, favorites, import_.
@@ -44,6 +44,8 @@ backend/
 - **`api/__init__.py` aggregates routers** — each route module exposes a `router`; `__init__` mounts them under a single `APIRouter(prefix="/api")`. `main.py` only calls `app.include_router(api_router)`.
 - **Routes stay thin** — parse request, call a service function, return a schema. No business logic in `api/`.
 - **Services are reusable** — e.g. `auth.create_session` is called by both `/setup` and `/login`.
+- **Media files are served by an authenticated route, not StaticFiles** — `GET /media/{path:path}` in `main.py`: `Depends(get_current_session)`, `resolve()` + `is_relative_to(media_path)` traversal guard (404 on escape), `FileResponse` with `Cache-Control: public, max-age=31536000, immutable` (files under `posts/{id}/` are immutable; ids are never reused). A bare `StaticFiles` mount bypasses auth entirely — don't reintroduce one (audit #5/#17). URL shape stays `/media/<relative path>`; the Next.js rewrite depends on it.
+- **Session-row model import alias** — `from app.models.user import Session as SessionRow`. Importing it bare shadows `sqlalchemy.orm.Session` and silently mistypes every `db: Session` annotation in the file (audit #40).
 
 ---
 

@@ -14,12 +14,13 @@ dependencies = [
     "pillow>=10.0",
     "imagehash>=4.3",
     "apscheduler>=3.10",
+    # Runtime dependency: app/scrapers/* import httpx at module top level.
+    "httpx>=0.26",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0",
-    "httpx>=0.26",
 ]
 
 [build-system]

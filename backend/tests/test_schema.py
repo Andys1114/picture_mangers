@@ -4,6 +4,7 @@ from __future__ import annotations
 import sqlite3
 from pathlib import Path
 
+import pytest
 from fastapi.testclient import TestClient
 
 from app.models import Base
@@ -141,3 +142,111 @@ def test_migration_downgrade_reverses_schema_changes(tmp_db_url: str) -> None:
         assert "ix_posts_source_site_source_id" not in idx_names, "downgrade must drop the partial index"
     finally:
         conn.close()
+
+
+_NEW_INDEXES = {
+    "ux_favorites_name",
+    "ix_posts_rating",
+    "ix_posts_duplicate_of_id",
+    "ix_favorite_items_post_id",
+}
+
+
+def _index_names(conn: sqlite3.Connection) -> set[str]:
+    return {
+        r[0]
+        for r in conn.execute("SELECT name FROM sqlite_master WHERE type='index'")
+        if r[0] is not None
+    }
+
+
+def test_new_indexes_and_favorites_name_unique(client: TestClient, tmp_db_url: str) -> None:
+    # audit #11 + #38: head schema carries the read-path indexes and enforces
+    # unique favorite names via a unique index.
+    path = Path(tmp_db_url.replace("sqlite:///", ""))
+    conn = sqlite3.connect(str(path))
+    try:
+        assert _NEW_INDEXES <= _index_names(conn)
+        sql = conn.execute(
+            "SELECT sql FROM sqlite_master WHERE type='index' AND name='ux_favorites_name'"
+        ).fetchone()[0]
+        assert "unique" in sql.lower(), "favorites.name index must be UNIQUE"
+    finally:
+        conn.close()
+
+
+def test_favorites_dedup_migration_preserves_items(tmp_db_url: str) -> None:
+    # audit #11: the unique-name migration renames duplicate rows to
+    # "<name>-<id>" and must NOT lose favorite_items rows (a batch-mode table
+    # rebuild would fire ON DELETE CASCADE under PRAGMA foreign_keys=ON).
+    from alembic import command
+    from alembic.config import Config
+
+    cfg = Config("alembic.ini")
+    cfg.set_main_option("script_location", "alembic")
+    cfg.set_main_option("sqlalchemy.url", tmp_db_url)
+    # Stand on the previous head, where duplicate names are still possible.
+    command.upgrade(cfg, "ffcb2b9d04bb")
+
+    path = Path(tmp_db_url.replace("sqlite:///", ""))
+    conn = sqlite3.connect(str(path))
+    try:
+        conn.execute(
+            "INSERT INTO posts (file_path, thumb_path, preview_path, file_ext,"
+            " is_animated, width, height, file_size, md5, is_duplicate, rating)"
+            " VALUES ('p', 't', 'v', 'png', 0, 1, 1, 1, 'm1', 0, 'safe')"
+        )
+        post_id = conn.execute("SELECT id FROM posts").fetchone()[0]
+        conn.execute("INSERT INTO favorites (name) VALUES ('默认收藏')")
+        conn.execute("INSERT INTO favorites (name) VALUES ('默认收藏')")
+        keeper_id, dupe_id = [
+            r[0] for r in conn.execute("SELECT id FROM favorites ORDER BY id")
+        ]
+        conn.execute(
+            "INSERT INTO favorite_items (favorite_id, post_id, position) VALUES (?, ?, 0)",
+            (keeper_id, post_id),
+        )
+        conn.execute(
+            "INSERT INTO favorite_items (favorite_id, post_id, position) VALUES (?, ?, 0)",
+            (dupe_id, post_id),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+    command.upgrade(cfg, "head")
+
+    conn = sqlite3.connect(str(path))
+    try:
+        names = sorted(r[0] for r in conn.execute("SELECT name FROM favorites"))
+        assert names == ["默认收藏", f"默认收藏-{dupe_id}"], "later duplicate renamed to name-id"
+        # Membership rows survive the migration.
+        assert conn.execute("SELECT COUNT(*) FROM favorite_items").fetchone()[0] == 2
+        # Uniqueness is now enforced at the DB level.
+        with pytest.raises(sqlite3.IntegrityError):
+            conn.execute("INSERT INTO favorites (name) VALUES ('默认收藏')")
+    finally:
+        conn.close()
+
+    # Downgrade drops all four indexes (renames are a one-way cleanup).
+    command.downgrade(cfg, "ffcb2b9d04bb")
+    conn = sqlite3.connect(str(path))
+    try:
+        assert not (_NEW_INDEXES & _index_names(conn))
+        assert conn.execute("SELECT COUNT(*) FROM favorite_items").fetchone()[0] == 2
+    finally:
+        conn.close()
+
+
+def test_tag_response_carries_is_deprecated(client: TestClient) -> None:
+    # audit #37: api/tags passes is_deprecated but the schema used to drop it
+    # silently (extra='ignore'); it must reach the client now.
+    client.post("/api/auth/setup", json={"username": "admin", "password": "pw12345678"})
+    created = client.post("/api/tags", json={"name": "aria", "category": "general"})
+    assert created.status_code == 201
+    assert created.json()["is_deprecated"] is False
+
+    tag_id = created.json()["id"]
+    assert client.get(f"/api/tags/{tag_id}").json()["is_deprecated"] is False
+    listed = client.get("/api/tags").json()["data"]
+    assert listed and all("is_deprecated" in t for t in listed)

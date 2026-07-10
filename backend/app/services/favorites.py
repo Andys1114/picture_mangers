@@ -16,6 +16,8 @@ identified by a reserved name constant.
 """
 from __future__ import annotations
 
+from collections.abc import Iterable
+
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -24,8 +26,8 @@ from app.services import search
 from app.services.errors import ConflictError, NotFoundError
 
 # Reserved name for the auto-maintained default (star) collection. The default
-# is identified by this name (no schema flag column), so a user-created
-# collection with the same name would be reused — acceptable for single-user.
+# is identified by this name (no schema flag column); names are unique, so a
+# user-created collection with this exact name is simply reused by the star.
 DEFAULT_FAVORITE_NAME = "默认收藏"
 
 
@@ -56,7 +58,17 @@ def list_favorites(db: Session) -> list[tuple[Favorite, int]]:
 
 
 def create_favorite(db: Session, name: str) -> Favorite:
-    """Create a named collection."""
+    """Create a named collection. 409 if the name is already taken.
+
+    Names identify collections (the default is looked up by name), so
+    duplicates are rejected here; the unique index on ``favorites.name`` is
+    the DB-level backstop.
+    """
+    existing = db.execute(
+        select(Favorite).where(Favorite.name == name)
+    ).scalars().first()
+    if existing is not None:
+        raise ConflictError("收藏夹名称已存在")
     fav = Favorite(name=name)
     db.add(fav)
     db.commit()
@@ -67,17 +79,55 @@ def create_favorite(db: Session, name: str) -> Favorite:
 def get_or_create_default(db: Session) -> Favorite:
     """Return the default (star) collection, lazily creating it.
 
-    Called on first star; single-user means no race to worry about.
+    Reads with ``.first()`` on the oldest row: names are unique since the
+    ``ux_favorites_name`` migration, but a legacy DB that predates it may
+    still hold duplicates — the oldest one keeps the star role.
     """
-    fav = db.execute(
-        select(Favorite).where(Favorite.name == DEFAULT_FAVORITE_NAME)
-    ).scalar_one_or_none()
+    fav = (
+        db.execute(
+            select(Favorite)
+            .where(Favorite.name == DEFAULT_FAVORITE_NAME)
+            .order_by(Favorite.id)
+        )
+        .scalars()
+        .first()
+    )
     if fav is None:
         fav = Favorite(name=DEFAULT_FAVORITE_NAME)
         db.add(fav)
         db.commit()
         db.refresh(fav)
     return fav
+
+
+def favorite_post_ids(db: Session, post_ids: Iterable[int]) -> set[int]:
+    """Return the subset of ``post_ids`` that are in the default collection.
+
+    Drives the ``favorite`` field on post responses: membership-derived, never
+    a count. One IN query for a whole page of posts. Returns an empty set when
+    the default collection doesn't exist yet (nothing has been starred).
+    """
+    ids = list(post_ids)
+    if not ids:
+        return set()
+    default = (
+        db.execute(
+            select(Favorite)
+            .where(Favorite.name == DEFAULT_FAVORITE_NAME)
+            .order_by(Favorite.id)
+        )
+        .scalars()
+        .first()
+    )
+    if default is None:
+        return set()
+    rows = db.execute(
+        select(FavoriteItem.post_id).where(
+            FavoriteItem.favorite_id == default.id,
+            FavoriteItem.post_id.in_(ids),
+        )
+    ).all()
+    return {post_id for (post_id,) in rows}
 
 
 def list_items(db: Session, favorite_id: int) -> list[FavoriteItem]:

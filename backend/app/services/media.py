@@ -26,11 +26,17 @@ from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.models.post import Post
-from app.services.errors import DuplicateError
+from app.services.errors import AppError, DuplicateError
 
 # Longest-edge caps for the two thumbnail tiers (px), per design.md §4.
 THUMB_SIZE = 150
 PREVIEW_SIZE = 850
+
+# Allowed original-file extensions (dot-less, lowercase). Kept in sync with
+# the local-import whitelist (import_service.SUPPORTED_EXTS, which stores
+# dotted suffixes) but defined locally: import_service already imports this
+# module, so importing it back would be circular.
+SUPPORTED_EXTS = frozenset({"png", "jpg", "jpeg", "webp", "gif", "apng"})
 
 # Original / thumbnail file names inside a post's directory. Preview + thumb are
 # always static PNG (first frame for animations); original keeps the source ext
@@ -105,11 +111,13 @@ def ingest(
     """Ingest raw image ``data``: dedup, process, persist, and write the Post row.
 
     Steps (see design.md §2):
-    1. md5 → reject exact duplicates (``DuplicateError``).
-    2. Pillow decode → width/height + phash + thumbnails.
-    3. Insert Post with placeholder paths, ``flush`` to obtain ``id``.
-    4. Create ``media/posts/{id}/`` and write original/preview/thumb.
-    5. Backfill the relative paths and commit.
+    1. Whitelist-validate ``file_ext`` — it is spliced into on-disk paths and,
+       on the scrape path, originates from untrusted upstream JSON.
+    2. md5 → reject exact duplicates (``DuplicateError``).
+    3. Pillow decode → width/height + phash + thumbnails.
+    4. Insert Post with placeholder paths, ``flush`` to obtain ``id``.
+    5. Create ``media/posts/{id}/`` and write original/preview/thumb.
+    6. Backfill the relative paths and commit.
 
     Because the directory write happens after ``flush`` but before ``commit``,
     a disk failure rolls the row back via the caller's session lifecycle (the
@@ -121,6 +129,12 @@ def ingest(
     index on ``(source_site, source_id)`` enforces source dedup for non-null
     sources at the DB level (see ``database-guidelines.md``「Scrape Dedup」).
     """
+    file_ext = file_ext.lower()
+    if file_ext not in SUPPORTED_EXTS:
+        raise AppError(
+            f"不支持的文件扩展名: {file_ext}", status_code=400, code="validation_error"
+        )
+
     md5 = compute_md5(data)
 
     existing = db.execute(select(Post.id).where(Post.md5 == md5)).first()

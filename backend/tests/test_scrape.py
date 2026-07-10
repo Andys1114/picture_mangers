@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import io
 import json
+import logging
 from pathlib import Path
 
 import httpx
@@ -248,3 +249,98 @@ def test_danbooru_retry_exhausted_raises_scraper_error(client: TestClient, media
 
     with pytest.raises(ScraperError):
         scraper.search("any")
+
+
+# --- audit regression tests --------------------------------------------------
+
+def test_scrape_reports_progress_per_post(client: TestClient, media_dir: Path, db) -> None:
+    # audit #12 #13: state.total is set right after search; state.processed
+    # advances per post (polled snapshots prove it's not one batch write).
+    from app.services.tasks import TaskState
+
+    posts = [_scraped(str(600 + i), f"c{i}") for i in range(3)]
+    byte_map = {p.image_url: _png_bytes(10 + i, 10 + i, (i, 0, 0)) for i, p in enumerate(posts)}
+    scraper = FakeScraper(posts=posts, byte_map=byte_map)
+
+    state = TaskState(task_id="t-progress", kind="scrape")
+    snapshots: list[int] = []
+
+    def not_cancelled() -> bool:
+        snapshots.append(state.processed)
+        return False
+
+    r = scrape.scrape_to_db(db, scraper, "any", state=state, is_cancelled=not_cancelled)
+    assert r.new == 3
+    assert state.total == 3
+    assert state.processed == 3
+    assert snapshots == [0, 1, 2], "processed must advance per post, not per batch"
+
+
+def test_scrape_cancel_stops_batch(client: TestClient, media_dir: Path, db) -> None:
+    # audit #12 #13: is_cancelled is polled before each post; True stops the
+    # batch — remaining posts are never downloaded.
+    from app.services.tasks import TaskState
+
+    posts = [_scraped("701", "a"), _scraped("702", "b"), _scraped("703", "c")]
+    byte_map = {p.image_url: _png_bytes(10 + i, 10 + i, (0, i, 0)) for i, p in enumerate(posts)}
+    scraper = FakeScraper(posts=posts, byte_map=byte_map)
+
+    state = TaskState(task_id="t-cancel", kind="scrape")
+    calls = {"n": 0}
+
+    def cancelled_after_first() -> bool:
+        calls["n"] += 1
+        return calls["n"] > 1
+
+    r = scrape.scrape_to_db(db, scraper, "any", state=state, is_cancelled=cancelled_after_first)
+    assert r.new == 1
+    assert state.processed == 1 and state.total == 3
+    assert len(scraper.download_calls) == 1, "cancel must stop before further downloads"
+
+
+def test_scrape_ingest_failure_rolls_back_dirty_session(
+    client: TestClient, media_dir: Path, db, monkeypatch
+) -> None:
+    # audit #1 #7 (scrape side): a mid-ingest failure leaves a flushed orphan
+    # Post in the session — it must be rolled back, not committed by the next
+    # post's ingest.
+    from app.models.post import Post
+
+    posts = [_scraped("801", "a"), _scraped("802", "b")]
+    byte_map = {
+        "https://fake/801.png": _png_bytes(11, 11, (1, 2, 3)),
+        "https://fake/802.png": _png_bytes(12, 12, (4, 5, 6)),
+    }
+    scraper = FakeScraper(posts=posts, byte_map=byte_map)
+
+    real_write = Path.write_bytes
+    fail_once = {"armed": True}
+
+    def flaky_write(self: Path, data: bytes):
+        if fail_once["armed"] and self.name.startswith("original"):
+            fail_once["armed"] = False
+            raise OSError("disk full")
+        return real_write(self, data)
+
+    monkeypatch.setattr(Path, "write_bytes", flaky_write)
+
+    r = scrape.scrape_to_db(db, scraper, "any")
+    assert r.failed == 1 and r.new == 1
+
+    rows = db.execute(select(Post)).scalars().all()
+    assert len(rows) == 1, "half-ingested Post must not be committed by the next post"
+    assert rows[0].file_path != ""
+
+
+def test_scrape_failures_logged_with_source_id(client: TestClient, media_dir: Path, db, caplog) -> None:
+    # audit #28: per-post failures are logged (with source_id), not swallowed.
+    scraper = FakeScraper(posts=[_scraped("901", "x")], byte_map={})  # no bytes → download raises
+
+    with caplog.at_level(logging.WARNING, logger="app.services.scrape"):
+        r = scrape.scrape_to_db(db, scraper, "any")
+
+    assert r.failed == 1
+    assert any(
+        "download failed" in rec.getMessage() and "source_id=901" in rec.getMessage()
+        for rec in caplog.records
+    )

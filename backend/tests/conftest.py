@@ -37,6 +37,9 @@ def tmp_db_url(monkeypatch, tmp_path) -> str:
         cur.execute("PRAGMA journal_mode=WAL")
         cur.execute("PRAGMA foreign_keys=ON")
         cur.execute("PRAGMA synchronous=NORMAL")
+        # Mirrors app.db._set_sqlite_pragma so tests run with the same
+        # lock-wait behavior as production connections.
+        cur.execute("PRAGMA busy_timeout=30000")
         cur.close()
 
     monkeypatch.setattr(db_module, "engine", new_engine)

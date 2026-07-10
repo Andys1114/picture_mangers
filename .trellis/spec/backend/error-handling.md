@@ -44,14 +44,18 @@ Every non-2xx response uses this shape:
 - `message` — human-readable, may be Chinese (user-facing).
 - HTTP status matches the error's `status_code`.
 
-Wired in `app/main.py`:
+Wired in `app/main.py` — three handlers, one shape:
 ```python
 app.add_exception_handler(AppError, app_error_handler)
+app.add_exception_handler(RequestValidationError, request_validation_error_handler)
 app.add_exception_handler(Exception, unhandled_exception_handler)
 ```
+
+- `RequestValidationError` (FastAPI 422) → `{"error": {"code": "validation_error", "message": <readable, field-prefixed summary>}}`, status 422. Without this handler FastAPI returns `{"detail": [...]}` which the frontend's envelope parser can't read (audit #16).
+- `Exception` catch-all → 500 `{"error": {"code": "internal_error", "message": "服务器内部错误"}}` and `logger.exception(...)` server-side.
 
 ## Common Mistakes
 
 - **Returning 500 for expected errors** — if a route can anticipate a failure (bad input, missing resource, conflict), raise the right `AppError` subclass, not a bare `Exception`.
-- **Leaking stack traces** — never return `str(exc)` to the client; the catch-all returns a generic message. Add specific `AppError` types for cases that need detail.
-- **Swallowing errors silently** — services must not `except: pass`. Either handle and log, or let it propagate to the handler.
+- **Leaking stack traces** — never return `str(exc)` to the client; the catch-all returns a generic message. This includes *indirect* channels: a background task's `state.error` flows into `GET /api/tasks/{id}` — store a generic message there ("导入失败，请查看服务器日志") and `logger.exception` the original (audit #36).
+- **Swallowing errors silently** — services must not `except: pass`. Either handle and log, or let it propagate to the handler. Per-item worker loops count *and* log each failure (`logger.warning` with path / source_id), and must roll back the session first — see database-guidelines.md "transaction ownership".

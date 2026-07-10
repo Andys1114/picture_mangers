@@ -22,6 +22,7 @@ against any pre-existing cycle.
 from __future__ import annotations
 
 from sqlalchemy import literal, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.models.tag import PostTag, Tag, TagImplication
@@ -194,7 +195,12 @@ def update_tag(
 
 # --- write side: tag_post + create_implication ----------------------------
 
-def tag_post(db: Session, post_id: int, names: list[str]) -> list[Tag]:
+def tag_post(
+    db: Session,
+    post_id: int,
+    names: list[str],
+    commit: bool = True,
+) -> list[Tag]:
     """Attach tags to a post, materializing the implication closure.
 
     For each name: get-or-create the Tag, then compute the full closure of the
@@ -203,8 +209,46 @@ def tag_post(db: Session, post_id: int, names: list[str]) -> list[Tag]:
     ``post_tags`` row. Idempotent: re-tagging with an already-present tag is a
     no-op (the composite PK dedupes; post_count is not double-counted).
 
-    This is the entry point the scraper (slice 4) and the future edit endpoint
-    (slice 6) call. It does not expose an HTTP endpoint itself this slice.
+    Transaction ownership: with ``commit=True`` (default) this call owns the
+    transaction — it commits on success, and if the tag get-or-create loses a
+    concurrent create race on the ``Tag.name`` unique constraint it rolls back
+    and reruns the whole pass once (the re-query then finds the winner's row).
+    With ``commit=False`` the caller owns the transaction: changes are flushed
+    only, and errors propagate for the caller to roll back.
+
+    This is the entry point the scraper (slice 4) and the edit endpoint
+    (slice 6) call. It does not expose an HTTP endpoint itself.
+    """
+    if commit:
+        try:
+            closure = _tag_post_pass(db, post_id, names)
+            db.commit()
+        except IntegrityError:
+            # Lost a get-or-create race: a concurrent session committed the
+            # same tag name between our SELECT and flush. The whole pass is
+            # rerun rather than a single re-query because the rollback also
+            # discarded any tags created earlier in this pass.
+            db.rollback()
+            try:
+                closure = _tag_post_pass(db, post_id, names)
+                db.commit()
+            except Exception:
+                db.rollback()
+                raise
+    else:
+        closure = _tag_post_pass(db, post_id, names)
+        # Sessions run with autoflush=False: flush so the caller's follow-up
+        # queries in the same transaction see the new post_tags rows.
+        db.flush()
+
+    return list(db.execute(select(Tag).where(Tag.id.in_(closure))).scalars().all())
+
+
+def _tag_post_pass(db: Session, post_id: int, names: list[str]) -> set[int]:
+    """One flush-only tagging pass; returns the closure's tag ids.
+
+    Commit/rollback is the caller's job (``tag_post``), so a lost
+    get-or-create race can discard and rerun the pass as a unit.
     """
     direct_ids: list[int] = []
     for name in names:
@@ -234,9 +278,8 @@ def tag_post(db: Session, post_id: int, names: list[str]) -> list[Tag]:
         tag = db.get(Tag, tid)
         if tag is not None:
             tag.post_count += 1
-    db.commit()
 
-    return list(db.execute(select(Tag).where(Tag.id.in_(closure))).scalars().all())
+    return closure
 
 
 def create_implication(
@@ -296,20 +339,34 @@ def create_implication(
     ]
     if affected_post_ids:
         new_closure = closure_of(db, [antecedent_id])
-        # new_closure now includes consequent_id and its downstream
+        # new_closure now includes consequent_id and its downstream.
+        # Batched reads: one IN query builds the existing (post_id → tag_ids)
+        # map instead of one SELECT per affected post, the closure's Tag rows
+        # are fetched once, and post_count bumps are aggregated per tag.
+        existing_pairs: dict[int, set[int]] = {pid: set() for pid in affected_post_ids}
+        for pid, tid in db.execute(
+            select(PostTag.post_id, PostTag.tag_id).where(
+                PostTag.post_id.in_(affected_post_ids)
+            )
+        ).all():
+            existing_pairs[pid].add(tid)
+
+        tags_by_id: dict[int, Tag] = {
+            t.id: t
+            for t in db.execute(select(Tag).where(Tag.id.in_(new_closure))).scalars()
+        }
+        added_counts: dict[int, int] = {}
         for pid in affected_post_ids:
-            already = {
-                tid for (tid,) in db.execute(
-                    select(PostTag.tag_id).where(PostTag.post_id == pid)
-                ).all()
-            }
+            already = existing_pairs[pid]
             for tid in new_closure:
                 if tid in already:
                     continue
                 db.add(PostTag(post_id=pid, tag_id=tid))
-                tag = db.get(Tag, tid)
-                if tag is not None:
-                    tag.post_count += 1
+                added_counts[tid] = added_counts.get(tid, 0) + 1
+        for tid, count in added_counts.items():
+            tag = tags_by_id.get(tid)
+            if tag is not None:
+                tag.post_count += count
 
     db.commit()
     db.refresh(impl)

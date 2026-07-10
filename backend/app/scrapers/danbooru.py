@@ -13,6 +13,8 @@ Cloudflare doesn't challenge.
 """
 from __future__ import annotations
 
+import logging
+import re
 from typing import Any
 
 import httpx
@@ -20,9 +22,17 @@ import httpx
 from app.scrapers.base import Scraper, ScrapedPost, ScrapedTag, rate_limit_sleep
 from app.services.errors import ScraperError
 
+logger = logging.getLogger(__name__)
+
 # Danbooru rating letters → project rating buckets.
 # 'g' (general) is an older Danbooru rating folded into 'safe' here.
 _RATING_MAP = {"s": "safe", "q": "questionable", "e": "explicit", "g": "safe"}
+
+# Upstream file_ext values must be plain [a-z0-9] tokens — the JSON is
+# untrusted and file_ext ends up spliced into on-disk paths downstream
+# (``media.ingest`` enforces its own whitelist; this is the adapter-side
+# boundary check). Length 8 matches the Post.file_ext column.
+_FILE_EXT_RE = re.compile(r"[a-z0-9]{1,8}")
 
 # Danbooru tag-string fields → project categories. Each field is a
 # space-separated list of tag names in that category.
@@ -40,6 +50,9 @@ class DanbooruScraper(Scraper):
 
     source_site = "danbooru"
     BASE_URL = "https://danbooru.donmai.us"
+    # Images are served from cdn.donmai.us (occasionally other subdomains);
+    # ``download`` rejects anything off *.donmai.us.
+    allowed_hosts = ("*.donmai.us",)
 
     def __init__(
         self,
@@ -79,6 +92,10 @@ class DanbooruScraper(Scraper):
                 last_exc = exc
                 if attempt < self._max_retries:
                     backoff = 2 ** attempt
+                    logger.warning(
+                        "danbooru retry path=%s attempt=%d backoff=%ds err=%s",
+                        path, attempt + 1, backoff, exc,
+                    )
                     rate_limit_sleep(float(backoff))
                     continue
         raise ScraperError(f"Danbooru 请求失败（重试耗尽）: {path}") from last_exc
@@ -132,7 +149,11 @@ class DanbooruScraper(Scraper):
         post_id = str(p["id"])
         # file_url is the original; fall back to large/preview if deleted/missing.
         image_url = p.get("file_url") or p.get("large_file_url") or p.get("preview_file_url", "")
-        file_ext = p.get("file_ext", "png") or "png"
+        # Malformed values (path separators etc.) collapse to the same "png"
+        # fallback as a missing field; media.ingest applies the real whitelist.
+        file_ext = (p.get("file_ext") or "png").lower()
+        if not _FILE_EXT_RE.fullmatch(file_ext):
+            file_ext = "png"
         rating = _RATING_MAP.get(p.get("rating", "s"), "safe")
         source_url = f"{self.BASE_URL}/posts/{post_id}"
 

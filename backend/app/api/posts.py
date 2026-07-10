@@ -10,7 +10,8 @@ from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.deps import get_current_session, get_current_user
-from app.models.user import Session, User
+from app.models.user import Session as SessionRow
+from app.models.user import User
 from app.schemas.favorite import StarToggleResponse
 from app.schemas.post import (
     PostDetailResponse,
@@ -25,7 +26,7 @@ from app.services import favorites, post_edit, search
 router = APIRouter(prefix="/posts", tags=["posts"])
 
 
-def _summary(post) -> PostSummaryResponse:  # type: ignore[no-untyped-def]
+def _summary(post, favorite: bool) -> PostSummaryResponse:  # type: ignore[no-untyped-def]
     return PostSummaryResponse(
         id=post.id,
         preview_path=post.preview_path,
@@ -33,7 +34,35 @@ def _summary(post) -> PostSummaryResponse:  # type: ignore[no-untyped-def]
         height=post.height,
         rating=post.rating,
         is_animated=post.is_animated,
-        favorite=False,  # favorites API lands later; derived from membership, never a count
+        favorite=favorite,
+    )
+
+
+def _detail(post, tag_rows, favorite: bool) -> PostDetailResponse:  # type: ignore[no-untyped-def]
+    return PostDetailResponse(
+        id=post.id,
+        preview_path=post.preview_path,
+        width=post.width,
+        height=post.height,
+        rating=post.rating,
+        is_animated=post.is_animated,
+        favorite=favorite,
+        file_path=post.file_path,
+        thumb_path=post.thumb_path,
+        source_site=post.source_site,
+        source_url=post.source_url,
+        md5=post.md5,
+        created_at=post.created_at,
+        tags=[
+            TagResponse(
+                id=t.id,
+                name=t.name,
+                category=t.category,
+                post_count=t.post_count,
+                is_deprecated=t.is_deprecated,
+            )
+            for t in tag_rows
+        ],
     )
 
 
@@ -43,7 +72,7 @@ def list_posts(
     page: int = Query(1, ge=1),
     limit: int = Query(40, ge=1, le=200),
     order: str = Query("id", pattern="^(id|random)$"),
-    session: Session = Depends(get_current_session),
+    session: SessionRow = Depends(get_current_session),
     db: Session = Depends(get_db),
 ) -> PostListResponse:
     """Gallery main view: paginated, safe-mode-filtered, duplicate-excluded."""
@@ -55,8 +84,10 @@ def list_posts(
         limit=limit,
         order=order,
     )
+    # favorite = default-collection membership, fetched with one IN query.
+    starred = favorites.favorite_post_ids(db, [p.id for p in rows])
     return PostListResponse(
-        data=[_summary(p) for p in rows],
+        data=[_summary(p, favorite=p.id in starred) for p in rows],
         meta={"page": page, "total": total},
     )
 
@@ -64,31 +95,18 @@ def list_posts(
 @router.get("/{post_id}", response_model=PostDetailResponse)
 def get_post(
     post_id: int,
-    _user: User = Depends(get_current_user),
+    session: SessionRow = Depends(get_current_session),
     db: Session = Depends(get_db),
 ) -> PostDetailResponse:
-    """Single post detail with its expanded tag set."""
-    post = search.get_post(db, post_id)
+    """Single post detail with its expanded tag set.
+
+    Safe mode applies here too: a non-safe post 404s while the session has
+    safe_mode on (same server-side injection as the list view).
+    """
+    post = search.get_post(db, post_id, safe_mode=session.safe_mode)
     tag_rows = search.tags_for_post(db, post_id)
-    return PostDetailResponse(
-        id=post.id,
-        preview_path=post.preview_path,
-        width=post.width,
-        height=post.height,
-        rating=post.rating,
-        is_animated=post.is_animated,
-        favorite=False,
-        file_path=post.file_path,
-        thumb_path=post.thumb_path,
-        source_site=post.source_site,
-        source_url=post.source_url,
-        md5=post.md5,
-        created_at=post.created_at,
-        tags=[
-            TagResponse(id=t.id, name=t.name, category=t.category, post_count=t.post_count)
-            for t in tag_rows
-        ],
-    )
+    favorite = post_id in favorites.favorite_post_ids(db, [post_id])
+    return _detail(post, tag_rows, favorite)
 
 
 @router.post("/{post_id}/favorite", response_model=StarToggleResponse)
@@ -108,11 +126,12 @@ def toggle_favorite(
 @router.get("/{post_id}/next", response_model=PostNextResponse)
 def get_next(
     post_id: int,
-    _user: User = Depends(get_current_user),
+    session: SessionRow = Depends(get_current_session),
     db: Session = Depends(get_db),
 ) -> PostNextResponse:
-    """Prev/next post ids for detail-page keyboard navigation (id-desc view)."""
-    prev_id, next_id = post_edit.next_post(db, post_id)
+    """Prev/next post ids for detail-page keyboard navigation (id-desc view,
+    safe-mode-filtered like the gallery)."""
+    prev_id, next_id = search.next_post(db, post_id, safe_mode=session.safe_mode)
     return PostNextResponse(prev_id=prev_id, next_id=next_id)
 
 
@@ -126,25 +145,8 @@ def update_post(
     """Edit a post — full-replace tags (when provided) and/or change rating."""
     post = post_edit.update_post(db, post_id, tag_names=payload.tags, rating=payload.rating)
     tag_rows = search.tags_for_post(db, post_id)
-    return PostDetailResponse(
-        id=post.id,
-        preview_path=post.preview_path,
-        width=post.width,
-        height=post.height,
-        rating=post.rating,
-        is_animated=post.is_animated,
-        favorite=False,
-        file_path=post.file_path,
-        thumb_path=post.thumb_path,
-        source_site=post.source_site,
-        source_url=post.source_url,
-        md5=post.md5,
-        created_at=post.created_at,
-        tags=[
-            TagResponse(id=t.id, name=t.name, category=t.category, post_count=t.post_count)
-            for t in tag_rows
-        ],
-    )
+    favorite = post_id in favorites.favorite_post_ids(db, [post_id])
+    return _detail(post, tag_rows, favorite)
 
 
 @router.delete("/{post_id}", status_code=status.HTTP_204_NO_CONTENT)

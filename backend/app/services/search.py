@@ -65,12 +65,55 @@ def list_posts(
     return rows, total
 
 
-def get_post(db: Session, post_id: int) -> Post:
-    """Return a single post (any rating/duplicate state) or raise 404."""
+def get_post(db: Session, post_id: int, *, safe_mode: bool = False) -> Post:
+    """Return a single post or raise 404.
+
+    ``safe_mode`` True also 404s non-safe posts, extending the server-side
+    rating injection to the detail read path (a hidden post is
+    indistinguishable from a missing one). Duplicate state is never filtered
+    here — duplicates stay reachable by id.
+    """
     post = db.get(Post, post_id)
     if post is None:
         raise NotFoundError("图片不存在")
+    if safe_mode and post.rating != "safe":
+        raise NotFoundError("图片不存在")
     return post
+
+
+def next_post(
+    db: Session, post_id: int, *, safe_mode: bool = False
+) -> tuple[int | None, int | None]:
+    """Return ``(prev_id, next_id)`` for detail-page keyboard navigation.
+
+    Computed over the global id-desc view (newest first), excluding duplicates
+    to match the gallery main view. Not filtered by tags — the detail page
+    navigates the whole gallery, not a search result set — but ``safe_mode``
+    True skips non-safe posts so navigation never lands on a hidden post.
+    """
+    get_post(db, post_id, safe_mode=safe_mode)  # 404 if missing or hidden
+
+    # "next" = the next row down the newest-first list = smaller id.
+    next_stmt = (
+        select(Post.id)
+        .where(Post.id < post_id, Post.duplicate_of_id.is_(None))
+        .order_by(Post.id.desc())
+        .limit(1)
+    )
+    # "prev" = the previous row (larger id).
+    prev_stmt = (
+        select(Post.id)
+        .where(Post.id > post_id, Post.duplicate_of_id.is_(None))
+        .order_by(Post.id.asc())
+        .limit(1)
+    )
+    if safe_mode:
+        next_stmt = next_stmt.where(Post.rating == "safe")
+        prev_stmt = prev_stmt.where(Post.rating == "safe")
+
+    next_id = db.execute(next_stmt).scalar_one_or_none()
+    prev_id = db.execute(prev_stmt).scalar_one_or_none()
+    return prev_id, next_id
 
 
 def tags_for_post(db: Session, post_id: int) -> list[Tag]:

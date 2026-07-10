@@ -250,3 +250,111 @@ def test_tag_post_end_to_end_with_search(client: TestClient, media_dir: Path, db
     # A different tag that the post does NOT have returns no match.
     r = client.get("/api/posts", params={"tags": "red_themed"})
     assert post_id not in [p["id"] for p in r.json()["data"]]
+
+
+# --- regression: commit=False defers the commit to the caller ----------------
+
+def test_tag_post_commit_false_defers_commit(client: TestClient, media_dir: Path, db) -> None:
+    # audit #9: with commit=False nothing persists until the caller commits —
+    # a rollback discards the tag, the post_tags row, and the counter bump.
+    post_id = _ingest_post(db, media_dir, rgb=(7, 7, 7))
+
+    result = tags.tag_post(db, post_id, ["uncommitted"], commit=False)
+    assert [t.name for t in result] == ["uncommitted"], "flushed rows visible in-transaction"
+
+    db.rollback()
+
+    assert db.execute(
+        select(Tag).where(Tag.name == "uncommitted")
+    ).scalar_one_or_none() is None
+    assert db.execute(
+        select(PostTag).where(PostTag.post_id == post_id)
+    ).first() is None
+
+
+# --- regression: tag get-or-create race --------------------------------------
+
+def test_tag_post_survives_tag_create_race(
+    client: TestClient, media_dir: Path, db, monkeypatch
+) -> None:
+    # audit #32: a concurrent session committing the same tag name between our
+    # SELECT and flush turns the flush into IntegrityError; tag_post must roll
+    # back, rerun the pass, and adopt the winner's row instead of failing.
+    post_id = _ingest_post(db, media_dir, rgb=(8, 8, 8))
+
+    other = db_module.SessionLocal()
+    real_flush = db.flush
+    fired: list[bool] = []
+
+    def racing_flush(*args, **kwargs):
+        pending_raced = any(isinstance(o, Tag) and o.name == "raced" for o in db.new)
+        if pending_raced and not fired:
+            fired.append(True)
+            other.add(Tag(name="raced", category="general", post_count=0))
+            other.commit()
+        return real_flush(*args, **kwargs)
+
+    monkeypatch.setattr(db, "flush", racing_flush)
+    try:
+        result = tags.tag_post(db, post_id, ["raced"])
+    finally:
+        other.close()
+
+    assert fired, "the race must actually have been injected"
+    assert [t.name for t in result] == ["raced"]
+    rows = db.execute(select(Tag).where(Tag.name == "raced")).scalars().all()
+    assert len(rows) == 1, "the winner's row is adopted — no duplicate tag"
+    tagged = {
+        tid for (tid,) in db.execute(
+            select(PostTag.tag_id).where(PostTag.post_id == post_id)
+        ).all()
+    }
+    assert tagged == {rows[0].id}
+    assert rows[0].post_count == 1
+
+
+# --- regression: backfill reads are batched ----------------------------------
+
+def test_create_implication_backfill_batched_queries(
+    client: TestClient, media_dir: Path, db
+) -> None:
+    # audit #33: backfill stays correct for several affected posts (including
+    # one that already carries the consequent) and reads post_tags with a
+    # constant number of queries instead of one SELECT per post.
+    ids = _create_tag_ids(db, ["ant", "con"])
+    pids = [_ingest_post(db, media_dir, rgb=(60 + i, 0, 0)) for i in range(3)]
+    tags.tag_post(db, pids[0], ["ant", "con"])  # already has the consequent
+    tags.tag_post(db, pids[1], ["ant"])
+    tags.tag_post(db, pids[2], ["ant"])
+
+    from sqlalchemy import event
+
+    post_tag_selects: list[str] = []
+
+    def _record(conn, cursor, statement, parameters, context, executemany):
+        if statement.lstrip().upper().startswith("SELECT") and "post_tags" in statement:
+            post_tag_selects.append(statement)
+
+    engine = db.get_bind()
+    event.listen(engine, "before_cursor_execute", _record)
+    try:
+        tags.create_implication(db, ids["ant"], ids["con"])
+    finally:
+        event.remove(engine, "before_cursor_execute", _record)
+
+    # Correctness: every antecedent post carries the consequent exactly once.
+    for pid in pids:
+        tagged = [
+            tid for (tid,) in db.execute(
+                select(PostTag.tag_id).where(PostTag.post_id == pid)
+            ).all()
+        ]
+        assert tagged.count(ids["con"]) == 1, f"post {pid} must gain con exactly once"
+
+    db.expire_all()
+    assert db.get(Tag, ids["con"]).post_count == 3, "1 pre-existing + 2 backfilled"
+    assert db.get(Tag, ids["ant"]).post_count == 3
+
+    # Read side must not scale with the number of affected posts: one query
+    # lists the affected posts, one fetches all their existing pairs.
+    assert len(post_tag_selects) <= 2, post_tag_selects

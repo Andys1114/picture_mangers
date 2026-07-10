@@ -53,4 +53,9 @@ class Post(TimestampMixin, Base):
             unique=True,
             sqlite_where=text("source_site IS NOT NULL AND source_id IS NOT NULL"),
         ),
+        # Read-path indexes: every gallery list request filters on
+        # duplicate_of_id IS NULL (and rating='safe' in safe mode) including
+        # its COUNT — keep both off the full-table-scan path.
+        Index("ix_posts_rating", "rating"),
+        Index("ix_posts_duplicate_of_id", "duplicate_of_id"),
     )

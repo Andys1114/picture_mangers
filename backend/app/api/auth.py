@@ -7,13 +7,15 @@ State machine (see design.md section 2):
 """
 from __future__ import annotations
 
+import logging
+
 from fastapi import APIRouter, Depends, Request, Response, status
 from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.db import get_db
-from app.deps import get_current_session, get_current_user
-from app.models.user import Session, User
+from app.deps import get_current_session
+from app.models.user import Session as SessionRow
 from app.schemas.auth import (
     LoginRequest,
     MeResponse,
@@ -25,6 +27,8 @@ from app.schemas.auth import (
 from app.services import auth
 from app.services.errors import ConflictError, UnauthorizedError
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 _COOKIE_KWARGS = {
@@ -33,6 +37,8 @@ _COOKIE_KWARGS = {
     "samesite": "lax",
     "secure": settings.secure_cookie,
     "path": "/",
+    # Keep the cookie lifetime aligned with the server-side session expiry.
+    "max_age": settings.session_expire_days * 86400,
 }
 
 
@@ -42,7 +48,7 @@ def get_status(db: Session = Depends(get_db)) -> StatusResponse:
     return StatusResponse(setup_required=not auth.has_user(db))
 
 
-@router.post("/setup", response_model=UserResponse, status_code=status.HTTP_200_OK)
+@router.post("/setup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def setup(payload: SetupRequest, response: Response, db: Session = Depends(get_db)) -> UserResponse:
     """First-run user creation. Only works when no user exists yet."""
     if auth.has_user(db):
@@ -50,6 +56,7 @@ def setup(payload: SetupRequest, response: Response, db: Session = Depends(get_d
     user = auth.create_user(db, payload.username, payload.password)
     token = auth.create_session(db, user)
     response.set_cookie(value=token, **_COOKIE_KWARGS)
+    logger.info("setup completed username=%s", user.username)
     return UserResponse(id=user.id, username=user.username)
 
 
@@ -58,9 +65,11 @@ def login(payload: LoginRequest, response: Response, db: Session = Depends(get_d
     """Verify credentials and issue a session cookie."""
     user = auth.authenticate(db, payload.username, payload.password)
     if user is None:
+        logger.info("login failed username=%s", payload.username)
         raise UnauthorizedError("用户名或密码错误")
     token = auth.create_session(db, user)
     response.set_cookie(value=token, **_COOKIE_KWARGS)
+    logger.info("login success username=%s", user.username)
     return UserResponse(id=user.id, username=user.username)
 
 
@@ -70,10 +79,11 @@ def logout(request: Request, response: Response, db: Session = Depends(get_db)) 
     token = request.cookies.get(auth.SESSION_COOKIE)
     auth.delete_session(db, token)
     response.delete_cookie(key=auth.SESSION_COOKIE, path="/")
+    logger.info("logout")
 
 
 @router.get("/me", response_model=MeResponse)
-def me(session: Session = Depends(get_current_session)) -> MeResponse:
+def me(session: SessionRow = Depends(get_current_session)) -> MeResponse:
     """Current user + per-session safe_mode. Requires a valid session cookie."""
     user = session.user
     return MeResponse(id=user.id, username=user.username, safe_mode=session.safe_mode)
@@ -82,7 +92,7 @@ def me(session: Session = Depends(get_current_session)) -> MeResponse:
 @router.patch("/me/settings", response_model=MeResponse)
 def update_settings(
     payload: UpdateSettingsRequest,
-    session: Session = Depends(get_current_session),
+    session: SessionRow = Depends(get_current_session),
     db: Session = Depends(get_db),
 ) -> MeResponse:
     """Toggle the current session's safe_mode (server-authoritative).
@@ -90,9 +100,6 @@ def update_settings(
     The gallery main view injects rating=safe while safe_mode is on; toggling
     invalidates the posts list on the client so it refetches with the new filter.
     """
-    session.safe_mode = payload.safe_mode
-    db.add(session)
-    db.commit()
-    db.refresh(session)
+    session = auth.set_safe_mode(db, session, payload.safe_mode)
     user = session.user
     return MeResponse(id=user.id, username=user.username, safe_mode=session.safe_mode)

@@ -21,8 +21,11 @@ config = context.config
 # Inject the runtime DB URL so alembic.ini stays database-agnostic.
 config.set_main_option("sqlalchemy.url", settings.database_url)
 
+# disable_existing_loggers=False: fileConfig's default (True) would flip
+# every already-created ``app.*`` logger to disabled, silencing the app after
+# any programmatic ``upgrade head`` (tests run one per test case).
 if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
+    fileConfig(config.config_file_name, disable_existing_loggers=False)
 
 target_metadata = Base.metadata
 

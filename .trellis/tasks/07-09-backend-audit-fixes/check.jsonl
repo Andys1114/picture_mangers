@@ -1,0 +1,5 @@
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "检查红线：路由内业务逻辑、str(exc) 外泄等"}
+{"file": ".trellis/spec/backend/error-handling.md", "reason": "检查错误信封覆盖与异常处理规范"}
+{"file": ".trellis/spec/backend/database-guidelines.md", "reason": "检查 post_count 不变量与迁移规范"}
+{"file": ".trellis/spec/backend/logging-guidelines.md", "reason": "检查日志点是否按规范补齐"}
+{"file": "docs/backend-audit-2026-07-04.md", "reason": "逐条核对 41 项修复是否落地、是否引入新问题"}

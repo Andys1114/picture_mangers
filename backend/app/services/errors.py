@@ -1,8 +1,13 @@
 """Custom exceptions and the unified error envelope converter."""
 from __future__ import annotations
 
+import logging
+
 from fastapi import Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+
+logger = logging.getLogger(__name__)
 
 
 class AppError(Exception):
@@ -70,8 +75,43 @@ async def app_error_handler(_request: Request, exc: AppError) -> JSONResponse:
     )
 
 
-async def unhandled_exception_handler(_request: Request, exc: Exception) -> JSONResponse:
-    """Catch-all so clients always get the envelope, never a raw 500 stack trace."""
+async def request_validation_error_handler(
+    _request: Request, exc: RequestValidationError
+) -> JSONResponse:
+    """Convert FastAPI's request-validation failure into the unified envelope.
+
+    The framework default returns ``{"detail": [...]}``, which clients don't
+    parse (they only read ``body.error``); this keeps the「every non-2xx uses
+    the envelope」contract. Status stays 422.
+    """
+    parts: list[str] = []
+    for err in exc.errors():
+        loc = ".".join(str(piece) for piece in err.get("loc", ()))
+        msg = err.get("msg", "invalid value")
+        parts.append(f"{loc}: {msg}" if loc else msg)
+    return JSONResponse(
+        status_code=422,
+        content={
+            "error": {
+                "code": "validation_error",
+                "message": "; ".join(parts) or "请求参数无效",
+            }
+        },
+    )
+
+
+async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    """Catch-all so clients always get the envelope, never a raw 500 stack trace.
+
+    The traceback is logged here so the failure is recorded even when the
+    serving stack doesn't re-raise it after the response is sent.
+    """
+    logger.exception(
+        "unhandled exception method=%s path=%s",
+        request.method,
+        request.url.path,
+        exc_info=exc,
+    )
     return JSONResponse(
         status_code=500,
         content={"error": {"code": "internal_error", "message": "服务器内部错误"}},

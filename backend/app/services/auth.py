@@ -10,10 +10,12 @@ from datetime import datetime, timedelta, timezone
 
 import bcrypt
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.models.user import Session as SessionRow, User
+from app.services.errors import ConflictError
 
 _BCRYPT_COST = 12
 
@@ -54,7 +56,8 @@ def get_session_row(db: Session, token: str | None) -> SessionRow | None:
 
     Unlike validate_session (which returns the User), this returns the row so
     callers can read/modify per-session fields like safe_mode. Expired/missing
-    tokens resolve to None.
+    tokens resolve to None; expired rows are deleted on sight so the sessions
+    table does not accumulate stale tokens.
     """
     if not token:
         return None
@@ -63,12 +66,17 @@ def get_session_row(db: Session, token: str | None) -> SessionRow | None:
         return None
     # Naive datetimes are interpreted as UTC.
     if row.expires_at <= datetime.utcnow():
+        db.delete(row)
+        db.commit()
         return None
     return row
 
 
 def validate_session(db: Session, token: str | None) -> User | None:
-    """Resolve a token to a User. Returns None if missing, expired, or unknown."""
+    """Resolve a token to a User. Returns None if missing, expired, or unknown.
+
+    Expired rows are deleted on sight (same cleanup as get_session_row).
+    """
     if not token:
         return None
     row = db.get(SessionRow, token)
@@ -77,9 +85,20 @@ def validate_session(db: Session, token: str | None) -> User | None:
     # Naive datetimes are interpreted as UTC.
     now = datetime.utcnow()
     if row.expires_at <= now:
+        db.delete(row)
+        db.commit()
         return None
     user = db.get(User, row.user_id)
     return user
+
+
+def set_safe_mode(db: Session, session_row: SessionRow, value: bool) -> SessionRow:
+    """Persist a session's safe_mode toggle (server-authoritative)."""
+    session_row.safe_mode = value
+    db.add(session_row)
+    db.commit()
+    db.refresh(session_row)
+    return session_row
 
 
 def delete_session(db: Session, token: str | None) -> None:
@@ -98,10 +117,18 @@ def has_user(db: Session) -> bool:
 
 
 def create_user(db: Session, username: str, password: str) -> User:
-    """Create the single application user."""
-    user = User(username=username, password_hash=hash_password(password))
+    """Create the single application user.
+
+    The id is pinned to 1 so a concurrent second setup collides on the
+    primary key instead of racing past the caller's has_user() check.
+    """
+    user = User(id=1, username=username, password_hash=hash_password(password))
     db.add(user)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise ConflictError("用户已存在,请直接登录")
     db.refresh(user)
     return user
 
