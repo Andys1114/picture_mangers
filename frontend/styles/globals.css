@@ -1,0 +1,92 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Dark immersive gallery (design.md §5). Light mode is not a target this
+       milestone; the root <html> always carries `dark`. Tokens are HSL triples
+       so Tailwind's <alpha-value> works for translucency. */
+    --background: 240 6% 4%; /* #0a0a0b */
+    --surface: 240 5% 9%; /* #141416 */
+    --border: 240 4% 13%; /* #1f1f23 */
+    --foreground: 0 0% 90%; /* #e5e5e7 */
+    --muted: 240 4% 55%; /* #8a8a90 */
+    --accent: 221 83% 53%; /* #2563eb */
+    --accent-foreground: 0 0% 100%;
+    --safe: 142 71% 45%; /* #22c55e */
+    --questionable: 45 93% 47%; /* #eab308 */
+    --explicit: 0 84% 60%; /* #ef4444 */
+
+    /* Font placeholders: plain system stacks for the scaffold stage. The
+       @fontsource setup (Noto Sans SC / Space Grotesk / JetBrains Mono) lands
+       with the design-token stage and will replace these. */
+    --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Noto Sans SC", sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Consolas, monospace;
+
+    /* Elevation scale (cards / floating layers). */
+    --elevation-1: 0 1px 2px hsl(0 0% 0% / 0.4);
+    --elevation-2: 0 8px 30px hsl(0 0% 0% / 0.5);
+    /* Skeleton shimmer stops. */
+    --shimmer-from: 240 5% 9%;
+    --shimmer-to: 240 4% 14%;
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+  html {
+    color-scheme: dark;
+    /* Keep focus/anchor scroll targets clear of the 56px fixed top bar. */
+    scroll-padding-top: 4.5rem;
+    /* Reserve the scrollbar slot so modal scroll-locks don't shift the page. */
+    scrollbar-gutter: stable;
+  }
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    -webkit-font-smoothing: antialiased;
+  }
+  /* Respect reduced motion: disable non-essential animations. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      animation-delay: 0ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* Skeleton shimmer: a slow gradient sweep across the placeholder. The sweep is
+   a transform on ::after (compositor-friendly; animating background-position
+   repaints every frame). .shimmer sets no `position` of its own — unlayered
+   CSS would beat Tailwind's positioning utilities — so users must already be
+   positioned. */
+.shimmer {
+  overflow: hidden;
+  background-color: hsl(var(--shimmer-from));
+}
+.shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    transparent,
+    hsl(var(--shimmer-to)),
+    transparent
+  );
+  animation: shimmer-sweep 1.4s ease-in-out infinite;
+}
+@keyframes shimmer-sweep {
+  to {
+    transform: translateX(100%);
+  }
+}
