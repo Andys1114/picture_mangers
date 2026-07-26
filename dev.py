@@ -23,6 +23,14 @@ import sys
 import time
 from pathlib import Path
 
+# Windows consoles often default to a legacy codepage (e.g. GBK) that cannot
+# encode characters the child processes print (Next.js "✓", box drawing, …).
+# The prefix threads would die on UnicodeEncodeError and stop draining the
+# pipes, wedging both children. Force utf-8 with replacement instead.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 ROOT = Path(__file__).resolve().parent
 BACKEND = ROOT / "backend"
 FRONTEND = ROOT / "frontend"
