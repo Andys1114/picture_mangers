@@ -4,49 +4,127 @@
 
 @layer base {
   :root {
-    /* Dark immersive gallery (design.md §5). Light mode is not a target this
-       milestone; the root <html> always carries `dark`. Tokens are HSL triples
-       so Tailwind's <alpha-value> works for translucency. */
-    --background: 240 6% 4%; /* #0a0a0b */
-    --surface: 240 5% 9%; /* #141416 */
-    --border: 240 4% 13%; /* #1f1f23 */
-    --foreground: 0 0% 90%; /* #e5e5e7 */
-    --muted: 240 4% 55%; /* #8a8a90 */
-    --accent: 221 83% 53%; /* #2563eb */
-    --accent-foreground: 0 0% 100%;
-    --safe: 142 71% 45%; /* #22c55e */
-    --questionable: 45 93% 47%; /* #eab308 */
-    --explicit: 0 84% 60%; /* #ef4444 */
+    /* ─── 暗房霓虹令牌全表（docs/design/pm-gallery-redesign/README.md · Design
+       Tokens）。暗色单主题，无浅色模式；所有页面/组件色值一律引用这里。 ─── */
 
-    /* Font placeholders: plain system stacks for the scaffold stage. The
-       @fontsource setup (Noto Sans SC / Space Grotesk / JetBrains Mono) lands
-       with the design-token stage and will replace these. */
-    --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Noto Sans SC", sans-serif;
-    --font-mono: ui-monospace, SFMono-Regular, Consolas, monospace;
+    /* 背景与环境光晕 */
+    --bg-page: #07070b;
+    --bg-lightbox: #040407;
+    --glow-violet: radial-gradient(900px 420px at 85% -5%, rgba(139, 102, 255, 0.16), transparent 60%);
+    --glow-cyan: radial-gradient(700px 400px at 5% 12%, rgba(70, 180, 220, 0.1), transparent 60%);
+    --glow-lightbox: radial-gradient(760px 560px at 68% 46%, rgba(139, 102, 255, 0.1), transparent 65%);
 
-    /* Elevation scale (cards / floating layers). */
-    --elevation-1: 0 1px 2px hsl(0 0% 0% / 0.4);
-    --elevation-2: 0 8px 30px hsl(0 0% 0% / 0.5);
-    /* Skeleton shimmer stops. */
-    --shimmer-from: 240 5% 9%;
-    --shimmer-to: 240 4% 14%;
+    /* 玻璃层三档：bar（顶栏/筛选栏）、pop（弹层/菜单）、实底卡 */
+    --glass-bar: rgba(21, 21, 30, 0.72);
+    --glass-pop: rgba(19, 19, 28, 0.92);
+    --bg-card: #15151c;
+
+    /* 边框 / 分隔线 / 白色填充层级 */
+    --border-glass: rgba(255, 255, 255, 0.09);
+    --border-pop: rgba(255, 255, 255, 0.1);
+    --border-strong: rgba(255, 255, 255, 0.12);
+    --divider: rgba(255, 255, 255, 0.08);
+    --fill-1: rgba(255, 255, 255, 0.04); /* 卡内嵌入面板（标签成组区） */
+    --fill-2: rgba(255, 255, 255, 0.06); /* 输入框/搜索框/图标圆底 */
+    --fill-3: rgba(255, 255, 255, 0.08); /* 悬停底/kbd chip */
+
+    /* 文字四级 + 区块标题（mono 小标题 #77778a） */
+    --text-primary: #e8e8f0;
+    --text-secondary: #c9cbd8;
+    --text-muted: #8d8fa0;
+    --text-faint: #63657a;
+    --text-label: #77778a;
+
+    /* 强调：紫青渐变（主按钮文字用深色）、选中/星标紫、淡渐变胶囊、头像渐变 */
+    --accent-from: oklch(0.74 0.16 300);
+    --accent-to: oklch(0.74 0.16 210);
+    --accent-fg: #0d0d14;
+    --accent-star: oklch(0.82 0.14 300);
+    --accent-soft-from: rgba(139, 102, 255, 0.24);
+    --accent-soft-to: rgba(70, 180, 220, 0.2);
+    --accent-soft-edge: rgba(167, 139, 250, 0.42);
+    --accent-soft-fg: #dcd0ff;
+    --avatar-from: oklch(0.6 0.14 300);
+    --avatar-to: oklch(0.5 0.12 240);
+
+    /* 聚焦：紫边框 + 3px 光圈（输入/控件通用） */
+    --ring: rgba(167, 139, 250, 0.55);
+    --ring-glow: rgba(139, 102, 255, 0.14);
+
+    /* 五分类标签色：chip = 15% 底 + 40% 边框 + 亮文字 */
+    --cat-character: #5b8def;
+    --cat-character-soft: rgba(91, 141, 239, 0.15);
+    --cat-character-edge: rgba(91, 141, 239, 0.4);
+    --cat-character-fg: #8db0f5;
+    --cat-copyright: #a06ae8;
+    --cat-copyright-soft: rgba(160, 106, 232, 0.15);
+    --cat-copyright-edge: rgba(160, 106, 232, 0.4);
+    --cat-copyright-fg: #c9a4f5;
+    --cat-artist: #e0a43c;
+    --cat-artist-soft: rgba(224, 164, 60, 0.15);
+    --cat-artist-edge: rgba(224, 164, 60, 0.4);
+    --cat-artist-fg: #f0c674;
+    --cat-meta: #46b8c8;
+    --cat-meta-soft: rgba(70, 184, 200, 0.15);
+    --cat-meta-edge: rgba(70, 184, 200, 0.4);
+    --cat-meta-fg: #7fd6e4;
+    --cat-general: #8b909a;
+    --cat-general-soft: rgba(139, 144, 154, 0.12);
+    --cat-general-edge: rgba(139, 144, 154, 0.35);
+    --cat-general-fg: #b6bac4;
+
+    /* 评级三色 + 各自 15% 底 / 40% 边框 */
+    --rating-safe: #6fce88;
+    --rating-safe-soft: rgba(89, 178, 110, 0.15);
+    --rating-safe-edge: rgba(89, 178, 110, 0.4);
+    --rating-q: #f5c344;
+    --rating-q-soft: rgba(245, 195, 68, 0.15);
+    --rating-q-edge: rgba(245, 195, 68, 0.4);
+    --rating-e: #f07a68;
+    --rating-e-soft: rgba(240, 122, 104, 0.15);
+    --rating-e-edge: rgba(240, 122, 104, 0.4);
+
+    /* 圆角：胶囊 999 / 瀑布卡 14 / 表格卡·菜单 16 / 面板 20 / 认证卡·抽屉 24 /
+       缩略图 8-12 */
+    --radius-pill: 999px;
+    --radius-card: 14px;
+    --radius-table: 16px;
+    --radius-panel: 20px;
+    --radius-modal: 24px;
+    --radius-thumb: 8px;
+    --radius-thumb-lg: 12px;
+
+    /* 阴影层级（浮层一律用 e*，不手写 shadow-*） */
+    --shadow-e1: 0 8px 32px rgba(0, 0, 0, 0.45); /* 顶栏胶囊 */
+    --shadow-e2: 0 20px 56px rgba(0, 0, 0, 0.6); /* 弹层/菜单 */
+    --shadow-e3: 0 30px 90px rgba(0, 0, 0, 0.8); /* 灯箱主图 */
+    --shadow-glow: 0 0 40px rgba(139, 102, 255, 0.45); /* 登录页 logo 光点 */
+
+    /* 字体（fontsource 自托管，layout.tsx 导入权重文件） */
+    --font-ui: "Noto Sans SC", ui-sans-serif, system-ui, sans-serif;
+    --font-brand: "Space Grotesk", "Noto Sans SC", ui-sans-serif, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+    /* 动效：150-220ms + 弹性出场缓动 */
+    --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
   }
 }
 
 @layer base {
   * {
-    border-color: hsl(var(--border));
+    border-color: var(--border-glass);
   }
   html {
     color-scheme: dark;
-    /* Keep focus/anchor scroll targets clear of the 56px fixed top bar. */
+    /* Keep focus/anchor scroll targets clear of the floating 56px top bar. */
     scroll-padding-top: 4.5rem;
     /* Reserve the scrollbar slot so modal scroll-locks don't shift the page. */
     scrollbar-gutter: stable;
   }
   body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    font-family: var(--font-ui);
     -webkit-font-smoothing: antialiased;
   }
   /* Respect reduced motion: disable non-essential animations. */
@@ -63,30 +141,52 @@
   }
 }
 
-/* Skeleton shimmer: a slow gradient sweep across the placeholder. The sweep is
-   a transform on ::after (compositor-friendly; animating background-position
-   repaints every frame). .shimmer sets no `position` of its own — unlayered
-   CSS would beat Tailwind's positioning utilities — so users must already be
-   positioned. */
+@layer components {
+  /* 玻璃两档工具类：底色 + blur + 边框一体，避免每处手写 rgba。 */
+  .glass-bar {
+    background-color: var(--glass-bar);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border-glass);
+  }
+  .glass-pop {
+    background-color: var(--glass-pop);
+    -webkit-backdrop-filter: blur(22px);
+    backdrop-filter: blur(22px);
+    border: 1px solid var(--border-pop);
+    box-shadow: var(--shadow-e2);
+  }
+
+  /* 环境光晕背景：页面（紫 + 青双晕）与灯箱（纯黑 + 紫晕）。 */
+  .bg-ambient {
+    background-color: var(--bg-page);
+    background-image: var(--glow-violet), var(--glow-cyan);
+    background-repeat: no-repeat;
+  }
+  .bg-ambient-lightbox {
+    background-color: var(--bg-lightbox);
+    background-image: var(--glow-lightbox);
+    background-repeat: no-repeat;
+  }
+}
+
+/* 骨架 shimmer：200% 背景位移，1.6s 线性循环（README · 交互中间态）。 */
 .shimmer {
-  overflow: hidden;
-  background-color: hsl(var(--shimmer-from));
-}
-.shimmer::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  transform: translateX(-100%);
+  background-color: var(--bg-card);
   background-image: linear-gradient(
-    90deg,
-    transparent,
-    hsl(var(--shimmer-to)),
-    transparent
+    100deg,
+    var(--bg-card) 40%,
+    var(--fill-2) 50%,
+    var(--bg-card) 60%
   );
-  animation: shimmer-sweep 1.4s ease-in-out infinite;
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
 }
-@keyframes shimmer-sweep {
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
   to {
-    transform: translateX(100%);
+    background-position: -200% 0;
   }
 }

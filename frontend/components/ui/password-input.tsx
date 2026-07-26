@@ -17,7 +17,7 @@ const PasswordInput = React.forwardRef<
       <Input
         ref={ref}
         type={show ? "text" : "password"}
-        className={cn("pr-10", className)}
+        className={cn("pr-11", className)}
         {...props}
       />
       <button
@@ -25,7 +25,7 @@ const PasswordInput = React.forwardRef<
         onClick={() => setShow((s) => !s)}
         aria-label={show ? "隐藏密码" : "显示密码"}
         aria-pressed={show}
-        className="absolute right-2 top-1/2 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-md text-muted hover:text-foreground cursor-pointer active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        className="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-pill text-muted transition duration-150 ease-out-soft hover:text-primary cursor-pointer active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         {show ? (
           <EyeOff className="h-4 w-4" aria-hidden />
