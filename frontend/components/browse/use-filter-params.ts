@@ -91,6 +91,9 @@ export function useFilterParams() {
     [write, tags, ratings],
   );
 
+  /** 清空全部筛选（无结果态"清空全部筛选"chip）。 */
+  const clearAll = useCallback(() => write([], []), [write]);
+
   return {
     tags,
     ratings,
@@ -103,5 +106,6 @@ export function useFilterParams() {
     removeTag,
     toggleRating,
     removeRating,
+    clearAll,
   };
 }

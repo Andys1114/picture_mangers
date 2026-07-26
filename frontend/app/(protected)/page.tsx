@@ -2,17 +2,32 @@
 
 import { Suspense } from "react";
 import FilterRail from "@/components/browse/filter-rail/rail";
+import MasonryGrid from "@/components/browse/masonry-grid";
+import EmptyLibrary from "@/components/browse/states/empty-library";
+import LoadError from "@/components/browse/states/load-error";
+import MasonrySkeleton from "@/components/browse/states/masonry-skeleton";
+import NoResults from "@/components/browse/states/no-results";
 import Topbar from "@/components/browse/topbar";
 import { useFilterParams } from "@/components/browse/use-filter-params";
 import { useInfinitePosts } from "@/hooks/useInfinitePosts";
+import { ratingLabel } from "@/lib/colors";
 
-/** 浏览页主体：顶栏 + 左侧筛选栏 + 主内容两栏。
- *  主内容目前是标题行 + 临时列表占位——D3 用瀑布流（masonry-grid）接管。 */
+/** 浏览页主体：顶栏 + 左侧筛选栏 + 瀑布流。内容区按状态切换：
+ *  首屏骨架 → 失败重试 → 空图库（无筛选）/ 无结果（有筛选）→ 瀑布流。 */
 function BrowseView() {
-  const { tagsParam, ratingsParam } = useFilterParams();
+  const { tags, ratings, tagsParam, ratingsParam } = useFilterParams();
   const posts = useInfinitePosts({ tags: tagsParam, ratings: ratingsParam });
   const total = posts.data?.pages[0]?.meta.total;
-  const items = posts.data?.pages.flatMap((p) => p.data) ?? [];
+  const pages = posts.data?.pages.map((p) => p.data) ?? [];
+  const hasFilters = tags.length > 0 || ratings.length > 0;
+
+  // 条件摘要（设计稿："12 张 · miku + … · 最新入库在前"）。
+  const conditions = [...tags, ...ratings.map(ratingLabel)];
+  const summary = [
+    total === undefined ? "— 张" : `${total} 张`,
+    ...(conditions.length > 0 ? [conditions.join(" + ")] : []),
+    "最新入库在前",
+  ].join(" · ");
 
   return (
     <div className="bg-ambient min-h-dvh">
@@ -22,25 +37,25 @@ function BrowseView() {
         <main className="flex min-w-0 flex-1 flex-col gap-2.5">
           <div className="flex items-baseline gap-3 px-1 pt-0.5">
             <h1 className="text-base font-bold">筛选结果</h1>
-            <span className="text-[12.5px] text-muted">
-              {total === undefined ? "— 张" : `${total} 张`}
-            </span>
+            <span className="min-w-0 truncate text-[12.5px] text-muted">{summary}</span>
           </div>
-          {/* TODO(D3)：以下为临时列表占位，勿加卡片样式。 */}
           {posts.isLoading ? (
-            <p className="text-sm text-muted">正在加载…</p>
+            <MasonrySkeleton />
           ) : posts.isError ? (
-            <p className="text-sm text-muted">加载失败，请确认后端已启动后刷新重试</p>
-          ) : items.length === 0 ? (
-            <p className="text-sm text-muted">没有符合条件的图片</p>
+            <LoadError error={posts.error} onRetry={() => posts.refetch()} />
+          ) : total === 0 ? (
+            hasFilters ? (
+              <NoResults />
+            ) : (
+              <EmptyLibrary />
+            )
           ) : (
-            <ul className="flex flex-col gap-1 font-mono text-xs text-secondary">
-              {items.map((p) => (
-                <li key={p.id}>
-                  #{p.id} · {p.width}×{p.height} · {p.rating}
-                </li>
-              ))}
-            </ul>
+            <MasonryGrid
+              pages={pages}
+              hasNextPage={posts.hasNextPage}
+              isFetchingNextPage={posts.isFetchingNextPage}
+              fetchNextPage={posts.fetchNextPage}
+            />
           )}
         </main>
       </div>
