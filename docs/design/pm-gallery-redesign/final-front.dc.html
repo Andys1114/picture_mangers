@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&amp;family=Space+Grotesk:wght@500;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..600,0..1,0" rel="stylesheet">
+<style>
+body { margin: 0; background: #0c0c0f; }
+a { color: #a2a6b8; text-decoration: none; }
+a:hover { color: #ffffff; }
+</style>
+</helmet>
+<div style="padding:40px 48px 90px;display:flex;flex-direction:column;gap:26px;font-family:'Noto Sans SC',sans-serif;align-items:flex-start">
+<a href="全新前端方向.dc.html" style="font:400 13px 'Noto Sans SC',sans-serif">← 返回方向总览</a>
+<div id="3a" style="display:flex;flex-direction:column;gap:40px">
+  <div style="display:flex;align-items:center;gap:12px">
+    <span style="display:inline-flex;align-items:center;justify-content:center;padding:3px 12px;border-radius:999px;background:#212129;border:1px solid #34343f;color:#f0f0f6;font:700 13px 'Space Grotesk',sans-serif">3a</span>
+    <span style="font:700 16px 'Noto Sans SC',sans-serif;color:#e9e9ef">前台 · 浏览与筛选</span>
+    <span style="font:400 13px 'Noto Sans SC',sans-serif;color:#8f8f9c">首页只做展示与筛选;管理功能全部移入管理面板</span>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div style="font:400 12px 'JetBrains Mono',monospace;color:#77778a">首页 · 左侧筛选栏(标签 / 作者 / 评级 / 收藏),无操作自动折叠</div>
+    <div data-screen-label="3a 首页-筛选展开" style="position:relative;width:1280px;border-radius:14px;overflow:hidden;border:1px solid #2a2a33;box-shadow:0 24px 80px rgba(0,0,0,0.5);color:#e8e8f0;background-color:#07070b;background-image:radial-gradient(900px 420px at 85% -5%, rgba(139,102,255,0.16), transparent 60%),radial-gradient(700px 400px at 5% 12%, rgba(70,180,220,0.10), transparent 60%)">
+      <div style="padding:16px 20px 2px">
+        <div style="height:56px;border-radius:999px;background:rgba(21,21,30,0.72);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.09);box-shadow:0 8px 32px rgba(0,0,0,0.45);display:flex;align-items:center;gap:10px;padding:0 12px 0 18px">
+          <div style="display:flex;align-items:center;gap:10px;flex-shrink:0"><span style="width:26px;height:26px;border-radius:999px;background:linear-gradient(135deg, oklch(0.74 0.16 300), oklch(0.74 0.16 210))"></span><span style="font:700 15px 'Space Grotesk',sans-serif">PM Gallery</span></div>
+          <div style="flex:1;height:38px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;gap:9px;padding:0 8px 0 15px;color:#8d8fa0;margin:0 8px">
+            <span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">search</span>
+            <span style="font-size:13px">搜索标签,空格 = 同时满足…</span>
+            <span style="flex:1"></span>
+            <span style="font:600 11px 'JetBrains Mono',monospace;background:rgba(255,255,255,0.08);border-radius:6px;padding:3px 8px;color:#a5a8ba">/</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:7px;height:38px;padding:0 15px;border-radius:999px;background:linear-gradient(135deg, rgba(139,102,255,0.24), rgba(70,180,220,0.20));border:1px solid rgba(167,139,250,0.42);color:#dcd0ff;font-size:13px;font-weight:500;flex-shrink:0"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">shield</span>安全模式:关</div>
+          <div style="width:34px;height:34px;border-radius:999px;background:linear-gradient(135deg, oklch(0.6 0.14 300), oklch(0.5 0.12 240));display:flex;align-items:center;justify-content:center;font:600 13px 'Space Grotesk',sans-serif;color:#ffffff;flex-shrink:0">A</div>
+        </div>
+      </div>
+      <div style="position:absolute;top:80px;right:24px;width:232px;border-radius:16px;background:rgba(19,19,28,0.92);backdrop-filter:blur(22px);border:1px solid rgba(255,255,255,0.1);box-shadow:0 20px 56px rgba(0,0,0,0.6);padding:8px;display:flex;flex-direction:column;gap:2px;z-index:10">
+        <div style="padding:8px 12px 10px;border-bottom:1px solid rgba(255,255,255,0.08);margin-bottom:4px;display:flex;flex-direction:column;gap:1px"><span style="font-size:13px;font-weight:700">admin</span><span style="font:400 10.5px 'JetBrains Mono',monospace;color:#77778a">实例拥有者 · 会话 30 天</span></div>
+        <div style="display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:10px;background:rgba(255,255,255,0.07);color:#e8e8f0;font-size:12.5px;font-weight:500"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">tune</span>管理面板<span style="margin-left:auto;font-family:'Material Symbols Rounded';font-size:14px;line-height:1;color:#77778a">arrow_forward</span></div>
+        <div style="display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:10px;color:#c9cbd8;font-size:12.5px"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">settings</span>设置</div>
+        <div style="height:1px;background:rgba(255,255,255,0.08);margin:4px 8px"></div>
+        <div style="display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:10px;color:#f07a68;font-size:12.5px"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">logout</span>退出登录</div>
+      </div>
+      <div style="display:flex;gap:14px;align-items:flex-start;padding:14px 20px 26px">
+        <div style="width:240px;flex-shrink:0;border-radius:20px;background:rgba(21,21,30,0.72);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.09);padding:16px;display:flex;flex-direction:column;gap:15px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:14px;font-weight:700">筛选</span>
+            <span style="flex:1"></span>
+            <span style="width:28px;height:28px;border-radius:999px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1;color:#a5a8ba">push_pin</span></span>
+            <span style="width:28px;height:28px;border-radius:999px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1;color:#a5a8ba">chevron_left</span></span>
+          </div>
+          <div style="font-size:11px;color:#63657a;margin-top:-9px">无操作 8 秒后自动折叠;图钉可常驻</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+            <span style="display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:999px;background:rgba(91,141,239,0.15);border:1px solid rgba(91,141,239,0.4);font:500 12px 'JetBrains Mono',monospace;color:#8db0f5">miku<span style="font-family:'Material Symbols Rounded';font-size:12px;line-height:1">close</span></span>
+            <span style="display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:999px;background:linear-gradient(135deg, rgba(139,102,255,0.24), rgba(70,180,220,0.20));border:1px solid rgba(167,139,250,0.42);font-size:12px;color:#dcd0ff">仅已收藏<span style="font-family:'Material Symbols Rounded';font-size:12px;line-height:1">close</span></span>
+            <span style="font-size:11.5px;color:#8d8fa0">清空</span>
+          </div>
+          <div style="height:1px;background:rgba(255,255,255,0.08)"></div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="font:600 10px 'JetBrains Mono',monospace;letter-spacing:1.5px;color:#77778a">作者 ARTIST</div>
+            <div style="display:flex;align-items:center;gap:9px;font-size:12.5px;color:#c9cbd8"><span style="width:8px;height:8px;border-radius:999px;background:#f0c674"></span><span style="font-family:'JetBrains Mono',monospace">wlop</span><span style="margin-left:auto;font:400 11px 'JetBrains Mono',monospace;color:#63657a">28</span></div>
+            <div style="display:flex;align-items:center;gap:9px;font-size:12.5px;color:#c9cbd8"><span style="width:8px;height:8px;border-radius:999px;background:#f0c674"></span><span style="font-family:'JetBrains Mono',monospace">sakimichan</span><span style="margin-left:auto;font:400 11px 'JetBrains Mono',monospace;color:#63657a">17</span></div>
+            <div style="display:flex;align-items:center;gap:9px;font-size:12.5px;color:#c9cbd8"><span style="width:8px;height:8px;border-radius:999px;background:#f0c674"></span><span style="font-family:'JetBrains Mono',monospace">rella</span><span style="margin-left:auto;font:400 11px 'JetBrains Mono',monospace;color:#63657a">12</span></div>
+            <span style="font-size:11.5px;color:#8d8fa0">查看全部 96 位 →</span>
+          </div>
+          <div style="height:1px;background:rgba(255,255,255,0.08)"></div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="font:600 10px 'JetBrains Mono',monospace;letter-spacing:1.5px;color:#77778a">标签 TAGS</div>
+            <div style="border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);padding:8px;display:flex;flex-direction:column;gap:7px">
+              <div style="display:flex;align-items:center;gap:7px"><span style="display:inline-flex;padding:3px 10px;border-radius:999px;background:rgba(160,106,232,0.15);border:1px solid rgba(160,106,232,0.4);font:500 11.5px 'JetBrains Mono',monospace;color:#c9a4f5">vocaloid</span><span style="font:400 10px 'JetBrains Mono',monospace;color:#63657a">母标签</span></div>
+              <div style="display:flex;flex-wrap:wrap;gap:5px;margin-left:8px;padding-left:9px;border-left:2px solid rgba(160,106,232,0.35)"><span style="display:inline-flex;padding:3px 10px;border-radius:999px;background:rgba(91,141,239,0.15);border:1px solid rgba(91,141,239,0.4);font:500 11.5px 'JetBrains Mono',monospace;color:#8db0f5">miku</span><span style="display:inline-flex;padding:3px 10px;border-radius:999px;background:rgba(91,141,239,0.15);border:1px solid rgba(91,141,239,0.4);font:500 11.5px 'JetBrains Mono',monospace;color:#8db0f5">miku_append</span></div>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px">
+              <span style="display:inline-flex;padding:3px 10px;border-radius:999px;background:rgba(139,144,154,0.12);border:1px solid rgba(139,144,154,0.35);font:500 11.5px 'JetBrains Mono',monospace;color:#b6bac4">blue_hair</span>
+              <span style="display:inline-flex;padding:3px 10px;border-radius:999px;background:rgba(139,144,154,0.12);border:1px solid rgba(139,144,154,0.35);font:500 11.5px 'JetBrains Mono',monospace;color:#b6bac4">landscape</span>
+              <span style="display:inline-flex;padding:3px 10px;border-radius:999px;background:rgba(139,144,154,0.12);border:1px solid rgba(139,144,154,0.35);font:500 11.5px 'JetBrains Mono',monospace;color:#b6bac4">sky</span>
+              <span style="display:inline-flex;padding:3px 10px;border-radius:999px;background:rgba(70,184,200,0.15);border:1px solid rgba(70,184,200,0.4);font:500 11.5px 'JetBrains Mono',monospace;color:#7fd6e4">highres</span>
+              <span style="font-size:11.5px;color:#8d8fa0;padding:3px 2px">更多…</span>
+            </div>
+          </div>
+          <div style="height:1px;background:rgba(255,255,255,0.08)"></div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="font:600 10px 'JetBrains Mono',monospace;letter-spacing:1.5px;color:#77778a">评级 RATING</div>
+            <div style="display:flex;align-items:center;gap:9px;font-size:12.5px;color:#c9cbd8"><span style="width:15px;height:15px;border-radius:5px;background:rgba(111,206,136,0.2);border:1px solid rgba(111,206,136,0.6);display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:11px;line-height:1;color:#6fce88">check</span></span>safe<span style="margin-left:auto;font:400 11px 'JetBrains Mono',monospace;color:#63657a">1100</span></div>
+            <div style="display:flex;align-items:center;gap:9px;font-size:12.5px;color:#c9cbd8"><span style="width:15px;height:15px;border-radius:5px;background:rgba(245,195,68,0.16);border:1px solid rgba(245,195,68,0.55);display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:11px;line-height:1;color:#f5c344">check</span></span>questionable<span style="margin-left:auto;font:400 11px 'JetBrains Mono',monospace;color:#63657a">112</span></div>
+            <div style="display:flex;align-items:center;gap:9px;font-size:12.5px;color:#c9cbd8"><span style="width:15px;height:15px;border-radius:5px;background:rgba(240,122,104,0.14);border:1px solid rgba(240,122,104,0.55);display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:11px;line-height:1;color:#f07a68">check</span></span>explicit<span style="margin-left:auto;font:400 11px 'JetBrains Mono',monospace;color:#63657a">36</span></div>
+          </div>
+          <div style="height:1px;background:rgba(255,255,255,0.08)"></div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:#dcd0ff"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1;color:oklch(0.82 0.14 300);font-variation-settings:'FILL' 1">star</span>仅显示已收藏<span style="margin-left:auto;width:32px;height:18px;border-radius:999px;background:linear-gradient(135deg, oklch(0.74 0.16 300), oklch(0.74 0.16 210));position:relative"><span style="position:absolute;right:2px;top:2px;width:14px;height:14px;border-radius:999px;background:#0d0d14"></span></span></div>
+        </div>
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;align-items:baseline;gap:12px;padding:2px 4px 0">
+            <span style="font:700 16px 'Noto Sans SC',sans-serif">筛选结果</span>
+            <span style="font-size:12.5px;color:#7e8093;white-space:nowrap">12 张 · miku + 仅已收藏 · 最新入库在前</span>
+          </div>
+          <div style="display:flex;gap:6px;align-items:flex-start">
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
+              <div style="border-radius:14px;overflow:hidden;background:#15151c;position:relative"><img src="https://picsum.photos/seed/pm01/400/600" alt="作品 1" style="width:100%;display:block"><span style="position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:999px;background:rgba(0,0,0,0.5);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:14px;line-height:1;color:oklch(0.82 0.14 300);font-variation-settings:'FILL' 1">star</span></span></div>
+              <div style="border-radius:14px;overflow:hidden;background:#15151c;position:relative"><img src="https://picsum.photos/seed/pm03/500/500" alt="作品 3" style="width:100%;display:block"><span style="position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:999px;background:rgba(0,0,0,0.5);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:14px;line-height:1;color:oklch(0.82 0.14 300);font-variation-settings:'FILL' 1">star</span></span></div>
+              <div style="border-radius:14px;overflow:hidden;background:#15151c;position:relative"><img src="https://picsum.photos/seed/pm02/600/400" alt="作品 2" style="width:100%;display:block"><span style="position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:999px;background:rgba(0,0,0,0.5);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:14px;line-height:1;color:oklch(0.82 0.14 300);font-variation-settings:'FILL' 1">star</span></span></div>
+            </div>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
+              <div style="border-radius:14px;overflow:hidden;background:#15151c;position:relative"><img src="https://picsum.photos/seed/pm08/400/400" alt="作品 8" style="width:100%;display:block"><span style="position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:999px;background:rgba(0,0,0,0.5);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:14px;line-height:1;color:oklch(0.82 0.14 300);font-variation-settings:'FILL' 1">star</span></span></div>
+              <div style="border-radius:14px;overflow:hidden;background:#15151c;position:relative;box-shadow:0 14px 44px rgba(0,0,0,0.65)"><img src="https://picsum.photos/seed/pm05/300/450" alt="作品 5(悬停态)" style="width:100%;display:block"><div style="position:absolute;inset:0;background:linear-gradient(to top, rgba(0,0,0,0.68), transparent 46%)"></div><span style="position:absolute;left:10px;bottom:10px;display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:999px;background:rgba(0,0,0,0.55);backdrop-filter:blur(8px);font:600 11px 'JetBrains Mono',monospace;color:#f5c344"><span style="font-family:'Material Symbols Rounded';font-size:13px;line-height:1">warning</span>Q 擦边</span><span style="position:absolute;right:10px;bottom:10px;font:400 11px 'JetBrains Mono',monospace;color:rgba(255,255,255,0.85)">#0005</span><span style="position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:999px;background:rgba(0,0,0,0.5);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:14px;line-height:1;color:oklch(0.82 0.14 300);font-variation-settings:'FILL' 1">star</span></span></div>
+              <div style="border-radius:14px;overflow:hidden;background:#15151c;position:relative"><img src="https://picsum.photos/seed/pm06/450/300" alt="作品 6" style="width:100%;display:block"><span style="position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:999px;background:rgba(0,0,0,0.5);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:14px;line-height:1;color:oklch(0.82 0.14 300);font-variation-settings:'FILL' 1">star</span></span></div>
+            </div>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
+              <div style="border-radius:14px;overflow:hidden;background:#15151c;position:relative"><img src="https://picsum.photos/seed/pm04/800/600" alt="作品 4" style="width:100%;display:block"><span style="position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:999px;background:rgba(0,0,0,0.5);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:14px;line-height:1;color:oklch(0.82 0.14 300);font-variation-settings:'FILL' 1">star</span></span></div>
+              <div style="border-radius:14px;overflow:hidden;background:#15151c;position:relative"><img src="https://picsum.photos/seed/pm09/600/800" alt="作品 9" style="width:100%;display:block"><span style="position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:999px;background:rgba(0,0,0,0.5);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:14px;line-height:1;color:oklch(0.82 0.14 300);font-variation-settings:'FILL' 1">star</span></span></div>
+              <div style="border-radius:14px;overflow:hidden;background:#15151c;position:relative"><img src="https://picsum.photos/seed/pm10/500/350" alt="作品 10" style="width:100%;display:block"><span style="position:absolute;left:10px;bottom:10px;display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:999px;background:rgba(0,0,0,0.55);backdrop-filter:blur(8px);font:600 11px 'JetBrains Mono',monospace;color:#f07a68"><span style="font-family:'Material Symbols Rounded';font-size:13px;line-height:1">block</span>E 露骨</span><span style="position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:999px;background:rgba(0,0,0,0.5);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:14px;line-height:1;color:oklch(0.82 0.14 300);font-variation-settings:'FILL' 1">star</span></span></div>
+            </div>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
+              <div style="border-radius:14px;overflow:hidden;background:#15151c;position:relative"><img src="https://picsum.photos/seed/pm11/350/500" alt="作品 11" style="width:100%;display:block"><span style="position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:999px;background:rgba(0,0,0,0.5);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:14px;line-height:1;color:oklch(0.82 0.14 300);font-variation-settings:'FILL' 1">star</span></span></div>
+              <div style="border-radius:14px;overflow:hidden;background:#15151c;position:relative"><img src="https://picsum.photos/seed/pm07/700/500" alt="作品 7" style="width:100%;display:block"><span style="position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:999px;background:rgba(0,0,0,0.5);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:14px;line-height:1;color:oklch(0.82 0.14 300);font-variation-settings:'FILL' 1">star</span></span></div>
+              <div style="border-radius:14px;overflow:hidden;background:#15151c;position:relative"><img src="https://picsum.photos/seed/pm12/650/450" alt="作品 12" style="width:100%;display:block"><span style="position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:999px;background:rgba(0,0,0,0.5);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:14px;line-height:1;color:oklch(0.82 0.14 300);font-variation-settings:'FILL' 1">star</span></span></div>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:center;padding:8px 0 2px"><span style="padding:8px 20px;border-radius:999px;background:rgba(21,21,30,0.72);border:1px solid rgba(255,255,255,0.08);font-size:12.5px;color:#8d8fa0">正在加载第 2 页…</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div style="font:400 12px 'JetBrains Mono',monospace;color:#77778a">首页 · 筛选栏折叠态(56px 图标条,悬停任一图标即展开)</div>
+    <div data-screen-label="3a 首页-筛选折叠" style="width:1280px;height:600px;border-radius:14px;overflow:hidden;border:1px solid #2a2a33;box-shadow:0 24px 80px rgba(0,0,0,0.5);color:#e8e8f0;background-color:#07070b;background-image:radial-gradient(900px 420px at 85% -5%, rgba(139,102,255,0.16), transparent 60%)">
+      <div style="padding:16px 20px 2px">
+        <div style="height:56px;border-radius:999px;background:rgba(21,21,30,0.72);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.09);display:flex;align-items:center;gap:10px;padding:0 12px 0 18px">
+          <div style="display:flex;align-items:center;gap:10px;flex-shrink:0"><span style="width:26px;height:26px;border-radius:999px;background:linear-gradient(135deg, oklch(0.74 0.16 300), oklch(0.74 0.16 210))"></span><span style="font:700 15px 'Space Grotesk',sans-serif">PM Gallery</span></div>
+          <div style="flex:1;height:38px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;gap:9px;padding:0 15px;color:#8d8fa0;margin:0 8px"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">search</span><span style="font-size:13px">搜索标签…</span></div>
+          <div style="display:flex;align-items:center;gap:7px;height:38px;padding:0 15px;border-radius:999px;background:linear-gradient(135deg, rgba(139,102,255,0.24), rgba(70,180,220,0.20));border:1px solid rgba(167,139,250,0.42);color:#dcd0ff;font-size:13px;font-weight:500;flex-shrink:0"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">shield</span>安全模式:关</div>
+          <div style="width:34px;height:34px;border-radius:999px;background:linear-gradient(135deg, oklch(0.6 0.14 300), oklch(0.5 0.12 240));display:flex;align-items:center;justify-content:center;font:600 13px 'Space Grotesk',sans-serif;color:#ffffff;flex-shrink:0">A</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:14px;align-items:flex-start;padding:14px 20px 26px">
+        <div style="width:56px;flex-shrink:0;border-radius:999px;background:rgba(21,21,30,0.72);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.09);padding:12px 0;display:flex;flex-direction:column;align-items:center;gap:8px">
+          <span style="width:36px;height:36px;border-radius:999px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1;color:#a5a8ba">chevron_right</span></span>
+          <span style="width:24px;height:1px;background:rgba(255,255,255,0.1)"></span>
+          <span style="width:36px;height:36px;border-radius:999px;background:linear-gradient(135deg, rgba(139,102,255,0.28), rgba(70,180,220,0.22));border:1px solid rgba(167,139,250,0.45);display:flex;align-items:center;justify-content:center;position:relative"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1;color:#dcd0ff">sell</span><span style="position:absolute;top:-2px;right:-2px;width:14px;height:14px;border-radius:999px;background:oklch(0.74 0.16 300);font:700 9px 'JetBrains Mono',monospace;color:#0d0d14;display:flex;align-items:center;justify-content:center">2</span></span>
+          <span style="width:36px;height:36px;border-radius:999px;display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1;color:#a5a8ba">person</span></span>
+          <span style="width:36px;height:36px;border-radius:999px;display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1;color:#a5a8ba">shield</span></span>
+          <span style="width:36px;height:36px;border-radius:999px;display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1;color:oklch(0.82 0.14 300);font-variation-settings:'FILL' 1">star</span></span>
+        </div>
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;align-items:baseline;gap:12px;padding:2px 4px 0">
+            <span style="font:700 16px 'Noto Sans SC',sans-serif">筛选结果</span>
+            <span style="font-size:12.5px;color:#7e8093;white-space:nowrap">12 张 · miku + 仅已收藏</span>
+          </div>
+          <div style="display:flex;gap:6px;align-items:flex-start">
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px"><div style="border-radius:14px;overflow:hidden;background:#15151c"><img src="https://picsum.photos/seed/pm01/400/600" alt="作品 1" style="width:100%;display:block"></div></div>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px"><div style="border-radius:14px;overflow:hidden;background:#15151c"><img src="https://picsum.photos/seed/pm08/400/400" alt="作品 8" style="width:100%;display:block"></div><div style="border-radius:14px;overflow:hidden;background:#15151c"><img src="https://picsum.photos/seed/pm05/300/450" alt="作品 5" style="width:100%;display:block"></div></div>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px"><div style="border-radius:14px;overflow:hidden;background:#15151c"><img src="https://picsum.photos/seed/pm04/800/600" alt="作品 4" style="width:100%;display:block"></div><div style="border-radius:14px;overflow:hidden;background:#15151c"><img src="https://picsum.photos/seed/pm09/600/800" alt="作品 9" style="width:100%;display:block"></div></div>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px"><div style="border-radius:14px;overflow:hidden;background:#15151c"><img src="https://picsum.photos/seed/pm11/350/500" alt="作品 11" style="width:100%;display:block"></div><div style="border-radius:14px;overflow:hidden;background:#15151c"><img src="https://picsum.photos/seed/pm07/700/500" alt="作品 7" style="width:100%;display:block"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div style="font:400 12px 'JetBrains Mono',monospace;color:#77778a">作者视图 · /?tags=wlop · 从筛选栏或灯箱作者进入</div>
+    <div data-screen-label="3a 作者视图" style="width:1280px;border-radius:14px;overflow:hidden;border:1px solid #2a2a33;box-shadow:0 24px 80px rgba(0,0,0,0.5);color:#e8e8f0;background-color:#07070b;background-image:radial-gradient(900px 420px at 20% -5%, rgba(224,164,60,0.10), transparent 60%),radial-gradient(700px 400px at 85% 10%, rgba(139,102,255,0.12), transparent 60%)">
+      <div style="padding:16px 20px 2px">
+        <div style="height:56px;border-radius:999px;background:rgba(21,21,30,0.72);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.09);display:flex;align-items:center;gap:10px;padding:0 12px 0 18px">
+          <div style="display:flex;align-items:center;gap:10px;flex-shrink:0"><span style="width:26px;height:26px;border-radius:999px;background:linear-gradient(135deg, oklch(0.74 0.16 300), oklch(0.74 0.16 210))"></span><span style="font:700 15px 'Space Grotesk',sans-serif">PM Gallery</span></div>
+          <div style="flex:1;height:38px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;gap:9px;padding:0 15px;color:#8d8fa0;margin:0 8px"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">search</span><span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;background:rgba(224,164,60,0.15);border:1px solid rgba(224,164,60,0.4);font:500 12px 'JetBrains Mono',monospace;color:#f0c674">wlop<span style="font-family:'Material Symbols Rounded';font-size:12px;line-height:1">close</span></span><span style="font-size:13px">继续添加标签…</span></div>
+          <div style="display:flex;align-items:center;gap:7px;height:38px;padding:0 15px;border-radius:999px;background:linear-gradient(135deg, rgba(139,102,255,0.24), rgba(70,180,220,0.20));border:1px solid rgba(167,139,250,0.42);color:#dcd0ff;font-size:13px;font-weight:500;flex-shrink:0"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">shield</span>安全模式:关</div>
+          <div style="width:34px;height:34px;border-radius:999px;background:linear-gradient(135deg, oklch(0.6 0.14 300), oklch(0.5 0.12 240));display:flex;align-items:center;justify-content:center;font:600 13px 'Space Grotesk',sans-serif;color:#ffffff;flex-shrink:0">A</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;padding:20px 24px 6px">
+        <span style="width:46px;height:46px;border-radius:14px;background:rgba(224,164,60,0.14);border:1px solid rgba(224,164,60,0.4);display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1;color:#f0c674">brush</span></span>
+        <span style="display:flex;flex-direction:column;gap:3px">
+          <span style="display:flex;align-items:center;gap:8px"><span style="font:700 17px 'JetBrains Mono',monospace;color:#f0c674">wlop</span><span style="display:inline-flex;padding:2px 9px;border-radius:999px;border:1px solid rgba(224,164,60,0.4);font:400 10px 'JetBrains Mono',monospace;color:#f0c674">artist</span></span>
+          <span style="font:400 11.5px 'JetBrains Mono',monospace;color:#8d8fa0">28 张 · 最近入库 2026-07-22 · 主要来源 danbooru</span>
+        </span>
+        <span style="flex:1"></span>
+        <span style="display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 14px;border-radius:999px;border:1px solid rgba(255,255,255,0.12);font-size:12.5px;color:#c9cbd8"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1;color:oklch(0.82 0.14 300)">star</span>只看已收藏</span>
+        <span style="display:inline-flex;align-items:center;gap:5px;height:34px;padding:0 14px;border-radius:999px;border:1px solid rgba(255,255,255,0.12);font-size:12.5px;color:#c9cbd8">排序:最新<span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">expand_more</span></span>
+      </div>
+      <div style="display:flex;gap:6px;align-items:flex-start;padding:12px 20px 26px">
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
+          <div style="border-radius:14px;overflow:hidden;background:#15151c;position:relative"><img src="https://picsum.photos/seed/pm09/600/800" alt="wlop 作品 9" style="width:100%;display:block"><span style="position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:999px;background:rgba(0,0,0,0.5);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:14px;line-height:1;color:oklch(0.82 0.14 300);font-variation-settings:'FILL' 1">star</span></span></div>
+          <div style="border-radius:14px;overflow:hidden;background:#15151c"><img src="https://picsum.photos/seed/pm02/600/400" alt="wlop 作品 2" style="width:100%;display:block"></div>
+        </div>
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
+          <div style="border-radius:14px;overflow:hidden;background:#15151c"><img src="https://picsum.photos/seed/pm11/350/500" alt="wlop 作品 11" style="width:100%;display:block"></div>
+          <div style="border-radius:14px;overflow:hidden;background:#15151c"><img src="https://picsum.photos/seed/pm12/650/450" alt="wlop 作品 12" style="width:100%;display:block"></div>
+        </div>
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
+          <div style="border-radius:14px;overflow:hidden;background:#15151c;position:relative"><img src="https://picsum.photos/seed/pm04/800/600" alt="wlop 作品 4" style="width:100%;display:block"><span style="position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:999px;background:rgba(0,0,0,0.5);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:14px;line-height:1;color:oklch(0.82 0.14 300);font-variation-settings:'FILL' 1">star</span></span></div>
+          <div style="border-radius:14px;overflow:hidden;background:#15151c"><img src="https://picsum.photos/seed/pm07/700/500" alt="wlop 作品 7" style="width:100%;display:block"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div style="font:400 12px 'JetBrains Mono',monospace;color:#77778a">灯箱浮层 · ?photoId=1</div>
+    <div data-screen-label="3a 灯箱" style="width:1280px;height:780px;position:relative;border-radius:14px;overflow:hidden;border:1px solid #2a2a33;box-shadow:0 24px 80px rgba(0,0,0,0.5);color:#e8e8f0;background-color:#040407;background-image:radial-gradient(760px 560px at 68% 46%, rgba(139,102,255,0.10), transparent 65%)">
+      <img src="https://picsum.photos/seed/pm01/400/600" alt="灯箱主图" style="position:absolute;right:120px;top:50%;transform:translateY(-50%);height:664px;width:auto;border-radius:14px;box-shadow:0 30px 90px rgba(0,0,0,0.8)">
+      <div style="position:absolute;left:28px;top:28px;bottom:28px;width:320px;border-radius:20px;background:rgba(19,19,28,0.78);backdrop-filter:blur(22px);border:1px solid rgba(255,255,255,0.09);box-shadow:0 16px 48px rgba(0,0,0,0.5);padding:20px;display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font:600 14px 'JetBrains Mono',monospace">#0001</span>
+          <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;background:rgba(89,178,110,0.15);border:1px solid rgba(89,178,110,0.4);font:600 11px 'JetBrains Mono',monospace;color:#6fce88"><span style="font-family:'Material Symbols Rounded';font-size:12px;line-height:1">shield</span>S 安全</span>
+          <span style="flex:1"></span>
+          <span style="width:30px;height:30px;border-radius:999px;background:rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1;color:#c9cbd8">close</span></span>
+        </div>
+        <div style="display:flex;gap:8px">
+          <span style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;height:38px;border-radius:999px;background:linear-gradient(135deg, oklch(0.74 0.16 300), oklch(0.74 0.16 210));color:#0d0d14;font-size:13px;font-weight:700"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1;font-variation-settings:'FILL' 1">star</span>已收藏</span>
+          <span style="width:38px;height:38px;border-radius:999px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1;color:#d5d7e2">download</span></span>
+          <span style="width:38px;height:38px;border-radius:999px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1;color:#d5d7e2">open_in_new</span></span>
+        </div>
+        <div style="height:1px;background:rgba(255,255,255,0.08)"></div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="font:600 10px 'JetBrains Mono',monospace;letter-spacing:1.5px;color:#77778a">作者 ARTIST</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px"><span style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;background:rgba(224,164,60,0.15);border:1px solid rgba(224,164,60,0.4);font:500 12px 'JetBrains Mono',monospace;color:#f0c674">wlop<span style="opacity:0.6;font-size:11px">28</span></span><span style="font-size:10.5px;color:#8d8fa0;align-self:center">该作者更多 →</span></div>
+          <div style="display:flex;gap:6px"><img src="https://picsum.photos/seed/pm09/120/120" alt="wlop 作品" style="width:44px;height:44px;border-radius:8px;object-fit:cover"><img src="https://picsum.photos/seed/pm04/120/120" alt="wlop 作品" style="width:44px;height:44px;border-radius:8px;object-fit:cover"><img src="https://picsum.photos/seed/pm07/120/120" alt="wlop 作品" style="width:44px;height:44px;border-radius:8px;object-fit:cover"><img src="https://picsum.photos/seed/pm11/120/120" alt="wlop 作品" style="width:44px;height:44px;border-radius:8px;object-fit:cover"><span style="width:44px;height:44px;border-radius:8px;background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;font:500 10px 'JetBrains Mono',monospace;color:#8d8fa0">+23</span></div>
+          <div style="font:600 10px 'JetBrains Mono',monospace;letter-spacing:1.5px;color:#77778a">标签 · 连带成组</div>
+          <div style="border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);padding:8px;display:flex;flex-direction:column;gap:7px">
+            <div style="display:flex;align-items:center;gap:7px"><span style="display:inline-flex;align-items:center;gap:6px;padding:3px 11px;border-radius:999px;background:rgba(160,106,232,0.15);border:1px solid rgba(160,106,232,0.4);font:500 12px 'JetBrains Mono',monospace;color:#c9a4f5">vocaloid<span style="opacity:0.6;font-size:11px">187</span></span><span style="font:400 10px 'JetBrains Mono',monospace;color:#63657a">母标签</span></div>
+            <div style="display:flex;flex-wrap:wrap;gap:5px;margin-left:8px;padding-left:9px;border-left:2px solid rgba(160,106,232,0.35)"><span style="display:inline-flex;align-items:center;gap:6px;padding:3px 11px;border-radius:999px;background:rgba(91,141,239,0.15);border:1px solid rgba(91,141,239,0.4);font:500 12px 'JetBrains Mono',monospace;color:#8db0f5">miku<span style="opacity:0.6;font-size:11px">342</span></span></div>
+          </div>
+          <div style="font:600 10px 'JetBrains Mono',monospace;letter-spacing:1.5px;color:#77778a">GENERAL</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px"><span style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;background:rgba(139,144,154,0.12);border:1px solid rgba(139,144,154,0.35);font:500 12px 'JetBrains Mono',monospace;color:#b6bac4">blue_hair<span style="opacity:0.6;font-size:11px">76</span></span></div>
+        </div>
+        <div style="height:1px;background:rgba(255,255,255,0.08)"></div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;align-items:center"><span style="font:600 10px 'JetBrains Mono',monospace;letter-spacing:1.5px;color:#77778a">差分 · 同组 3 张</span><span style="margin-left:auto;font-size:10.5px;color:#8d8fa0;white-space:nowrap">查看全部 →</span></div>
+          <div style="display:flex;gap:8px">
+            <span style="display:flex;flex-direction:column;gap:4px;align-items:center"><img src="https://picsum.photos/seed/pm01/120/120" alt="差分 当前" style="width:56px;height:56px;border-radius:10px;object-fit:cover;border:2px solid oklch(0.74 0.16 300)"><span style="font:600 9.5px 'JetBrains Mono',monospace;color:#dcd0ff">当前</span></span>
+            <span style="display:flex;flex-direction:column;gap:4px;align-items:center"><img src="https://picsum.photos/seed/pm01d/120/120" alt="差分 #1103" style="width:56px;height:56px;border-radius:10px;object-fit:cover;border:2px solid transparent;opacity:0.85"><span style="font:400 9.5px 'JetBrains Mono',monospace;color:#8d8fa0">#1103</span></span>
+            <span style="display:flex;flex-direction:column;gap:4px;align-items:center"><img src="https://picsum.photos/seed/pm01e/120/120" alt="差分 #1104" style="width:56px;height:56px;border-radius:10px;object-fit:cover;border:2px solid transparent;opacity:0.85"><span style="font:400 9.5px 'JetBrains Mono',monospace;color:#8d8fa0">#1104</span></span>
+          </div>
+        </div>
+        <div style="height:1px;background:rgba(255,255,255,0.08)"></div>
+        <div style="display:flex;flex-direction:column;gap:7px;font:400 11px 'JetBrains Mono',monospace;color:#8d8fa0">
+          <div style="display:flex">尺寸<span style="margin-left:auto;color:#c9cbd8">400 × 600 · PNG</span></div>
+          <div style="display:flex">入库<span style="margin-left:auto;color:#c9cbd8">2026-07-21 14:32</span></div>
+          <div style="display:flex">来源<span style="margin-left:auto;color:#c9cbd8">本地导入</span></div>
+          <div style="display:flex">md5<span style="margin-left:auto;color:#c9cbd8">9f3a…c21d</span></div>
+        </div>
+        <div style="margin-top:auto;font-size:11px;color:#63657a;text-align:center">← → 翻页 · Esc 关闭</div>
+      </div>
+      <span style="position:absolute;left:372px;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:999px;background:rgba(19,19,28,0.7);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1;color:#d5d7e2">chevron_left</span></span>
+      <span style="position:absolute;right:28px;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:999px;background:rgba(19,19,28,0.7);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1;color:#d5d7e2">chevron_right</span></span>
+      <span style="position:absolute;top:24px;right:28px;padding:5px 14px;border-radius:999px;background:rgba(19,19,28,0.7);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.09);font:500 12px 'JetBrains Mono',monospace;color:#a5a8ba">1 / 1,248</span>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div style="font:400 12px 'JetBrains Mono',monospace;color:#77778a">登录 · 初始化同壳</div>
+    <div data-screen-label="3a 登录" style="width:1280px;height:640px;border-radius:14px;overflow:hidden;border:1px solid #2a2a33;box-shadow:0 24px 80px rgba(0,0,0,0.5);color:#e8e8f0;background-color:#050508;background-image:radial-gradient(700px 420px at 50% 18%, rgba(139,102,255,0.18), transparent 65%),radial-gradient(500px 300px at 72% 80%, rgba(70,180,220,0.10), transparent 60%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:9px">
+        <span style="width:44px;height:44px;border-radius:999px;background:linear-gradient(135deg, oklch(0.74 0.16 300), oklch(0.74 0.16 210));box-shadow:0 0 40px rgba(139,102,255,0.45)"></span>
+        <span style="font:700 20px 'Space Grotesk',sans-serif">PM Gallery</span>
+        <span style="font-size:12.5px;color:#8d8fa0">个人图库 · 深色沉浸画廊</span>
+      </div>
+      <div style="width:360px;border-radius:24px;background:rgba(19,19,28,0.78);backdrop-filter:blur(22px);border:1px solid rgba(255,255,255,0.09);box-shadow:0 24px 64px rgba(0,0,0,0.55);padding:26px;display:flex;flex-direction:column;gap:15px">
+        <div style="display:flex;flex-direction:column;gap:3px"><span style="font-size:17px;font-weight:700">登录</span><span style="font-size:12.5px;color:#8d8fa0">输入你的账户信息以进入图库。</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12.5px;font-weight:500;color:#c9cbd8">用户名</span><span style="height:40px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;padding:0 16px;font-size:13px;color:#e8e8f0">admin</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12.5px;font-weight:500;color:#c9cbd8">密码</span><span style="height:40px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(167,139,250,0.55);box-shadow:0 0 0 3px rgba(139,102,255,0.14);display:flex;align-items:center;padding:0 12px 0 16px;font-size:13px;color:#e8e8f0">••••••••<span style="margin-left:auto;font-family:'Material Symbols Rounded';font-size:17px;line-height:1;color:#8d8fa0">visibility</span></span></div>
+        <span style="display:inline-flex;align-items:center;justify-content:center;height:42px;border-radius:999px;background:linear-gradient(135deg, oklch(0.74 0.16 300), oklch(0.74 0.16 210));color:#0d0d14;font-size:14px;font-weight:700;margin-top:4px">登录</span>
+      </div>
+      <span style="font-size:12px;color:#63657a">首次启动?系统会引导你创建拥有者账户</span>
+    </div>
+  </div>
+</div>
+</div>
+</x-dc>
+</body>
+</html>

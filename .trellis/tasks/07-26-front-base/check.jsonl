@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "前端质检标准：严格 TS、禁用/必用模式、测试与响应式范围"}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "检查组件是否符合项目组件约定"}
+{"file": "docs/design/pm-gallery-redesign/README.md", "reason": "验收对照：视觉令牌、逐屏元素与交互行为是否按稿还原"}
+{"file": "CONTEXT.md", "reason": "验收对照：URL 语义、安全模式行为是否符合领域定义"}

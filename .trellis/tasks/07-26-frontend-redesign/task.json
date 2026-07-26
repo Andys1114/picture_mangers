@@ -1,0 +1,28 @@
+{
+  "id": "frontend-redesign",
+  "name": "frontend-redesign",
+  "title": "前端重设计(暗房霓虹)总览",
+  "description": "",
+  "status": "planning",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "Andys1114",
+  "assignee": "Andys1114",
+  "createdAt": "2026-07-26",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [
+    "07-26-front-base"
+  ],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {}
+}

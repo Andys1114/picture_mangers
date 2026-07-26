@@ -1,0 +1,8 @@
+{"file": "docs/design/pm-gallery-redesign/README.md", "reason": "设计交付稿权威规格：信息架构、逐屏描述、交互行为、设计令牌、资产与实现建议"}
+{"file": "CONTEXT.md", "reason": "领域术语表：详情页 URL 语义、安全模式、评级、差分组等概念的准确定义"}
+{"file": ".trellis/spec/frontend/directory-structure.md", "reason": "App Router 目录与命名约定、media rewrite 做法"}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "Server/Client 组件划分、自研 ui 组件、Tailwind、标签配色、a11y 约定"}
+{"file": ".trellis/spec/frontend/hook-guidelines.md", "reason": "TanStack Query hooks、轮询、mutation、灯箱 hook 约定"}
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "服务端/URL/本地状态划分与安全模式生命周期"}
+{"file": ".trellis/spec/frontend/type-safety.md", "reason": "严格 TS 与后端镜像类型的约定"}
+{"file": ".trellis/spec/backend/index.md", "reason": "后端规范索引：ratings 参数改动需遵循的 API/服务层约定入口"}

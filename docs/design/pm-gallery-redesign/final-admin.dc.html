@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&amp;family=Space+Grotesk:wght@500;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..600,0..1,0" rel="stylesheet">
+<style>
+body { margin: 0; background: #0c0c0f; }
+a { color: #a2a6b8; text-decoration: none; }
+a:hover { color: #ffffff; }
+</style>
+</helmet>
+<div style="padding:40px 48px 90px;display:flex;flex-direction:column;gap:26px;font-family:'Noto Sans SC',sans-serif;align-items:flex-start">
+<a href="全新前端方向.dc.html" style="font:400 13px 'Noto Sans SC',sans-serif">← 返回方向总览</a>
+<div id="3b" style="display:flex;flex-direction:column;gap:40px">
+  <div style="display:flex;align-items:center;gap:12px">
+    <span style="display:inline-flex;align-items:center;justify-content:center;padding:3px 12px;border-radius:999px;background:#212129;border:1px solid #34343f;color:#f0f0f6;font:700 13px 'Space Grotesk',sans-serif">3b</span>
+    <span style="font:700 16px 'Noto Sans SC',sans-serif;color:#e9e9ef">管理面板</span>
+    <span style="font:400 13px 'Noto Sans SC',sans-serif;color:#8f8f9c">标签管理 / 本地扫描 / Danbooru 抓取 / 重复图 / 设置,统一左侧导航</span>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div style="font:400 12px 'JetBrains Mono',monospace;color:#77778a">标签管理 · 概览统计 + 分类分布 + 右侧标签详情</div>
+    <div data-screen-label="3b 标签管理" style="width:1280px;border-radius:14px;overflow:hidden;border:1px solid #2a2a33;box-shadow:0 24px 80px rgba(0,0,0,0.5);color:#e8e8f0;background-color:#07070b;background-image:radial-gradient(900px 420px at 85% -5%, rgba(139,102,255,0.14), transparent 60%);display:flex;align-items:stretch">
+      <div style="width:232px;flex-shrink:0;padding:16px 0 16px 16px;display:flex">
+        <div style="flex:1;border-radius:20px;background:rgba(21,21,30,0.72);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.09);padding:16px 12px;display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;align-items:center;gap:10px;padding:0 6px"><span style="width:26px;height:26px;border-radius:999px;background:linear-gradient(135deg, oklch(0.74 0.16 300), oklch(0.74 0.16 210));flex-shrink:0"></span><span style="display:flex;flex-direction:column;gap:1px"><span style="font:700 14px 'Space Grotesk',sans-serif">PM Gallery</span><span style="font:400 10px 'JetBrains Mono',monospace;color:#77778a">管理面板 CONSOLE</span></span></div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;background:linear-gradient(135deg, rgba(139,102,255,0.22), rgba(70,180,220,0.16));border:1px solid rgba(167,139,250,0.4);color:#e6dcff;font-size:13px;font-weight:500"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">sell</span>标签管理</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;border:1px solid transparent;color:#9a9dae;font-size:13px"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">folder_open</span>本地扫描</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;border:1px solid transparent;color:#9a9dae;font-size:13px"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">cloud_download</span>Danbooru 抓取</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;border:1px solid transparent;color:#9a9dae;font-size:13px"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">content_copy</span>重复图<span style="margin-left:auto;font:400 11px 'JetBrains Mono',monospace;color:#63657a">23</span></div>
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;border:1px solid transparent;color:#9a9dae;font-size:13px"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">burst_mode</span>差分管理<span style="margin-left:auto;font:400 11px 'JetBrains Mono',monospace;color:#63657a">9</span></div>
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;border:1px solid transparent;color:#9a9dae;font-size:13px"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">settings</span>设置</div>
+          </div>
+          <div style="margin-top:auto;display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);color:#c9cbd8;font-size:13px"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">arrow_back</span>返回前台</div>
+            <div style="display:flex;flex-direction:column;gap:6px;padding:0 6px"><div style="display:flex;font:400 11px 'JetBrains Mono',monospace;color:#77778a">媒体占用<span style="margin-left:auto;color:#a5a8ba">12.4 / 64 GB</span></div><div style="height:5px;border-radius:999px;background:rgba(255,255,255,0.07)"><div style="width:19%;height:5px;border-radius:999px;background:linear-gradient(90deg, oklch(0.74 0.16 300), oklch(0.74 0.16 210))"></div></div></div>
+          </div>
+        </div>
+      </div>
+      <div style="flex:1;min-width:0;padding:16px 20px 24px 14px;display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="display:flex;flex-direction:column;gap:2px"><span style="font:700 18px 'Noto Sans SC',sans-serif">标签管理</span><span style="font-size:12.5px;color:#7e8093">1,694 个标签 · 12 条连带规则 · 8 个废弃</span></span>
+          <span style="flex:1"></span>
+          <div style="width:240px;height:36px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:8px;padding:0 14px;color:#8d8fa0"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">search</span><span style="font-size:12.5px">筛选标签…</span></div>
+          <span style="display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 16px;border-radius:999px;background:linear-gradient(135deg, oklch(0.74 0.16 300), oklch(0.74 0.16 210));color:#0d0d14;font-size:13px;font-weight:700"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">add_link</span>新建连带</span>
+        </div>
+        <div style="display:flex;gap:10px">
+          <span style="flex:1;border-radius:16px;background:rgba(21,21,30,0.72);border:1px solid rgba(255,255,255,0.09);padding:12px 14px"><span style="display:block;font:600 20px 'JetBrains Mono',monospace">1,694</span><span style="font-size:12px;color:#8d8fa0">总标签</span></span>
+          <span style="flex:1;border-radius:16px;background:rgba(21,21,30,0.72);border:1px solid rgba(255,255,255,0.09);padding:12px 14px"><span style="display:block;font:600 20px 'JetBrains Mono',monospace;color:#c9a4f5">12</span><span style="font-size:12px;color:#8d8fa0">连带规则</span></span>
+          <span style="flex:1;border-radius:16px;background:rgba(21,21,30,0.72);border:1px solid rgba(255,255,255,0.09);padding:12px 14px"><span style="display:block;font:600 20px 'JetBrains Mono',monospace;color:#f5c344">8</span><span style="font-size:12px;color:#8d8fa0">废弃标签</span></span>
+          <span style="flex:1;border-radius:16px;background:rgba(21,21,30,0.72);border:1px solid rgba(255,255,255,0.09);padding:12px 14px"><span style="display:block;font:600 20px 'JetBrains Mono',monospace;color:#7fd6e4">127</span><span style="font-size:12px;color:#8d8fa0">近 30 天新增</span></span>
+        </div>
+        <div style="border-radius:16px;background:rgba(21,21,30,0.72);border:1px solid rgba(255,255,255,0.09);padding:13px 16px;display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+            <span style="font-size:12.5px;font-weight:700">分类分布</span>
+            <span style="display:inline-flex;align-items:center;gap:5px;font:400 11px 'JetBrains Mono',monospace;color:#8db0f5"><span style="width:7px;height:7px;border-radius:999px;background:#5b8def"></span>character 342</span>
+            <span style="display:inline-flex;align-items:center;gap:5px;font:400 11px 'JetBrains Mono',monospace;color:#c9a4f5"><span style="width:7px;height:7px;border-radius:999px;background:#a06ae8"></span>copyright 187</span>
+            <span style="display:inline-flex;align-items:center;gap:5px;font:400 11px 'JetBrains Mono',monospace;color:#f0c674"><span style="width:7px;height:7px;border-radius:999px;background:#e0a43c"></span>artist 96</span>
+            <span style="display:inline-flex;align-items:center;gap:5px;font:400 11px 'JetBrains Mono',monospace;color:#b6bac4"><span style="width:7px;height:7px;border-radius:999px;background:#6c7078"></span>general 1,024</span>
+            <span style="display:inline-flex;align-items:center;gap:5px;font:400 11px 'JetBrains Mono',monospace;color:#7fd6e4"><span style="width:7px;height:7px;border-radius:999px;background:#46b8c8"></span>meta 45</span>
+          </div>
+          <div style="display:flex;height:10px;border-radius:999px;overflow:hidden">
+            <span style="width:20%;background:#5b8def"></span><span style="width:11%;background:#a06ae8"></span><span style="width:6%;background:#e0a43c"></span><span style="width:60%;background:#3a3d45"></span><span style="width:3%;background:#46b8c8"></span>
+          </div>
+        </div>
+        <div style="border-radius:16px;background:rgba(21,21,30,0.72);border:1px solid rgba(255,255,255,0.09);padding:14px 16px;display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:12.5px;font-weight:700">连带关系图</span>
+            <span style="font-size:11px;color:#8d8fa0">拖动标签到目标标签上 = 新建连带;点连线上的 × 删除规则(不回收已写入标签)</span>
+            <span style="flex:1"></span>
+            <span style="display:inline-flex;padding:4px 12px;border-radius:999px;background:rgba(255,255,255,0.1);font-size:11.5px;color:#f0f0f8">miku 家族</span>
+            <span style="display:inline-flex;padding:4px 12px;border-radius:999px;border:1px solid rgba(255,255,255,0.12);font-size:11.5px;color:#8d8fa0">全部 12 条</span>
+          </div>
+          <div style="position:relative;height:200px;border-radius:12px;background-color:rgba(0,0,0,0.28);background-image:radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);background-size:18px 18px;border:1px solid rgba(255,255,255,0.05);overflow:hidden">
+            <span style="position:absolute;left:196px;top:51px;width:130px;height:2px;background:rgba(160,106,232,0.5)"></span>
+            <span style="position:absolute;left:326px;top:45px;font-family:'Material Symbols Rounded';font-size:14px;line-height:1;color:rgba(160,106,232,0.8)">play_arrow</span>
+            <span style="position:absolute;left:418px;top:51px;width:162px;height:2px;background:rgba(160,106,232,0.5)"></span>
+            <span style="position:absolute;left:406px;top:147px;width:174px;height:2px;background:rgba(160,106,232,0.5)"></span>
+            <span style="position:absolute;left:580px;top:51px;width:2px;height:98px;background:rgba(160,106,232,0.5)"></span>
+            <span style="position:absolute;left:582px;top:99px;width:66px;height:2px;background:rgba(160,106,232,0.5)"></span>
+            <span style="position:absolute;left:644px;top:93px;font-family:'Material Symbols Rounded';font-size:14px;line-height:1;color:rgba(160,106,232,0.8)">play_arrow</span>
+            <span style="position:absolute;left:252px;top:43px;width:17px;height:17px;border-radius:999px;background:#1b1b26;border:1px solid rgba(240,122,104,0.55);display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:11px;line-height:1;color:#f07a68">close</span></span>
+            <span style="position:absolute;left:490px;top:43px;width:17px;height:17px;border-radius:999px;background:#1b1b26;border:1px solid rgba(240,122,104,0.55);display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:11px;line-height:1;color:#f07a68">close</span></span>
+            <span style="position:absolute;left:482px;top:139px;width:17px;height:17px;border-radius:999px;background:#1b1b26;border:1px solid rgba(240,122,104,0.55);display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:11px;line-height:1;color:#f07a68">close</span></span>
+            <span style="position:absolute;left:56px;top:38px;display:inline-flex;align-items:center;gap:6px;padding:5px 13px;border-radius:999px;background:rgba(91,141,239,0.15);border:1px solid rgba(91,141,239,0.4);font:500 12px 'JetBrains Mono',monospace;color:#8db0f5">miku_append<span style="opacity:0.6;font-size:11px">41</span></span>
+            <span style="position:absolute;left:340px;top:38px;display:inline-flex;align-items:center;gap:6px;padding:5px 13px;border-radius:999px;background:rgba(91,141,239,0.15);border:1px solid rgba(91,141,239,0.4);font:500 12px 'JetBrains Mono',monospace;color:#8db0f5">miku<span style="opacity:0.6;font-size:11px">342</span></span>
+            <span style="position:absolute;left:340px;top:134px;display:inline-flex;align-items:center;gap:6px;padding:5px 13px;border-radius:999px;background:rgba(91,141,239,0.15);border:1px solid rgba(91,141,239,0.4);font:500 12px 'JetBrains Mono',monospace;color:#8db0f5">rin<span style="opacity:0.6;font-size:11px">96</span></span>
+            <span style="position:absolute;left:660px;top:86px;display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;background:rgba(160,106,232,0.18);border:1px solid rgba(160,106,232,0.55);font:600 12.5px 'JetBrains Mono',monospace;color:#c9a4f5">vocaloid<span style="opacity:0.6;font-size:11px">187</span><span style="font:400 9.5px 'JetBrains Mono',monospace;opacity:0.7">母</span></span>
+            <span style="position:absolute;left:56px;top:134px;display:inline-flex;align-items:center;gap:6px;padding:5px 13px;border-radius:999px;border:1.5px dashed rgba(255,255,255,0.2);font:400 11.5px 'Noto Sans SC',sans-serif;color:#8d8fa0"><span style="font-family:'Material Symbols Rounded';font-size:13px;line-height:1">add</span>拖入标签…</span>
+            <span style="position:absolute;right:14px;bottom:10px;font:400 10px 'JetBrains Mono',monospace;color:#63657a">链式规则写入时一次展开:miku_append → miku → vocaloid</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div style="flex:1;min-width:0;border-radius:16px;background:rgba(21,21,30,0.72);border:1px solid rgba(255,255,255,0.09);overflow:hidden">
+            <div style="display:flex;align-items:center;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.07);font:600 10px 'JetBrains Mono',monospace;letter-spacing:1.2px;color:#77778a"><span style="width:190px">标签</span><span style="width:96px">分类</span><span style="width:70px">图片数</span><span style="flex:1">连带</span><span style="width:56px">状态</span></div>
+            <div style="display:flex;align-items:center;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.05);background:rgba(139,102,255,0.08);box-shadow:inset 2px 0 0 oklch(0.74 0.16 300)"><span style="width:190px"><span style="display:inline-flex;padding:3px 11px;border-radius:999px;background:rgba(91,141,239,0.15);border:1px solid rgba(91,141,239,0.4);font:500 12px 'JetBrains Mono',monospace;color:#8db0f5">miku</span></span><span style="width:96px;font-size:12px;color:#8db0f5">character</span><span style="width:70px;font:400 12px 'JetBrains Mono',monospace;color:#a5a8ba">342</span><span style="flex:1;font:400 12px 'JetBrains Mono',monospace;color:#c9a4f5">→ vocaloid</span><span style="width:56px;font-size:12px;color:#6fce88">正常</span></div>
+            <div style="display:flex;align-items:center;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.05)"><span style="width:190px"><span style="display:inline-flex;padding:3px 11px;border-radius:999px;background:rgba(160,106,232,0.15);border:1px solid rgba(160,106,232,0.4);font:500 12px 'JetBrains Mono',monospace;color:#c9a4f5">vocaloid</span></span><span style="width:96px;font-size:12px;color:#c9a4f5">copyright</span><span style="width:70px;font:400 12px 'JetBrains Mono',monospace;color:#a5a8ba">187</span><span style="flex:1;font:400 12px 'JetBrains Mono',monospace;color:#63657a">—</span><span style="width:56px;font-size:12px;color:#6fce88">正常</span></div>
+            <div style="display:flex;align-items:center;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.05)"><span style="width:190px"><span style="display:inline-flex;padding:3px 11px;border-radius:999px;background:rgba(91,141,239,0.15);border:1px solid rgba(91,141,239,0.4);font:500 12px 'JetBrains Mono',monospace;color:#8db0f5">miku_append</span></span><span style="width:96px;font-size:12px;color:#8db0f5">character</span><span style="width:70px;font:400 12px 'JetBrains Mono',monospace;color:#a5a8ba">41</span><span style="flex:1;font:400 12px 'JetBrains Mono',monospace;color:#c9a4f5">→ miku → vocaloid</span><span style="width:56px;font-size:12px;color:#6fce88">正常</span></div>
+            <div style="display:flex;align-items:center;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.05);background:rgba(245,195,68,0.04)"><span style="width:190px"><span style="display:inline-flex;padding:3px 11px;border-radius:999px;background:rgba(139,144,154,0.12);border:1px solid rgba(139,144,154,0.35);font:500 12px 'JetBrains Mono',monospace;color:#b6bac4;text-decoration:line-through">hatsune_miku_old</span></span><span style="width:96px;font-size:12px;color:#b6bac4">general</span><span style="width:70px;font:400 12px 'JetBrains Mono',monospace;color:#a5a8ba">12</span><span style="flex:1;font:400 12px 'JetBrains Mono',monospace;color:#63657a">—</span><span style="width:56px"><span style="display:inline-flex;padding:2px 9px;border-radius:999px;background:rgba(245,195,68,0.12);border:1px solid rgba(245,195,68,0.4);font-size:11px;color:#f5c344">废弃</span></span></div>
+            <div style="display:flex;align-items:center;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.05)"><span style="width:190px"><span style="display:inline-flex;padding:3px 11px;border-radius:999px;background:rgba(224,164,60,0.15);border:1px solid rgba(224,164,60,0.4);font:500 12px 'JetBrains Mono',monospace;color:#f0c674">wlop</span></span><span style="width:96px;font-size:12px;color:#f0c674">artist</span><span style="width:70px;font:400 12px 'JetBrains Mono',monospace;color:#a5a8ba">28</span><span style="flex:1;font:400 12px 'JetBrains Mono',monospace;color:#63657a">—</span><span style="width:56px;font-size:12px;color:#6fce88">正常</span></div>
+            <div style="display:flex;align-items:center;padding:10px 16px"><span style="width:190px"><span style="display:inline-flex;padding:3px 11px;border-radius:999px;background:rgba(70,184,200,0.15);border:1px solid rgba(70,184,200,0.4);font:500 12px 'JetBrains Mono',monospace;color:#7fd6e4">highres</span></span><span style="width:96px;font-size:12px;color:#7fd6e4">meta</span><span style="width:70px;font:400 12px 'JetBrains Mono',monospace;color:#a5a8ba">203</span><span style="flex:1;font:400 12px 'JetBrains Mono',monospace;color:#63657a">—</span><span style="width:56px;font-size:12px;color:#6fce88">正常</span></div>
+          </div>
+          <div style="width:330px;flex-shrink:0;border-radius:16px;background:rgba(21,21,30,0.72);border:1px solid rgba(255,255,255,0.09);padding:16px;display:flex;flex-direction:column;gap:13px">
+            <div style="font:600 10px 'JetBrains Mono',monospace;letter-spacing:1.5px;color:#77778a">标签详情</div>
+            <div style="display:flex;align-items:center;gap:8px"><span style="display:inline-flex;padding:5px 14px;border-radius:999px;background:rgba(91,141,239,0.15);border:1px solid rgba(91,141,239,0.4);font:500 13px 'JetBrains Mono',monospace;color:#8db0f5">miku</span><span style="font:400 11px 'JetBrains Mono',monospace;color:#63657a">id 12</span></div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px">
+              <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;background:rgba(91,141,239,0.18);border:1px solid rgba(91,141,239,0.55);font-size:11px;color:#8db0f5"><span style="width:6px;height:6px;border-radius:999px;background:#5b8def"></span>character</span>
+              <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;border:1px solid rgba(255,255,255,0.12);font-size:11px;color:#8d8fa0"><span style="width:6px;height:6px;border-radius:999px;background:#a06ae8"></span>copyright</span>
+              <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;border:1px solid rgba(255,255,255,0.12);font-size:11px;color:#8d8fa0"><span style="width:6px;height:6px;border-radius:999px;background:#e0a43c"></span>artist</span>
+              <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;border:1px solid rgba(255,255,255,0.12);font-size:11px;color:#8d8fa0"><span style="width:6px;height:6px;border-radius:999px;background:#6c7078"></span>general</span>
+              <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;border:1px solid rgba(255,255,255,0.12);font-size:11px;color:#8d8fa0"><span style="width:6px;height:6px;border-radius:999px;background:#46b8c8"></span>meta</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;font:400 11px 'JetBrains Mono',monospace;color:#8d8fa0">
+              <div style="display:flex">图片数<span style="margin-left:auto;color:#c9cbd8">342</span></div>
+              <div style="display:flex">首次使用<span style="margin-left:auto;color:#c9cbd8">2025-11-02</span></div>
+              <div style="display:flex">最近使用<span style="margin-left:auto;color:#c9cbd8">2026-07-24</span></div>
+            </div>
+            <div style="height:1px;background:rgba(255,255,255,0.08)"></div>
+            <div style="font:600 10px 'JetBrains Mono',monospace;letter-spacing:1.5px;color:#77778a">连带链</div>
+            <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+              <span style="display:inline-flex;padding:3px 11px;border-radius:999px;background:rgba(91,141,239,0.15);border:1px solid rgba(91,141,239,0.4);font:500 12px 'JetBrains Mono',monospace;color:#8db0f5">miku</span>
+              <span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1;color:#77778a">arrow_right_alt</span>
+              <span style="display:inline-flex;padding:3px 11px;border-radius:999px;background:rgba(160,106,232,0.15);border:1px solid rgba(160,106,232,0.4);font:500 12px 'JetBrains Mono',monospace;color:#c9a4f5">vocaloid</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;opacity:0.75">
+              <span style="display:inline-flex;padding:3px 11px;border-radius:999px;background:rgba(91,141,239,0.15);border:1px solid rgba(91,141,239,0.4);font:500 12px 'JetBrains Mono',monospace;color:#8db0f5">miku_append</span>
+              <span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1;color:#77778a">arrow_right_alt</span>
+              <span style="font:400 11px 'JetBrains Mono',monospace;color:#8d8fa0">本标签(上游 1 条)</span>
+            </div>
+            <div style="font-size:11px;line-height:1.7;color:#63657a">写入时展开:打 miku 自动补 vocaloid;删除规则不回收已写入标签。</div>
+            <span style="display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;border-radius:999px;border:1px solid rgba(255,255,255,0.12);font-size:12px;color:#c9cbd8"><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">add_link</span>为该标签添加连带</span>
+            <div style="height:1px;background:rgba(255,255,255,0.08)"></div>
+            <div style="font:600 10px 'JetBrains Mono',monospace;letter-spacing:1.5px;color:#77778a">关联图片</div>
+            <div style="display:flex;gap:6px"><img src="https://picsum.photos/seed/pm01/120/120" alt="" style="width:62px;height:62px;border-radius:10px;object-fit:cover"><img src="https://picsum.photos/seed/pm05/120/120" alt="" style="width:62px;height:62px;border-radius:10px;object-fit:cover"><img src="https://picsum.photos/seed/pm03/120/120" alt="" style="width:62px;height:62px;border-radius:10px;object-fit:cover"><span style="width:62px;height:62px;border-radius:10px;background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;font:500 11px 'JetBrains Mono',monospace;color:#8d8fa0">+339</span></div>
+            <div style="display:flex;gap:8px">
+              <span style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:5px;height:32px;border-radius:999px;border:1px solid rgba(245,195,68,0.45);font-size:12px;color:#f5c344"><span style="font-family:'Material Symbols Rounded';font-size:14px;line-height:1">block</span>标记废弃</span>
+              <span style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:5px;height:32px;border-radius:999px;border:1px solid rgba(255,255,255,0.12);font-size:12px;color:#c9cbd8">查看全部图片</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div style="font:400 12px 'JetBrains Mono',monospace;color:#77778a">导入 · 本地扫描(独立页面)</div>
+    <div data-screen-label="3b 本地扫描" style="width:1280px;border-radius:14px;overflow:hidden;border:1px solid #2a2a33;box-shadow:0 24px 80px rgba(0,0,0,0.5);color:#e8e8f0;background-color:#07070b;background-image:radial-gradient(900px 420px at 15% -5%, rgba(70,180,220,0.12), transparent 60%);display:flex;align-items:stretch">
+      <div style="width:232px;flex-shrink:0;padding:16px 0 16px 16px;display:flex">
+        <div style="flex:1;border-radius:20px;background:rgba(21,21,30,0.72);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.09);padding:16px 12px;display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;align-items:center;gap:10px;padding:0 6px"><span style="width:26px;height:26px;border-radius:999px;background:linear-gradient(135deg, oklch(0.74 0.16 300), oklch(0.74 0.16 210));flex-shrink:0"></span><span style="display:flex;flex-direction:column;gap:1px"><span style="font:700 14px 'Space Grotesk',sans-serif">PM Gallery</span><span style="font:400 10px 'JetBrains Mono',monospace;color:#77778a">管理面板 CONSOLE</span></span></div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;border:1px solid transparent;color:#9a9dae;font-size:13px"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">sell</span>标签管理</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;background:linear-gradient(135deg, rgba(139,102,255,0.22), rgba(70,180,220,0.16));border:1px solid rgba(167,139,250,0.4);color:#e6dcff;font-size:13px;font-weight:500"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">folder_open</span>本地扫描</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;border:1px solid transparent;color:#9a9dae;font-size:13px"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">cloud_download</span>Danbooru 抓取</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;border:1px solid transparent;color:#9a9dae;font-size:13px"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">content_copy</span>重复图<span style="margin-left:auto;font:400 11px 'JetBrains Mono',monospace;color:#63657a">23</span></div>
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;border:1px solid transparent;color:#9a9dae;font-size:13px"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">burst_mode</span>差分管理<span style="margin-left:auto;font:400 11px 'JetBrains Mono',monospace;color:#63657a">9</span></div>
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;border:1px solid transparent;color:#9a9dae;font-size:13px"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">settings</span>设置</div>
+          </div>
+          <div style="margin-top:auto;display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);color:#c9cbd8;font-size:13px"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">arrow_back</span>返回前台</div>
+            <div style="display:flex;flex-direction:column;gap:6px;padding:0 6px"><div style="display:flex;font:400 11px 'JetBrains Mono',monospace;color:#77778a">媒体占用<span style="margin-left:auto;color:#a5a8ba">12.4 / 64 GB</span></div><div style="height:5px;border-radius:999px;background:rgba(255,255,255,0.07)"><div style="width:19%;height:5px;border-radius:999px;background:linear-gradient(90deg, oklch(0.74 0.16 300), oklch(0.74 0.16 210))"></div></div></div>
+          </div>
+        </div>
+      </div>
+      <div style="flex:1;min-width:0;padding:16px 20px 24px 14px;display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="display:flex;flex-direction:column;gap:2px"><span style="font:700 18px 'Noto Sans SC',sans-serif">本地扫描</span><span style="font-size:12.5px;color:#7e8093">扫描服务器目录并入库;md5 完全相同直接跳过,phash 近似标记为重复图</span></span>
+          <span style="flex:1"></span>
+          <span style="font:400 11px 'JetBrains Mono',monospace;color:#63657a">上次扫描 2026-07-25 22:10</span>
+        </div>
+        <div style="border-radius:16px;background:rgba(21,21,30,0.72);border:1px solid rgba(255,255,255,0.09);padding:16px;display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;gap:10px;align-items:center">
+            <div style="flex:1;height:40px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:8px;padding:0 15px"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1;color:#8d8fa0">folder</span><span style="font:400 12.5px 'JetBrains Mono',monospace;color:#c9cbd8">/data/inbox</span></div>
+            <span style="display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:999px;background:rgba(139,102,255,0.14);border:1px solid rgba(167,139,250,0.4);font-size:12px;color:#dcd0ff"><span style="font-family:'Material Symbols Rounded';font-size:13px;line-height:1">check</span>递归子目录</span>
+            <span style="display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:999px;background:rgba(139,102,255,0.14);border:1px solid rgba(167,139,250,0.4);font-size:12px;color:#dcd0ff"><span style="font-family:'Material Symbols Rounded';font-size:13px;line-height:1">check</span>phash 异步判重</span>
+            <span style="display:inline-flex;align-items:center;justify-content:center;gap:6px;height:40px;padding:0 22px;border-radius:999px;background:linear-gradient(135deg, oklch(0.74 0.16 300), oklch(0.74 0.16 210));color:#0d0d14;font-size:13.5px;font-weight:700"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">play_arrow</span>开始扫描</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <span style="flex:1;border-radius:12px;background:rgba(255,255,255,0.05);padding:9px 0;text-align:center"><span style="display:block;font:600 16px 'JetBrains Mono',monospace">128</span><span style="font-size:11px;color:#8d8fa0">发现</span></span>
+            <span style="flex:1;border-radius:12px;background:rgba(255,255,255,0.05);padding:9px 0;text-align:center"><span style="display:block;font:600 16px 'JetBrains Mono',monospace;color:#6fce88">96</span><span style="font-size:11px;color:#8d8fa0">入库</span></span>
+            <span style="flex:1;border-radius:12px;background:rgba(255,255,255,0.05);padding:9px 0;text-align:center"><span style="display:block;font:600 16px 'JetBrains Mono',monospace;color:#f5c344">23</span><span style="font-size:11px;color:#8d8fa0">重复</span></span>
+            <span style="flex:1;border-radius:12px;background:rgba(255,255,255,0.05);padding:9px 0;text-align:center"><span style="display:block;font:600 16px 'JetBrains Mono',monospace;color:#8d8fa0">9</span><span style="font-size:11px;color:#8d8fa0">跳过</span></span>
+            <span style="flex:3;display:flex;flex-direction:column;gap:6px;padding:0 8px"><span style="display:flex;font:400 11px 'JetBrains Mono',monospace;color:#8d8fa0">进行中 · inbox/2026-07<span style="margin-left:auto;color:#7fd6e4">75%</span></span><span style="height:6px;border-radius:999px;background:rgba(255,255,255,0.07)"><span style="display:block;width:75%;height:6px;border-radius:999px;background:linear-gradient(90deg, oklch(0.74 0.16 300), oklch(0.74 0.16 210))"></span></span></span>
+          </div>
+        </div>
+        <div style="border-radius:16px;background:rgba(21,21,30,0.72);border:1px solid rgba(255,255,255,0.09);overflow:hidden">
+          <div style="display:flex;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.07);font:600 10px 'JetBrains Mono',monospace;letter-spacing:1.2px;color:#77778a"><span style="flex:1">文件</span><span style="width:80px">大小</span><span style="width:280px">状态</span></div>
+          <div style="display:flex;align-items:center;padding:9px 16px;border-bottom:1px solid rgba(255,255,255,0.05);font:400 12px 'JetBrains Mono',monospace"><span style="flex:1;color:#c9cbd8">inbox/2026-07/0231.png</span><span style="width:80px;color:#63657a">1.2 MB</span><span style="width:280px;color:#6fce88">已入库 → #1249</span></div>
+          <div style="display:flex;align-items:center;padding:9px 16px;border-bottom:1px solid rgba(255,255,255,0.05);font:400 12px 'JetBrains Mono',monospace"><span style="flex:1;color:#c9cbd8">inbox/2026-07/0232.png</span><span style="width:80px;color:#63657a">0.9 MB</span><span style="width:280px;color:#f5c344">phash 近似 → 重复图,指向 #0005</span></div>
+          <div style="display:flex;align-items:center;padding:9px 16px;border-bottom:1px solid rgba(255,255,255,0.05);font:400 12px 'JetBrains Mono',monospace"><span style="flex:1;color:#c9cbd8">inbox/2026-07/0233.gif</span><span style="width:80px;color:#63657a">4.1 MB</span><span style="width:280px;color:#6fce88">已入库 → #1250 · 动图</span></div>
+          <div style="display:flex;align-items:center;padding:9px 16px;border-bottom:1px solid rgba(255,255,255,0.05);font:400 12px 'JetBrains Mono',monospace"><span style="flex:1;color:#c9cbd8">inbox/2026-07/0234.png</span><span style="width:80px;color:#63657a">1.0 MB</span><span style="width:280px;color:#8d8fa0">跳过 · md5 与 #0812 完全相同</span></div>
+          <div style="display:flex;align-items:center;padding:9px 16px;font:400 12px 'JetBrains Mono',monospace"><span style="flex:1;color:#c9cbd8">inbox/2026-07/0235.jpg</span><span style="width:80px;color:#63657a">2.3 MB</span><span style="width:280px;color:#6fce88">已入库 → #1251</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div style="font:400 12px 'JetBrains Mono',monospace;color:#77778a">导入 · Danbooru 抓取(独立页面)</div>
+    <div data-screen-label="3b Danbooru 抓取" style="width:1280px;border-radius:14px;overflow:hidden;border:1px solid #2a2a33;box-shadow:0 24px 80px rgba(0,0,0,0.5);color:#e8e8f0;background-color:#07070b;background-image:radial-gradient(900px 420px at 85% -5%, rgba(139,102,255,0.16), transparent 60%);display:flex;align-items:stretch">
+      <div style="width:232px;flex-shrink:0;padding:16px 0 16px 16px;display:flex">
+        <div style="flex:1;border-radius:20px;background:rgba(21,21,30,0.72);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.09);padding:16px 12px;display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;align-items:center;gap:10px;padding:0 6px"><span style="width:26px;height:26px;border-radius:999px;background:linear-gradient(135deg, oklch(0.74 0.16 300), oklch(0.74 0.16 210));flex-shrink:0"></span><span style="display:flex;flex-direction:column;gap:1px"><span style="font:700 14px 'Space Grotesk',sans-serif">PM Gallery</span><span style="font:400 10px 'JetBrains Mono',monospace;color:#77778a">管理面板 CONSOLE</span></span></div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;border:1px solid transparent;color:#9a9dae;font-size:13px"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">sell</span>标签管理</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;border:1px solid transparent;color:#9a9dae;font-size:13px"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">folder_open</span>本地扫描</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;background:linear-gradient(135deg, rgba(139,102,255,0.22), rgba(70,180,220,0.16));border:1px solid rgba(167,139,250,0.4);color:#e6dcff;font-size:13px;font-weight:500"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">cloud_download</span>Danbooru 抓取</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;border:1px solid transparent;color:#9a9dae;font-size:13px"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">content_copy</span>重复图<span style="margin-left:auto;font:400 11px 'JetBrains Mono',monospace;color:#63657a">23</span></div>
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;border:1px solid transparent;color:#9a9dae;font-size:13px"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">burst_mode</span>差分管理<span style="margin-left:auto;font:400 11px 'JetBrains Mono',monospace;color:#63657a">9</span></div>
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;border:1px solid transparent;color:#9a9dae;font-size:13px"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">settings</span>设置</div>
+          </div>
+          <div style="margin-top:auto;display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);color:#c9cbd8;font-size:13px"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">arrow_back</span>返回前台</div>
+            <div style="display:flex;flex-direction:column;gap:6px;padding:0 6px"><div style="display:flex;font:400 11px 'JetBrains Mono',monospace;color:#77778a">媒体占用<span style="margin-left:auto;color:#a5a8ba">12.4 / 64 GB</span></div><div style="height:5px;border-radius:999px;background:rgba(255,255,255,0.07)"><div style="width:19%;height:5px;border-radius:999px;background:linear-gradient(90deg, oklch(0.74 0.16 300), oklch(0.74 0.16 210))"></div></div></div>
+          </div>
+        </div>
+      </div>
+      <div style="flex:1;min-width:0;padding:16px 20px 24px 14px;display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="display:flex;flex-direction:column;gap:2px"><span style="font:700 18px 'Noto Sans SC',sans-serif">Danbooru 抓取</span><span style="font-size:12.5px;color:#7e8093">按标签批量抓取;(site, id) 已存在整条跳过,下载后 md5 兜底判重</span></span>
+          <span style="flex:1"></span>
+          <span style="display:inline-flex;align-items:center;gap:6px;padding:6px 13px;border-radius:999px;background:rgba(245,195,68,0.1);border:1px solid rgba(245,195,68,0.35);font-size:12px;color:#f5c344"><span style="font-family:'Material Symbols Rounded';font-size:14px;line-height:1">warning</span>Cloudflare 拦截直连 · 已走 HTTPS_PROXY</span>
+        </div>
+        <div style="border-radius:16px;background:rgba(21,21,30,0.72);border:1px solid rgba(255,255,255,0.09);padding:16px;display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;gap:10px;align-items:center">
+            <div style="flex:1;height:40px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:8px;padding:0 15px"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1;color:#8d8fa0">search</span><span style="font:400 12.5px 'JetBrains Mono',monospace;color:#c9cbd8">miku rating:safe</span></div>
+            <span style="display:inline-flex;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);font-size:12px;color:#c9cbd8">每页 100</span>
+            <span style="display:inline-flex;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);font-size:12px;color:#c9cbd8">最多 5 页</span>
+            <span style="display:inline-flex;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);font-size:12px;color:#c9cbd8">仅新来源</span>
+            <span style="display:inline-flex;align-items:center;justify-content:center;gap:6px;height:40px;padding:0 22px;border-radius:999px;background:linear-gradient(135deg, oklch(0.74 0.16 300), oklch(0.74 0.16 210));color:#0d0d14;font-size:13.5px;font-weight:700"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">bolt</span>开始抓取</span>
+          </div>
+          <div style="border-radius:12px;background:rgba(0,0,0,0.45);border:1px solid rgba(255,255,255,0.06);padding:13px 15px;display:flex;flex-direction:column;gap:6px;font:400 11.5px 'JetBrains Mono',monospace;color:#8d8fa0">
+            <div>[22:10:31] GET /posts?tags=miku+rating:safe&amp;page=1 · 100 条 · 来源已存在跳过 37</div>
+            <div>[22:10:48] 下载 63 张 · md5 命中 4 → 标记重复图,指向原图</div>
+            <div>[22:10:59] phash 队列 +59 · 异步计算中</div>
+            <div style="color:#6fce88">[22:11:02] 完成:59 新入库 · 4 重复 · 37 跳过</div>
+          </div>
+        </div>
+        <div style="border-radius:16px;background:rgba(21,21,30,0.72);border:1px solid rgba(255,255,255,0.09);overflow:hidden">
+          <div style="display:flex;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.07);font:600 10px 'JetBrains Mono',monospace;letter-spacing:1.2px;color:#77778a"><span style="width:170px">时间</span><span style="flex:1">查询</span><span style="width:260px">结果</span></div>
+          <div style="display:flex;align-items:center;padding:9px 16px;border-bottom:1px solid rgba(255,255,255,0.05);font:400 12px 'JetBrains Mono',monospace"><span style="width:170px;color:#8d8fa0">2026-07-25 22:10</span><span style="flex:1;color:#c9cbd8">miku rating:safe</span><span style="width:260px;color:#6fce88">59 新入库 · 4 重复 · 37 跳过</span></div>
+          <div style="display:flex;align-items:center;padding:9px 16px;font:400 12px 'JetBrains Mono',monospace"><span style="width:170px;color:#8d8fa0">2026-07-18 09:31</span><span style="flex:1;color:#c9cbd8">landscape</span><span style="width:260px;color:#6fce88">82 新入库 · 6 重复 · 12 跳过</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div style="font:400 12px 'JetBrains Mono',monospace;color:#77778a">重复图 · phash 近似分组</div>
+    <div data-screen-label="3b 重复图" style="width:1280px;border-radius:14px;overflow:hidden;border:1px solid #2a2a33;box-shadow:0 24px 80px rgba(0,0,0,0.5);color:#e8e8f0;background-color:#07070b;background-image:radial-gradient(900px 420px at 50% -5%, rgba(139,102,255,0.12), transparent 60%);display:flex;align-items:stretch">
+      <div style="width:232px;flex-shrink:0;padding:16px 0 16px 16px;display:flex">
+        <div style="flex:1;border-radius:20px;background:rgba(21,21,30,0.72);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.09);padding:16px 12px;display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;align-items:center;gap:10px;padding:0 6px"><span style="width:26px;height:26px;border-radius:999px;background:linear-gradient(135deg, oklch(0.74 0.16 300), oklch(0.74 0.16 210));flex-shrink:0"></span><span style="display:flex;flex-direction:column;gap:1px"><span style="font:700 14px 'Space Grotesk',sans-serif">PM Gallery</span><span style="font:400 10px 'JetBrains Mono',monospace;color:#77778a">管理面板 CONSOLE</span></span></div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;border:1px solid transparent;color:#9a9dae;font-size:13px"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">sell</span>标签管理</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;border:1px solid transparent;color:#9a9dae;font-size:13px"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">folder_open</span>本地扫描</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;border:1px solid transparent;color:#9a9dae;font-size:13px"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">cloud_download</span>Danbooru 抓取</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;background:linear-gradient(135deg, rgba(139,102,255,0.22), rgba(70,180,220,0.16));border:1px solid rgba(167,139,250,0.4);color:#e6dcff;font-size:13px;font-weight:500"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">content_copy</span>重复图<span style="margin-left:auto;font:400 11px 'JetBrains Mono',monospace;color:#cbb8ff">23</span></div>
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;border:1px solid transparent;color:#9a9dae;font-size:13px"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">burst_mode</span>差分管理<span style="margin-left:auto;font:400 11px 'JetBrains Mono',monospace;color:#63657a">9</span></div>
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;border:1px solid transparent;color:#9a9dae;font-size:13px"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">settings</span>设置</div>
+          </div>
+          <div style="margin-top:auto;display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);color:#c9cbd8;font-size:13px"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">arrow_back</span>返回前台</div>
+            <div style="display:flex;flex-direction:column;gap:6px;padding:0 6px"><div style="display:flex;font:400 11px 'JetBrains Mono',monospace;color:#77778a">媒体占用<span style="margin-left:auto;color:#a5a8ba">12.4 / 64 GB</span></div><div style="height:5px;border-radius:999px;background:rgba(255,255,255,0.07)"><div style="width:19%;height:5px;border-radius:999px;background:linear-gradient(90deg, oklch(0.74 0.16 300), oklch(0.74 0.16 210))"></div></div></div>
+          </div>
+        </div>
+      </div>
+      <div style="flex:1;min-width:0;padding:16px 20px 24px 14px;display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="display:flex;flex-direction:column;gap:2px"><span style="font:700 18px 'Noto Sans SC',sans-serif">重复图</span><span style="font-size:12.5px;color:#7e8093">23 组近似 · 重复图不出现在前台浏览,仍可被收藏</span></span>
+          <span style="flex:1"></span>
+          <span style="display:inline-flex;align-items:center;gap:5px;height:32px;padding:0 13px;border-radius:999px;border:1px solid rgba(255,255,255,0.12);font-size:12px;color:#c9cbd8">按 phash 距离排序<span style="font-family:'Material Symbols Rounded';font-size:14px;line-height:1">expand_more</span></span>
+        </div>
+        <div style="border-radius:16px;background:rgba(21,21,30,0.72);border:1px solid rgba(255,255,255,0.09);padding:14px 16px;display:flex;align-items:center;gap:16px">
+          <div style="position:relative;flex-shrink:0"><img src="https://picsum.photos/seed/pm04/800/600" alt="原图 #0004" style="width:140px;height:105px;object-fit:cover;border-radius:12px;display:block"><span style="position:absolute;top:6px;left:6px;padding:2px 9px;border-radius:999px;background:linear-gradient(135deg, oklch(0.74 0.16 300), oklch(0.74 0.16 210));font:700 10px 'JetBrains Mono',monospace;color:#0d0d14">原图</span></div>
+          <div style="display:flex;flex-direction:column;gap:4px;width:170px;flex-shrink:0">
+            <span style="font:600 13px 'JetBrains Mono',monospace">#0004</span>
+            <span style="font:400 11px 'JetBrains Mono',monospace;color:#8d8fa0">800×600 · PNG · 2.1 MB</span>
+            <span style="font:400 11px 'JetBrains Mono',monospace;color:#8d8fa0">md5 4c1e…88a0</span>
+          </div>
+          <span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1;color:#63657a">arrow_left_alt</span>
+          <div style="display:flex;gap:10px;flex:1">
+            <div style="display:flex;flex-direction:column;gap:6px"><img src="https://picsum.photos/seed/pm04d/400/300" alt="重复 #0871" style="width:112px;height:84px;object-fit:cover;border-radius:10px;display:block;opacity:0.85"><span style="font:400 10.5px 'JetBrains Mono',monospace;color:#8d8fa0">#0871 · phash 距离 3</span></div>
+            <div style="display:flex;flex-direction:column;gap:6px"><img src="https://picsum.photos/seed/pm04e/400/300" alt="重复 #0902" style="width:112px;height:84px;object-fit:cover;border-radius:10px;display:block;opacity:0.85"><span style="font:400 10.5px 'JetBrains Mono',monospace;color:#8d8fa0">#0902 · phash 距离 5</span></div>
+          </div>
+          <div style="display:flex;gap:8px;flex-shrink:0">
+            <span style="display:inline-flex;align-items:center;height:32px;padding:0 13px;border-radius:999px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);font-size:12px;color:#d5d7e2">查看组</span>
+            <span style="display:inline-flex;align-items:center;height:32px;padding:0 13px;border-radius:999px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);font-size:12px;color:#d5d7e2">换原图</span>
+          </div>
+        </div>
+        <div style="border-radius:16px;background:rgba(21,21,30,0.72);border:1px solid rgba(255,255,255,0.09);padding:14px 16px;display:flex;align-items:center;gap:16px">
+          <div style="position:relative;flex-shrink:0"><img src="https://picsum.photos/seed/pm01/400/600" alt="原图 #0001" style="width:140px;height:105px;object-fit:cover;border-radius:12px;display:block"><span style="position:absolute;top:6px;left:6px;padding:2px 9px;border-radius:999px;background:linear-gradient(135deg, oklch(0.74 0.16 300), oklch(0.74 0.16 210));font:700 10px 'JetBrains Mono',monospace;color:#0d0d14">原图</span></div>
+          <div style="display:flex;flex-direction:column;gap:4px;width:170px;flex-shrink:0">
+            <span style="font:600 13px 'JetBrains Mono',monospace">#0001</span>
+            <span style="font:400 11px 'JetBrains Mono',monospace;color:#8d8fa0">400×600 · PNG · 0.9 MB</span>
+            <span style="font:400 11px 'JetBrains Mono',monospace;color:#8d8fa0">md5 9f3a…c21d</span>
+          </div>
+          <span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1;color:#63657a">arrow_left_alt</span>
+          <div style="display:flex;gap:10px;flex:1">
+            <div style="display:flex;flex-direction:column;gap:6px"><img src="https://picsum.photos/seed/pm01d/300/450" alt="重复 #1103" style="width:112px;height:84px;object-fit:cover;border-radius:10px;display:block;opacity:0.85"><span style="font:400 10.5px 'JetBrains Mono',monospace;color:#8d8fa0">#1103 · phash 距离 2 · danbooru</span></div>
+          </div>
+          <div style="display:flex;gap:8px;flex-shrink:0">
+            <span style="display:inline-flex;align-items:center;height:32px;padding:0 13px;border-radius:999px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);font-size:12px;color:#d5d7e2">查看组</span>
+            <span style="display:inline-flex;align-items:center;height:32px;padding:0 13px;border-radius:999px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);font-size:12px;color:#d5d7e2">换原图</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div style="font:400 12px 'JetBrains Mono',monospace;color:#77778a">差分管理 · 手动成组,与重复图(自动 phash)互不影响</div>
+    <div data-screen-label="3b 差分管理" style="width:1280px;border-radius:14px;overflow:hidden;border:1px solid #2a2a33;box-shadow:0 24px 80px rgba(0,0,0,0.5);color:#e8e8f0;background-color:#07070b;background-image:radial-gradient(900px 420px at 60% -5%, rgba(139,102,255,0.13), transparent 60%);display:flex;align-items:stretch">
+      <div style="width:232px;flex-shrink:0;padding:16px 0 16px 16px;display:flex">
+        <div style="flex:1;border-radius:20px;background:rgba(21,21,30,0.72);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.09);padding:16px 12px;display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;align-items:center;gap:10px;padding:0 6px"><span style="width:26px;height:26px;border-radius:999px;background:linear-gradient(135deg, oklch(0.74 0.16 300), oklch(0.74 0.16 210));flex-shrink:0"></span><span style="display:flex;flex-direction:column;gap:1px"><span style="font:700 14px 'Space Grotesk',sans-serif">PM Gallery</span><span style="font:400 10px 'JetBrains Mono',monospace;color:#77778a">管理面板 CONSOLE</span></span></div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;border:1px solid transparent;color:#9a9dae;font-size:13px"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">sell</span>标签管理</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;border:1px solid transparent;color:#9a9dae;font-size:13px"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">folder_open</span>本地扫描</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;border:1px solid transparent;color:#9a9dae;font-size:13px"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">cloud_download</span>Danbooru 抓取</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;border:1px solid transparent;color:#9a9dae;font-size:13px"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">content_copy</span>重复图<span style="margin-left:auto;font:400 11px 'JetBrains Mono',monospace;color:#63657a">23</span></div>
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;background:linear-gradient(135deg, rgba(139,102,255,0.22), rgba(70,180,220,0.16));border:1px solid rgba(167,139,250,0.4);color:#e6dcff;font-size:13px;font-weight:500"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">burst_mode</span>差分管理<span style="margin-left:auto;font:400 11px 'JetBrains Mono',monospace;color:#cbb8ff">9</span></div>
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;border:1px solid transparent;color:#9a9dae;font-size:13px"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">settings</span>设置</div>
+          </div>
+          <div style="margin-top:auto;display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);color:#c9cbd8;font-size:13px"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">arrow_back</span>返回前台</div>
+            <div style="display:flex;flex-direction:column;gap:6px;padding:0 6px"><div style="display:flex;font:400 11px 'JetBrains Mono',monospace;color:#77778a">媒体占用<span style="margin-left:auto;color:#a5a8ba">12.4 / 64 GB</span></div><div style="height:5px;border-radius:999px;background:rgba(255,255,255,0.07)"><div style="width:19%;height:5px;border-radius:999px;background:linear-gradient(90deg, oklch(0.74 0.16 300), oklch(0.74 0.16 210))"></div></div></div>
+          </div>
+        </div>
+      </div>
+      <div style="flex:1;min-width:0;padding:16px 20px 24px 14px;display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="display:flex;flex-direction:column;gap:2px"><span style="font:700 18px 'Noto Sans SC',sans-serif">差分管理</span><span style="font-size:12.5px;color:#7e8093">同一作品的差分成组;组内选封面,前台灯箱按组展示差分缩略图</span></span>
+          <span style="flex:1"></span>
+          <div style="width:220px;height:36px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:8px;padding:0 14px;color:#8d8fa0"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">search</span><span style="font-size:12.5px">按图片 id / 作者查组…</span></div>
+          <span style="display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 16px;border-radius:999px;background:linear-gradient(135deg, oklch(0.74 0.16 300), oklch(0.74 0.16 210));color:#0d0d14;font-size:13px;font-weight:700"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">add</span>新建差分组</span>
+        </div>
+        <div style="border-radius:16px;background:rgba(21,21,30,0.72);border:1px solid rgba(255,255,255,0.09);padding:14px 16px;display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font:600 13px 'JetBrains Mono',monospace">组 #12</span>
+            <span style="font:400 11px 'JetBrains Mono',monospace;color:#8d8fa0">wlop · 3 张 · 建于 2026-07-21</span>
+            <span style="flex:1"></span>
+            <span style="display:inline-flex;align-items:center;gap:5px;height:28px;padding:0 12px;border-radius:999px;border:1px solid rgba(240,122,104,0.45);font-size:12px;color:#f07a68">解散组</span>
+          </div>
+          <div style="display:flex;gap:14px;align-items:flex-start">
+            <span style="display:flex;flex-direction:column;gap:5px;align-items:center"><span style="position:relative"><img src="https://picsum.photos/seed/pm01/120/120" alt="组12 封面" style="width:104px;height:104px;border-radius:12px;object-fit:cover;border:2px solid oklch(0.74 0.16 300);display:block"><span style="position:absolute;top:6px;left:6px;padding:1px 8px;border-radius:999px;background:linear-gradient(135deg, oklch(0.74 0.16 300), oklch(0.74 0.16 210));font:700 9.5px 'JetBrains Mono',monospace;color:#0d0d14">封面</span></span><span style="font:600 10.5px 'JetBrains Mono',monospace;color:#dcd0ff">#0001</span></span>
+            <span style="display:flex;flex-direction:column;gap:5px;align-items:center"><img src="https://picsum.photos/seed/pm01d/120/120" alt="组12 差分 #1103" style="width:104px;height:104px;border-radius:12px;object-fit:cover;opacity:0.9;display:block"><span style="font:400 10.5px 'JetBrains Mono',monospace;color:#8d8fa0">#1103</span><span style="display:flex;gap:8px;font-size:10px;color:#8d8fa0"><span style="color:#c9cbd8">设为封面</span><span style="color:#f07a68">移出</span></span></span>
+            <span style="display:flex;flex-direction:column;gap:5px;align-items:center"><img src="https://picsum.photos/seed/pm01e/120/120" alt="组12 差分 #1104" style="width:104px;height:104px;border-radius:12px;object-fit:cover;opacity:0.9;display:block"><span style="font:400 10.5px 'JetBrains Mono',monospace;color:#8d8fa0">#1104</span><span style="display:flex;gap:8px;font-size:10px;color:#8d8fa0"><span style="color:#c9cbd8">设为封面</span><span style="color:#f07a68">移出</span></span></span>
+            <span style="width:104px;height:104px;border-radius:12px;border:1.5px dashed rgba(255,255,255,0.18);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#8d8fa0"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">add</span><span style="font-size:10px">添加差分</span></span>
+          </div>
+        </div>
+        <div style="border-radius:16px;background:rgba(21,21,30,0.72);border:1px solid rgba(255,255,255,0.09);padding:14px 16px;display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font:600 13px 'JetBrains Mono',monospace">组 #13</span>
+            <span style="font:400 11px 'JetBrains Mono',monospace;color:#8d8fa0">未知作者 · 2 张 · 建于 2026-07-24</span>
+            <span style="flex:1"></span>
+            <span style="display:inline-flex;align-items:center;gap:5px;height:28px;padding:0 12px;border-radius:999px;border:1px solid rgba(240,122,104,0.45);font-size:12px;color:#f07a68">解散组</span>
+          </div>
+          <div style="display:flex;gap:14px;align-items:flex-start">
+            <span style="display:flex;flex-direction:column;gap:5px;align-items:center"><span style="position:relative"><img src="https://picsum.photos/seed/pm04/120/120" alt="组13 封面" style="width:104px;height:104px;border-radius:12px;object-fit:cover;border:2px solid oklch(0.74 0.16 300);display:block"><span style="position:absolute;top:6px;left:6px;padding:1px 8px;border-radius:999px;background:linear-gradient(135deg, oklch(0.74 0.16 300), oklch(0.74 0.16 210));font:700 9.5px 'JetBrains Mono',monospace;color:#0d0d14">封面</span></span><span style="font:600 10.5px 'JetBrains Mono',monospace;color:#dcd0ff">#0004</span></span>
+            <span style="display:flex;flex-direction:column;gap:5px;align-items:center"><img src="https://picsum.photos/seed/pm04d/120/120" alt="组13 差分 #0871" style="width:104px;height:104px;border-radius:12px;object-fit:cover;opacity:0.9;display:block"><span style="font:400 10.5px 'JetBrains Mono',monospace;color:#8d8fa0">#0871</span><span style="display:flex;gap:8px;font-size:10px;color:#8d8fa0"><span style="color:#c9cbd8">设为封面</span><span style="color:#f07a68">移出</span></span></span>
+            <span style="width:104px;height:104px;border-radius:12px;border:1.5px dashed rgba(255,255,255,0.18);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#8d8fa0"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">add</span><span style="font-size:10px">添加差分</span></span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:8px;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);font-size:11.5px;line-height:1.7;color:#8d8fa0"><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1.5;color:#7fd6e4">info</span>差分组为手动维护;重复图(phash 自动判定)可一键「转为差分」并入组,转入后不再隐藏于浏览页。</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div style="font:400 12px 'JetBrains Mono',monospace;color:#77778a">设置 · 会话级安全模式</div>
+    <div data-screen-label="3b 设置" style="width:1280px;border-radius:14px;overflow:hidden;border:1px solid #2a2a33;box-shadow:0 24px 80px rgba(0,0,0,0.5);color:#e8e8f0;background-color:#07070b;background-image:radial-gradient(800px 400px at 50% -10%, rgba(139,102,255,0.14), transparent 60%);display:flex;align-items:stretch">
+      <div style="width:232px;flex-shrink:0;padding:16px 0 16px 16px;display:flex">
+        <div style="flex:1;border-radius:20px;background:rgba(21,21,30,0.72);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.09);padding:16px 12px;display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;align-items:center;gap:10px;padding:0 6px"><span style="width:26px;height:26px;border-radius:999px;background:linear-gradient(135deg, oklch(0.74 0.16 300), oklch(0.74 0.16 210));flex-shrink:0"></span><span style="display:flex;flex-direction:column;gap:1px"><span style="font:700 14px 'Space Grotesk',sans-serif">PM Gallery</span><span style="font:400 10px 'JetBrains Mono',monospace;color:#77778a">管理面板 CONSOLE</span></span></div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;border:1px solid transparent;color:#9a9dae;font-size:13px"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">sell</span>标签管理</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;border:1px solid transparent;color:#9a9dae;font-size:13px"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">folder_open</span>本地扫描</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;border:1px solid transparent;color:#9a9dae;font-size:13px"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">cloud_download</span>Danbooru 抓取</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;border:1px solid transparent;color:#9a9dae;font-size:13px"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">content_copy</span>重复图<span style="margin-left:auto;font:400 11px 'JetBrains Mono',monospace;color:#63657a">23</span></div>
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;border:1px solid transparent;color:#9a9dae;font-size:13px"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">burst_mode</span>差分管理<span style="margin-left:auto;font:400 11px 'JetBrains Mono',monospace;color:#63657a">9</span></div>
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;background:linear-gradient(135deg, rgba(139,102,255,0.22), rgba(70,180,220,0.16));border:1px solid rgba(167,139,250,0.4);color:#e6dcff;font-size:13px;font-weight:500"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">settings</span>设置</div>
+          </div>
+          <div style="margin-top:auto;display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);color:#c9cbd8;font-size:13px"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">arrow_back</span>返回前台</div>
+            <div style="display:flex;flex-direction:column;gap:6px;padding:0 6px"><div style="display:flex;font:400 11px 'JetBrains Mono',monospace;color:#77778a">媒体占用<span style="margin-left:auto;color:#a5a8ba">12.4 / 64 GB</span></div><div style="height:5px;border-radius:999px;background:rgba(255,255,255,0.07)"><div style="width:19%;height:5px;border-radius:999px;background:linear-gradient(90deg, oklch(0.74 0.16 300), oklch(0.74 0.16 210))"></div></div></div>
+          </div>
+        </div>
+      </div>
+      <div style="flex:1;min-width:0;padding:16px 20px 24px 14px;display:flex;flex-direction:column;gap:12px;max-width:760px">
+        <div style="display:flex;flex-direction:column;gap:2px"><span style="font:700 18px 'Noto Sans SC',sans-serif">设置</span><span style="font-size:12.5px;color:#7e8093">安全模式挂在会话上,重新登录自动恢复开启</span></div>
+        <div style="border-radius:16px;background:rgba(21,21,30,0.72);border:1px solid rgba(255,255,255,0.09);padding:16px 18px;display:flex;align-items:center;gap:14px">
+          <span style="width:36px;height:36px;border-radius:11px;background:rgba(111,206,136,0.14);display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="font-family:'Material Symbols Rounded';font-size:19px;line-height:1;color:#6fce88">shield</span></span>
+          <span style="display:flex;flex-direction:column;gap:2px;flex:1"><span style="font-size:14px;font-weight:700">安全模式</span><span style="font-size:12.5px;color:#8d8fa0">开启时仅显示 safe;本次会话内可临时关闭</span></span>
+          <span style="display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 14px;border-radius:999px;background:linear-gradient(135deg, rgba(139,102,255,0.24), rgba(70,180,220,0.20));border:1px solid rgba(167,139,250,0.42);color:#dcd0ff;font-size:12.5px;font-weight:500"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">visibility</span>当前:全部</span>
+        </div>
+        <div style="border-radius:16px;background:rgba(21,21,30,0.72);border:1px solid rgba(255,255,255,0.09);padding:16px 18px;display:flex;align-items:center;gap:14px">
+          <span style="width:36px;height:36px;border-radius:999px;background:linear-gradient(135deg, oklch(0.6 0.14 300), oklch(0.5 0.12 240));display:flex;align-items:center;justify-content:center;font:600 14px 'Space Grotesk',sans-serif;color:#ffffff;flex-shrink:0">A</span>
+          <span style="display:flex;flex-direction:column;gap:2px;flex:1"><span style="font-size:14px;font-weight:700">admin</span><span style="font-size:12.5px;color:#8d8fa0">实例拥有者 · 会话 30 天有效</span></span>
+          <span style="display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 14px;border-radius:999px;border:1px solid rgba(240,122,104,0.45);color:#f07a68;font-size:12.5px"><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">logout</span>退出登录</span>
+        </div>
+        <div style="border-radius:16px;background:rgba(21,21,30,0.72);border:1px solid rgba(255,255,255,0.09);padding:16px 18px;display:flex;align-items:center;gap:14px">
+          <span style="width:36px;height:36px;border-radius:11px;background:rgba(70,180,220,0.14);display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="font-family:'Material Symbols Rounded';font-size:19px;line-height:1;color:#7fd6e4">database</span></span>
+          <span style="display:flex;flex-direction:column;gap:6px;flex:1"><span style="font-size:14px;font-weight:700">媒体占用</span><span style="height:6px;border-radius:999px;background:rgba(255,255,255,0.07);max-width:340px"><span style="display:block;width:19%;height:6px;border-radius:999px;background:linear-gradient(90deg, oklch(0.74 0.16 300), oklch(0.74 0.16 210))"></span></span></span>
+          <span style="font:500 12px 'JetBrains Mono',monospace;color:#a5a8ba">12.4 / 64 GB</span>
+        </div>
+        <div style="border-radius:16px;background:rgba(21,21,30,0.72);border:1px solid rgba(255,255,255,0.09);padding:16px 18px;display:flex;align-items:center;gap:14px">
+          <span style="width:36px;height:36px;border-radius:11px;background:rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="font-family:'Material Symbols Rounded';font-size:19px;line-height:1;color:#a5a8ba">info</span></span>
+          <span style="display:flex;flex-direction:column;gap:2px;flex:1"><span style="font-size:14px;font-weight:700">关于</span><span style="font-size:12.5px;color:#8d8fa0">PM Gallery — 本地导入 + Danbooru 抓取的个人图库</span></span>
+          <span style="font:500 12px 'JetBrains Mono',monospace;color:#a5a8ba">v0.3.0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</x-dc>
+</body>
+</html>
