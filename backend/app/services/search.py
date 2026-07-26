@@ -23,11 +23,15 @@ def list_posts(
     page: int,
     limit: int,
     order: str = "id",
+    ratings: list[str] | None = None,
 ) -> tuple[list[Post], int]:
     """Return (rows, total) for the gallery main view.
 
     - Duplicates (``duplicate_of_id IS NOT NULL``) are hidden by default.
-    - ``safe_mode`` True forces ``rating='safe'`` (server-side injection).
+    - ``safe_mode`` True forces ``rating='safe'`` (server-side injection);
+      the ``ratings`` parameter is ignored entirely while it is on.
+    - ``ratings`` (safe mode off only) restricts results to the given rating
+      subset; ``None``/empty means no rating filter (all ratings).
     - ``tags`` is a list of tag names ANDed over ``post_tags``. Because
       implications are materialized at write time, this plain AND already
       hits the expanded tag set (searching ``miku`` matches ``vocaloid``
@@ -38,6 +42,8 @@ def list_posts(
 
     if safe_mode:
         stmt = stmt.where(Post.rating == "safe")
+    elif ratings:
+        stmt = stmt.where(Post.rating.in_(ratings))
 
     for name in tags:
         name = name.strip()

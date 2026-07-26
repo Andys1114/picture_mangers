@@ -3,8 +3,11 @@ import type { PostsParams } from "./types";
 
 export const queryKeys = {
   me: () => ["me"] as const,
-  posts: (params: { tags?: string; order?: string }) =>
-    ["posts", { tags: params.tags ?? "", order: params.order ?? "id" }] as const,
+  posts: (params: { tags?: string; order?: string; ratings?: string }) =>
+    [
+      "posts",
+      { tags: params.tags ?? "", order: params.order ?? "id", ratings: params.ratings ?? "" },
+    ] as const,
   // Prefix key for invalidating every active posts list at once (e.g. after a
   // safe_mode flip, where the new rating filter applies to all tag/order
   // variants). Matches the `posts(params)` key prefix.
@@ -12,5 +15,5 @@ export const queryKeys = {
   post: (id: number) => ["post", id] as const,
 } as const;
 
-/** List params used by useInfinitePosts (tag filter + order). */
-export type PostsQuery = Pick<PostsParams, "tags" | "order">;
+/** List params used by useInfinitePosts (tag filter + order + rating subset). */
+export type PostsQuery = Pick<PostsParams, "tags" | "order" | "ratings">;

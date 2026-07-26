@@ -72,6 +72,11 @@ def list_posts(
     page: int = Query(1, ge=1),
     limit: int = Query(40, ge=1, le=200),
     order: str = Query("id", pattern="^(id|random)$"),
+    ratings: str = Query(
+        "",
+        pattern="^$|^(safe|questionable|explicit)(,(safe|questionable|explicit))*$",
+        description="Comma-separated rating filter; ignored while safe mode is on",
+    ),
     session: SessionRow = Depends(get_current_session),
     db: Session = Depends(get_db),
 ) -> PostListResponse:
@@ -83,6 +88,7 @@ def list_posts(
         page=page,
         limit=limit,
         order=order,
+        ratings=[r for r in ratings.split(",") if r] or None,
     )
     # favorite = default-collection membership, fetched with one IN query.
     starred = favorites.favorite_post_ids(db, [p.id for p in rows])

@@ -74,6 +74,7 @@ export const api = {
         page: params.page,
         limit: params.limit,
         order: params.order,
+        ratings: params.ratings,
       })}`,
     ),
   getPost: (id: number) => request<PostDetail>(`/api/posts/${id}`),

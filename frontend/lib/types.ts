@@ -66,4 +66,7 @@ export interface PostsParams {
   page?: number;
   limit?: number;
   order?: "id" | "random";
+  /** Comma-separated rating filter (wire format, e.g. "safe,questionable").
+   *  Server-ignored while the session's safe mode is on; empty = all ratings. */
+  ratings?: string;
 }

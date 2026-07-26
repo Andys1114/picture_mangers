@@ -277,6 +277,55 @@ def test_safe_mode_covers_detail_and_next(client: TestClient) -> None:
     assert client.get(f"/api/posts/{safe_new}/next").json()["next_id"] == explicit
 
 
+def _seed_one_per_rating(client: TestClient) -> None:
+    """Setup + one post of each rating (safe/questionable/explicit)."""
+    _setup(client)
+    with db_module.SessionLocal() as db:
+        _add_post(db, rating="safe", md5="a" * 32)
+        _add_post(db, rating="questionable", md5="b" * 32)
+        _add_post(db, rating="explicit", md5="c" * 32)
+
+
+def test_ratings_param_ignored_while_safe_mode_on(client: TestClient) -> None:
+    """AC: safe mode on -> ?ratings=explicit is ignored, only safe returned
+    (server-authoritative injection unchanged)."""
+    _seed_one_per_rating(client)  # fresh session defaults to safe_mode=True
+    r = client.get("/api/posts", params={"ratings": "explicit"})
+    assert r.status_code == 200
+    assert {p["rating"] for p in r.json()["data"]} == {"safe"}
+    assert r.json()["meta"]["total"] == 1
+
+
+def test_ratings_param_filters_when_safe_mode_off(client: TestClient) -> None:
+    """AC: safe mode off -> ?ratings=safe,questionable excludes explicit."""
+    _seed_one_per_rating(client)
+    assert client.patch("/api/auth/me/settings", json={"safe_mode": False}).status_code == 200
+    r = client.get("/api/posts", params={"ratings": "safe,questionable"})
+    assert r.status_code == 200
+    assert {p["rating"] for p in r.json()["data"]} == {"safe", "questionable"}
+    assert r.json()["meta"]["total"] == 2
+
+
+def test_ratings_param_default_returns_all(client: TestClient) -> None:
+    """AC: safe mode off + no ratings param -> all ratings come back."""
+    _seed_one_per_rating(client)
+    assert client.patch("/api/auth/me/settings", json={"safe_mode": False}).status_code == 200
+    r = client.get("/api/posts")
+    assert r.status_code == 200
+    assert {p["rating"] for p in r.json()["data"]} == {"safe", "questionable", "explicit"}
+    assert r.json()["meta"]["total"] == 3
+
+
+def test_ratings_param_invalid_value_422(client: TestClient) -> None:
+    """AC: ?ratings=foo fails validation with the unified 422 envelope."""
+    _setup(client)
+    r = client.get("/api/posts", params={"ratings": "foo"})
+    assert r.status_code == 422
+    body = r.json()
+    assert body["error"]["code"] == "validation_error"
+    assert "ratings" in body["error"]["message"]
+
+
 def test_validation_error_uses_envelope(client: TestClient) -> None:
     # audit #16: FastAPI request-validation failures (422) must use the
     # unified error envelope instead of the default {"detail": [...]}.
