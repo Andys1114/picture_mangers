@@ -13,6 +13,18 @@ export const queryKeys = {
   // variants). Matches the `posts(params)` key prefix.
   postsAll: () => ["posts"] as const,
   post: (id: number) => ["post", id] as const,
+  // 缺省值归一化：{} 与 {order:"count"} 落进同一份缓存。
+  tags: (params: { search?: string; category?: string; order?: string }) =>
+    [
+      "tags",
+      "list",
+      {
+        search: params.search ?? "",
+        category: params.category ?? "",
+        order: params.order ?? "count",
+      },
+    ] as const,
+  tagTree: () => ["tags", "tree"] as const,
 } as const;
 
 /** List params used by useInfinitePosts (tag filter + order + rating subset). */

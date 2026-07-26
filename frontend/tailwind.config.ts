@@ -124,6 +124,10 @@ const config: Config = {
       transitionTimingFunction: {
         "out-soft": "var(--ease-out-soft)",
       },
+      transitionDuration: {
+        // 筛选栏宽度动画 240↔56px 的 220ms（设计令牌：动效 150-220ms）。
+        "220": "220ms",
+      },
       keyframes: {
         "fade-in": {
           from: { opacity: "0" },

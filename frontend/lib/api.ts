@@ -11,6 +11,9 @@ import type {
   PostDetail,
   PostSummary,
   PostsParams,
+  TagListResponse,
+  TagTreeResponse,
+  TagsParams,
   User,
 } from "./types";
 
@@ -78,6 +81,15 @@ export const api = {
       })}`,
     ),
   getPost: (id: number) => request<PostDetail>(`/api/posts/${id}`),
+  listTags: (params: TagsParams = {}) =>
+    request<TagListResponse>(
+      `/api/tags${withQuery({
+        search: params.search,
+        category: params.category,
+        order: params.order,
+      })}`,
+    ),
+  tagTree: () => request<TagTreeResponse>("/api/tags/tree"),
 };
 
 /** Build a same-origin /media URL from a stored relative path. */
