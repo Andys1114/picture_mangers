@@ -6,7 +6,7 @@
 
 ## Overview
 
-Components are React (Next.js App Router). Server Components are used only for static shells/layouts; interactive UI is Client Components. Styling is Tailwind utility classes; complex primitives come from shadcn/ui (source-owned, editable); icons from lucide-react.
+Components are React (Next.js App Router). Server Components are used only for static shells/layouts; interactive UI is Client Components. Styling is Tailwind utility classes; primitives are **self-owned `components/ui/*` (no Radix, no shadcn dependency)** — hand-rolled button/badge/input/dropdown/sheet themed by the token layer (since the 2026-07 "darkroom neon" redesign); icons from lucide-react.
 
 ---
 
@@ -30,12 +30,9 @@ Components are React (Next.js App Router). Server Components are used only for s
 ## Styling Patterns
 
 - **Tailwind utilities** for layout, spacing, color, responsive. No CSS-in-JS, no styled-components.
-- **Design tokens** as CSS variables in `styles/globals.css` (dark theme): background levels, text levels, accent, glassmorphism blur/alpha.
-- **Tag category colors** are a token map, not ad-hoc:
-  - `general` → gray, `character` → blue, `copyright` → purple, `artist` → yellow/amber, `meta` → cyan.
-  - Exposed as a `tagCategoryColor(category)` helper returning Tailwind class strings; chips/badges read from it.
-  - ⚠ When wiring tag chips: `text-accent` on dark surfaces fails 4.5:1 since `--accent` was deepened to #2563eb (button contrast). Use a light text variant (`text-blue-300`, matching the other categories' `*-300` pattern).
-- **Glassmorphism** (topbar, info panels): `backdrop-blur` + semi-transparent background + border.
+- **Single token layer（暗房霓虹）**: every color/radius/easing lives as a CSS variable in `styles/globals.css`, mapped to semantic Tailwind names in `tailwind.config.ts`. **Components never contain hex/rgba/oklch literals** — the only allowed literal-ish class is a black scrim over images (`bg-black/90`). If a new visual needs a value that has no token, add the token first.
+- **Glass utilities**: two canonical glass levels are prebuilt classes — `.glass-bar` (bars, 0.72/blur20) and `.glass-pop` (popovers/sheets/cards, 0.92/blur22) — plus ambient-glow background classes (`.bg-ambient`, `.bg-ambient-lightbox`, `.bg-ambient-auth`). Use these; don't hand-compose rgba+blur per component.
+- **Tag category & rating colors** come from `lib/colors.ts` as **three-piece chip sets** (15% background + 40% border + light text, per category/rating); chips/badges consume the set via `Badge` + className, never individual color classes.
 - **Floating layers** (dropdown, sheet/drawer, popover): shadow comes from the elevation tokens — `shadow-e2`, never raw `shadow-*`; entrance uses the shared animation tokens (`animate-fade-in`, `animate-slide-in-left/right`).
 - **Hand-rolled buttons** (anything interactive that isn't shadcn `Button`) carry the four-state baseline: `hover:*`, `active:scale-[0.97]`, `focus-visible:ring-2 focus-visible:ring-accent`, `disabled:opacity-50 disabled:cursor-not-allowed`, plus `transition duration-150 ease-out-soft`, `cursor-pointer`, and `font-medium`. Do NOT use `disabled:pointer-events-none` on menu items — a disabled native button must swallow the click itself so container-level close handlers don't fire through it.
 - shadcn/ui primitives are themed via the token CSS variables, not repainted per-use.
@@ -49,7 +46,7 @@ Components are React (Next.js App Router). Server Components are used only for s
 
 ## Accessibility
 
-- Keyboard navigation is first-class: lightbox `← →` flip, `F` favorite, `E` edit, `Esc` close; focus trap inside modals/lightbox; restore focus on close.
+- Keyboard navigation is first-class: lightbox `← →` flip / `Esc` close, `/` focuses search; focus trap inside modals/lightbox; restore focus on close. (Favorite/edit shortcuts return with their features — favorites UI is deferred by parent-task decision.)
 - Modal layers follow the `Sheet` reference implementation: focus moves in on open, Tab is trapped (with an empty-focusable guard), focus restores to the opener on close, body scroll is locked while open, and a visible close button exists alongside Esc + backdrop click. `html { scrollbar-gutter: stable }` keeps the scroll-lock from shifting the page.
 - Anything revealed on `group-hover` must also reveal on `group-focus-within` (keyboard parity); fixed bars that hide on scroll must reveal on `focus-within` so Tab never lands in invisible controls.
 - Every interactive element is a real button/link (no `<div onClick>`); visible focus styles (ring + `ring-offset-background` on fields).
@@ -65,6 +62,7 @@ Components are React (Next.js App Router). Server Components are used only for s
 
 - Putting data-fetching/business logic inside a component instead of a hook.
 - Hardcoding `/api/...` URLs in components instead of using `lib/api.ts`.
-- Repainting shadcn/ui primitives per-use instead of theming via tokens.
+- Writing raw hex/rgba/backdrop-blur in a component instead of adding a token / using `.glass-bar`/`.glass-pop`.
+- Repainting `components/ui/*` primitives per-use instead of theming via tokens.
 - Forgetting `"use client"` on interactive components (hooks won't work).
 - Using `<div onClick>` instead of a real button (breaks a11y + keyboard).

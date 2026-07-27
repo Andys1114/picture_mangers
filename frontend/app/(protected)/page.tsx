@@ -3,11 +3,13 @@
 import { Suspense } from "react";
 import FilterRail from "@/components/browse/filter-rail/rail";
 import MasonryGrid from "@/components/browse/masonry-grid";
+import MobileChips from "@/components/browse/mobile-chips";
 import EmptyLibrary from "@/components/browse/states/empty-library";
 import LoadError from "@/components/browse/states/load-error";
 import MasonrySkeleton from "@/components/browse/states/masonry-skeleton";
 import NoResults from "@/components/browse/states/no-results";
 import Topbar from "@/components/browse/topbar";
+import Lightbox from "@/components/lightbox/lightbox";
 import { useFilterParams } from "@/components/browse/use-filter-params";
 import { useInfinitePosts } from "@/hooks/useInfinitePosts";
 import { ratingLabel } from "@/lib/colors";
@@ -32,11 +34,13 @@ function BrowseView() {
   return (
     <div className="bg-ambient min-h-dvh">
       <Topbar />
-      <div className="flex items-start gap-3.5 px-5 pb-6 pt-3.5">
+      <div className="flex items-start gap-3.5 px-3 pb-6 pt-2.5 md:px-5 md:pt-3.5">
         <FilterRail />
         <main className="flex min-w-0 flex-1 flex-col gap-2.5">
+          {/* <768 专属 chips 行：筛选抽屉入口 + 已选条件 + 安全开关 */}
+          <MobileChips total={total} />
           <div className="flex items-baseline gap-3 px-1 pt-0.5">
-            <h1 className="text-base font-bold">筛选结果</h1>
+            <h1 className="text-sm font-bold md:text-base">筛选结果</h1>
             <span className="min-w-0 truncate text-[12.5px] text-muted">{summary}</span>
           </div>
           {posts.isLoading ? (
@@ -59,6 +63,8 @@ function BrowseView() {
           )}
         </main>
       </div>
+      {/* ?photoId= 驱动的灯箱浮层（无参数时自渲染为 null）。 */}
+      <Lightbox />
     </div>
   );
 }

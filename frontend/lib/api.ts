@@ -9,6 +9,7 @@ import type {
   Me,
   Paginated,
   PostDetail,
+  PostNextResponse,
   PostSummary,
   PostsParams,
   TagListResponse,
@@ -81,6 +82,7 @@ export const api = {
       })}`,
     ),
   getPost: (id: number) => request<PostDetail>(`/api/posts/${id}`),
+  getPostNav: (id: number) => request<PostNextResponse>(`/api/posts/${id}/next`),
   listTags: (params: TagsParams = {}) =>
     request<TagListResponse>(
       `/api/tags${withQuery({

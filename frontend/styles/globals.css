@@ -10,9 +10,12 @@
     /* 背景与环境光晕 */
     --bg-page: #07070b;
     --bg-lightbox: #040407;
+    --bg-auth: #050508;
     --glow-violet: radial-gradient(900px 420px at 85% -5%, rgba(139, 102, 255, 0.16), transparent 60%);
     --glow-cyan: radial-gradient(700px 400px at 5% 12%, rgba(70, 180, 220, 0.1), transparent 60%);
     --glow-lightbox: radial-gradient(760px 560px at 68% 46%, rgba(139, 102, 255, 0.1), transparent 65%);
+    --glow-auth-violet: radial-gradient(700px 420px at 50% 18%, rgba(139, 102, 255, 0.18), transparent 65%);
+    --glow-auth-cyan: radial-gradient(500px 300px at 72% 80%, rgba(70, 180, 220, 0.1), transparent 60%);
 
     /* 玻璃层三档：bar（顶栏/筛选栏）、pop（弹层/菜单）、实底卡 */
     --glass-bar: rgba(21, 21, 30, 0.72);
@@ -166,6 +169,11 @@
   .bg-ambient-lightbox {
     background-color: var(--bg-lightbox);
     background-image: var(--glow-lightbox);
+    background-repeat: no-repeat;
+  }
+  .bg-ambient-auth {
+    background-color: var(--bg-auth);
+    background-image: var(--glow-auth-violet), var(--glow-auth-cyan);
     background-repeat: no-repeat;
   }
 }

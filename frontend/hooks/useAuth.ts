@@ -14,7 +14,9 @@ function redirectAfterAuth(router: ReturnType<typeof useRouter>, fallback = "/")
     return;
   }
   const next = new URLSearchParams(window.location.search).get("next");
-  router.replace(next && next.startsWith("/") ? next : fallback);
+  // 只接受站内路径："//host" 与 "/\host" 会被浏览器当协议相对 URL，拒掉（防开放重定向）。
+  const isInternal = next !== null && /^\/(?![/\\])/.test(next);
+  router.replace(isInternal ? next : fallback);
 }
 
 /** First-run user creation. Invalidates /me so the providers layer re-fetches. */

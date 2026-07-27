@@ -6,7 +6,7 @@
 
 ## Overview
 
-TypeScript strict, Tailwind + shadcn/ui, TanStack Query. Quality bars: typed API boundary, no `any`, keyboard-accessible interactive UI, dark-theme contrast, no frontend mocks (wait for backend endpoints). This milestone is desktop-first with narrow-screen grace; mobile touch is out of scope.
+TypeScript strict, Tailwind + self-owned `components/ui/*` (no Radix/shadcn), TanStack Query. Quality bars: typed API boundary, no `any`, keyboard-accessible interactive UI, dark-theme contrast, no frontend mocks (wait for backend endpoints). Since the 2026-07 redesign, **mobile (<768px) is first-class**: dedicated topbar variant, bottom-sheet filter drawer, lightbox touch gestures.
 
 ---
 
@@ -20,6 +20,8 @@ TypeScript strict, Tailwind + shadcn/ui, TanStack Query. Quality bars: typed API
 - **CSS-in-JS / styled-components** — Tailwind utilities + token CSS variables only.
 - **Re-introducing `fav_count` / favorite-count logic on the frontend** — favorite counts are not tracked (backend decision). Derive favorited state from membership.
 - **Read-time implication expansion on the frontend** — implications are materialized server-side; the frontend just sends tags and renders results.
+- **Running `next build` while the dev server is up** — both write `frontend/.next`; the build clobbers the dev cache mid-flight and the running server starts 500-ing with "module not found in the React Client Manifest" until `.next` is deleted and the server restarted. Verification during dev = `lint` + `tsc --noEmit`; run `next build` only with the dev server stopped.
+- **Any favorites/star UI** — deferred whole by parent-task decision 3 (07-26-frontend-redesign); backend endpoints stay, UI must not surface them until the dedicated task.
 
 ---
 
@@ -30,7 +32,7 @@ TypeScript strict, Tailwind + shadcn/ui, TanStack Query. Quality bars: typed API
 - **`"use client"`** on any component using hooks/handlers/browser APIs.
 - **Query key factory** in `lib/queryClient.ts`; mutations invalidate via the factory.
 - **Keyboard parity** for every pointer interaction (lightbox nav, drag-reorder, drawer).
-- **Design tokens** for color/spacing; tag category color via the `tagCategoryColor` map.
+- **Design tokens** for color/spacing; tag category & rating colors via the `lib/colors.ts` three-piece chip sets (see component-guidelines).
 - **Accessible images**: `alt` on post cards; explicit `width`/`height` to prevent layout shift (values from `Post.width/height`).
 
 ---
@@ -46,10 +48,9 @@ TypeScript strict, Tailwind + shadcn/ui, TanStack Query. Quality bars: typed API
 
 ## Responsive Scope
 
-- **Desktop-first** this milestone. Breakpoints: waterfall column count scales with viewport; topbar/drawer adapt.
-- **Narrow-screen grace**: layout must not break/overflow below ~768px, but no dedicated mobile touch UX (drag-reorder may be desktop-only with a keyboard fallback).
+- Breakpoints: masonry lg≥1024 → 4 cols, md≥768 → 3 cols, below → 2 cols. Desktop-only chrome (filter rail, lightbox nav buttons) hides with `max-md:hidden`; mobile chrome (46px topbar variant, chips row, bottom-sheet drawer, lightbox gestures + bottom half-layer) mounts under the same breakpoint. Desktop rail and mobile drawer share the same content components (`rail-tags`/`rail-ratings`/`rail-chips`) — never fork them.
+- Touch gestures go through Pointer Events with **axis-dominance judgment** (`|dx| > |dy|`), pointer capture on down, and a swallowed synthetic click after a recognized swipe (else the swipe also "clicks" whatever is under the finger).
 - Flex children that must shrink (e.g. the topbar search form) need explicit `min-w-0` — the `min-width: auto` default is the usual 375px-overflow culprit.
-- **Dedicated mobile** is deferred to a later version.
 
 ## Known Deferred (recorded, do not re-report)
 

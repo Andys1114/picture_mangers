@@ -532,3 +532,26 @@
 ### Next Steps
 
 - None - task complete
+
+## 2026-07-27 — 子任务 07-26-front-base 实现完成（提交待签名恢复）
+
+**任务**: 前台基座与切换（父任务 07-26-frontend-redesign 的子任务 1）——按"暗房霓虹"设计稿重写前端
+
+**完成内容**:
+- 旧前端 git mv 为 frontend-legacy（rename 100% 追溯 + 废弃横幅），新 frontend/ 从零搭建
+- 后端 GET /api/posts 增 ratings 多选参数（安全模式服务端权威不变），pytest 125 全绿
+- 令牌层：暗房霓虹全表 CSS 变量 + glass-bar/glass-pop 工具类 + fontsource 三字体自托管
+- 前台桌面：胶囊顶栏（搜索 / 安全模式 / 用户菜单）、筛选栏（8s 自动折叠 + 图钉 + 标签成组 + 评级）、贪心瀑布流 + 无限滚动、四种中间态、灯箱（URL 驱动 push/replace/back + 直达禁翻页）、登录/初始化换皮
+- 移动端：46px 顶栏变体、chips 行、底部筛选抽屉（rail 区块单份复用）、灯箱手势（轴占优判定）
+- 质检修复 7 项（含 useAuth open-redirect、直达禁翻页补实现）；spec 沉淀 4 处；CONTEXT.md 浏览页词条更新
+
+**关键决策**: ADR-0002（新目录重写保留 legacy）；星标/收藏整体暂缓；差分组语义入术语表
+
+**踩坑记录**:
+- Windows GBK 控制台：dev.py 转发线程 UnicodeEncodeError 卡死双进程 → stdout/stderr reconfigure UTF-8（已入 backend spec gotcha）
+- next build 与 dev server 共写 .next 互相打坏缓存 → 已入前端 quality-guidelines 禁止项
+- 1Password 签名服务锁定（凌晨自动锁）：D5 之后的改动全部滞留工作区，等解锁后按"D5+D6+E+质检修复"粒度补提交
+
+**遗留**:
+- F2 设计稿像素级截图比对（浏览器面板未显示无法截图，行为与计算样式已验证）——建议白天人工过一眼
+- login/setup 的 useEffect+api.status 自路由（legacy 继承，低优先级，可改 useQuery）

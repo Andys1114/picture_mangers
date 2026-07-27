@@ -46,7 +46,7 @@ export default function RailRatings() {
       })}
       {safeModeOn && (
         <p className="text-[11px] text-faint">
-          安全模式开启中，仅显示安全评级；在顶栏关闭后可用
+          安全模式开启中，仅显示安全评级；关闭安全模式后可用
         </p>
       )}
     </div>

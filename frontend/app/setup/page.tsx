@@ -10,6 +10,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { api, ApiError } from "@/lib/api";
 import { useSetup } from "@/hooks/useAuth";
 
+const FOOTER = "拥有者账户只在首次启动时创建一次，之后用它登录。";
+
 export default function SetupPage() {
   const router = useRouter();
   const setup = useSetup();
@@ -57,27 +59,29 @@ export default function SetupPage() {
 
   if (checking) {
     return (
-      <AuthCard title="首次启动" description="创建你的管理员账户（仅此一条）。">
-        <div role="status" aria-label="加载中" className="space-y-4">
-          <div className="space-y-1">
+      <AuthCard title="首次启动" description="创建你的拥有者账户（仅此一条）。" footer={FOOTER}>
+        <div role="status" aria-label="加载中" className="space-y-[15px]">
+          <div className="space-y-1.5">
             <Skeleton className="h-5 w-12" />
             <Skeleton className="h-10 w-full" />
           </div>
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <Skeleton className="h-5 w-12" />
             <Skeleton className="h-10 w-full" />
           </div>
-          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-[42px] w-full" />
         </div>
       </AuthCard>
     );
   }
 
   return (
-    <AuthCard title="首次启动" description="创建你的管理员账户（仅此一条）。">
-      <form onSubmit={onSubmit} className="space-y-4">
-        <div className="space-y-1">
-          <label htmlFor="u" className="text-sm font-medium">用户名</label>
+    <AuthCard title="首次启动" description="创建你的拥有者账户（仅此一条）。" footer={FOOTER}>
+      <form onSubmit={onSubmit} className="space-y-[15px]">
+        <div className="space-y-1.5">
+          <label htmlFor="u" className="text-[12.5px] font-medium text-secondary">
+            用户名
+          </label>
           <Input
             id="u"
             value={username}
@@ -86,10 +90,10 @@ export default function SetupPage() {
             required
           />
         </div>
-        <div className="space-y-1">
-          <label htmlFor="p" className="text-sm font-medium">
+        <div className="space-y-1.5">
+          <label htmlFor="p" className="text-[12.5px] font-medium text-secondary">
             密码
-            <span className="text-muted ml-1 text-xs font-normal">至少 8 位</span>
+            <span className="ml-1 text-xs font-normal text-muted">至少 8 位</span>
           </label>
           <PasswordInput
             id="p"
@@ -104,7 +108,7 @@ export default function SetupPage() {
         {error && (
           <p role="alert" className="text-sm text-explicit">{error}</p>
         )}
-        <Button type="submit" className="w-full" disabled={setup.isPending}>
+        <Button type="submit" size="lg" className="mt-1 w-full" disabled={setup.isPending}>
           {setup.isPending ? "创建中…" : "创建并登录"}
         </Button>
       </form>

@@ -15,10 +15,25 @@ State is split by category: **server state** in TanStack Query, **URL state** fo
 - **Server state** (posts, tags, favorites, me, tasks): TanStack Query is the single source of truth. Components never hold a server copy in local state.
 - **URL state** (Next.js `useSearchParams` / `router`):
   - `?photoId=<id>` — active lightbox (see CONTEXT.md "详情页(Lightbox)").
-  - `?tags=<...>` — active search (shareable, refresh-stable).
-  - `?rating=` — explicit rating override (when safe mode off).
-- **Local UI state** (`useState` / component state): left drawer open/closed, edit mode, drag-in-progress, hover controls. Ephemeral, not persisted.
+  - `?tags=a+b` — active search, space-separated AND (shareable, refresh-stable).
+  - `?ratings=safe,questionable` — comma-joined explicit rating subset; **full selection / empty = no param** (server treats absent as "all"; safe mode overrides server-side anyway).
+- **Local UI state** (`useState` / component state): drawer open/closed, drag-in-progress, hover controls. Ephemeral, not persisted. Exception: filter-rail pin state persists in `localStorage("rail_pinned")` — pure device preference, never server data.
 - **Session-derived state** (`safe_mode`): comes from the backend session via `useMe()` (`GET /api/auth/me`); **not** stored in localStorage. Toggling calls `useUpdateSafeMode` (`PATCH /api/auth/me/settings`) then invalidates the posts list.
+
+---
+
+## Pattern: One Hook Owns a URL Contract
+
+**Problem**: multiple components (search box, rail chips, drawer, no-results suggestions) read/write the same filter params; scattered `router.replace` calls drift on serialization details (when to omit the param, how to join values, which history op).
+
+**Solution**: a single hook (`components/browse/use-filter-params.ts`) owns the read (parse + normalize) and every write path (`setTags` / `toggleTag` / `removeTag` / `toggleRating` / `removeRating` / `clearAll`). Consumers never touch `URLSearchParams` for these keys.
+
+**History-op rules** (the part people get wrong):
+- Filter changes → `router.replace({ scroll: false })` — filters are *refinements*, they must not stack history entries.
+- Lightbox open → `push` (back button must close it); flip → `replace`; close → `history.back()` **only if opened in-session**, else replace the param away (direct-entry back would leave the site). The in-session flag must live in a component that stays mounted across the overlay's lifetime — measured inside the overlay it is always "direct".
+- Writers preserve unrelated params (`photoId` survives filter edits and vice versa).
+
+**Why**: URL stays the single source of truth (refresh/share/back all work), and serialization edge cases ("all selected = no param") are decided exactly once.
 
 ---
 

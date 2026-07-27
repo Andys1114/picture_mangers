@@ -22,6 +22,12 @@ This directory contains guidelines for backend development. Fill in each file wi
 
 ---
 
+## Dev-Environment Gotchas (Python tooling on Windows)
+
+> **Warning**: On zh-CN Windows, console stdout defaults to GBK. Any Python wrapper that pipes child-process output (e.g. root `dev.py`) will crash its forwarding thread with `UnicodeEncodeError` the moment a child prints a non-GBK char (Next.js prints "✓") — the un-drained pipe then wedges the child. Every such script must `stream.reconfigure(encoding="utf-8", errors="replace")` on stdout/stderr up front (guard with `hasattr`), and open child pipes with `encoding="utf-8", errors="replace"`. See `dev.py` header for the reference implementation.
+
+---
+
 ## How to Fill These Guidelines
 
 For each guideline file:

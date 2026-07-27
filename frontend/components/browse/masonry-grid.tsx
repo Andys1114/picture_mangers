@@ -11,8 +11,8 @@ interface MasonryGridProps {
   fetchNextPage: () => void;
 }
 
-/** 列数断点：桌面（≥1024）4 列、平板（≥768）3 列、其余双列
- *  （移动端精调在 E 阶段）。列宽本身是 flex-1 自适应，断点内的
+/** 列数断点：桌面（≥1024）4 列、平板（≥768）3 列、移动（<768）双列
+ *  （final-mobile 首屏）。列宽本身是 flex-1 自适应，断点内的
  *  窗口缩放无需 JS 参与。 */
 function computeCols(): number {
   return window.matchMedia("(min-width: 1024px)").matches
@@ -97,12 +97,20 @@ export default function MasonryGrid({
           </div>
         ))}
       </div>
-      {/* 分页加载指示：居中玻璃胶囊（设计稿"正在加载第 2 页…"）。 */}
+      {/* 分页加载指示：桌面只在取数时出"正在加载第 N 页…"胶囊；
+          <768 按 final-mobile 首屏在列表尾常驻"上滑加载更多…"提示。 */}
       <div ref={sentinelRef} className="flex justify-center py-2" role="status">
-        {isFetchingNextPage && (
+        {isFetchingNextPage ? (
           <span className="glass-bar rounded-pill px-5 py-2 text-[12.5px] text-muted">
-            正在加载第 {pages.length + 1} 页…
+            <span className="md:hidden">上滑加载更多…</span>
+            <span className="hidden md:inline">正在加载第 {pages.length + 1} 页…</span>
           </span>
+        ) : (
+          hasNextPage && (
+            <span className="glass-bar rounded-pill px-4 py-1.5 text-[11px] text-muted md:hidden">
+              上滑加载更多…
+            </span>
+          )
         )}
       </div>
     </>

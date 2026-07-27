@@ -17,6 +17,8 @@ const config: Config = {
         background: "var(--bg-page)",
         lightbox: "var(--bg-lightbox)",
         surface: "var(--bg-card)", // 实底卡 #15151c
+        // 玻璃弹层底色（供 bg-glass-pop 局部遮挡用；整层玻璃仍用 .glass-pop）
+        "glass-pop": "var(--glass-pop)",
         // 边框 / 分隔 / 白色填充层级
         border: "var(--border-glass)",
         "border-pop": "var(--border-pop)",

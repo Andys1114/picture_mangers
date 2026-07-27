@@ -11,7 +11,8 @@ import { useFilterParams } from "../use-filter-params";
 const ICON_BTN =
   "flex cursor-pointer items-center justify-center rounded-pill transition duration-150 ease-out-soft active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
-/** 左侧筛选栏：240px 玻璃圆角卡（radius 20）。
+/** 左侧筛选栏：240px 玻璃圆角卡（radius 20），仅桌面（md+）；<768 整体隐藏，
+ *  由 chips 行的「筛选」chip 唤起底部抽屉（filter-drawer）替代。
  *  无操作 8s 自动折叠为 56px 竖向图标条（悬停/聚焦展开），图钉常驻；
  *  宽度 240↔56px 220ms，缓动走令牌（reduced-motion 由 globals 全局关闭）。 */
 export default function FilterRail() {
@@ -24,7 +25,7 @@ export default function FilterRail() {
       aria-label="筛选栏"
       {...containerProps}
       className={cn(
-        "glass-bar sticky top-[86px] shrink-0 overflow-hidden transition-[width,border-radius] duration-220 ease-out-soft",
+        "glass-bar sticky top-[86px] shrink-0 overflow-hidden transition-[width,border-radius] duration-220 ease-out-soft max-md:hidden",
         collapsed ? "w-14 rounded-pill" : "w-60 rounded-panel",
       )}
     >

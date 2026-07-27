@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useMe } from "@/hooks/useMe";
 
-function QueryClientFactory() {
+function makeQueryClient() {
   return new QueryClient({
     defaultOptions: {
       queries: {
@@ -36,7 +36,7 @@ function MeGate({ children }: { children: React.ReactNode }) {
 }
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  const [client] = useState(QueryClientFactory);
+  const [client] = useState(makeQueryClient);
   return (
     <QueryClientProvider client={client}>
       <MeGate>{children}</MeGate>

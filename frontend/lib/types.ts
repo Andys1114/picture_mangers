@@ -73,6 +73,15 @@ export interface TagTreeResponse {
   meta: Record<string, unknown>;
 }
 
+/** GET /api/posts/{id}/next：灯箱 ←→ 翻页的前后图 id。
+ *  全局 id 倒序视图（最新在前）、排除重复图、不随标签筛选变化；
+ *  prev = 列表上一行（更新、id 更大），next = 下一行（更旧）。
+ *  安全模式开启时服务端跳过非 safe 图。 */
+export interface PostNextResponse {
+  prev_id: number | null;
+  next_id: number | null;
+}
+
 export interface PageMeta {
   page: number;
   total: number;

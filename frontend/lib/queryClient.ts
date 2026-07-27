@@ -13,6 +13,10 @@ export const queryKeys = {
   // variants). Matches the `posts(params)` key prefix.
   postsAll: () => ["posts"] as const,
   post: (id: number) => ["post", id] as const,
+  // 挂在 "posts" 前缀下：翻页 id 与作者缩略图都吃服务端安全模式过滤，
+  // postsAll() 的整段失效（安全模式切换）要一并覆盖它们。
+  postNav: (id: number) => ["posts", "nav", id] as const,
+  artistPosts: (name: string) => ["posts", "artist", name] as const,
   // 缺省值归一化：{} 与 {order:"count"} 落进同一份缓存。
   tags: (params: { search?: string; category?: string; order?: string }) =>
     [

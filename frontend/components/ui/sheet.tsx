@@ -90,7 +90,7 @@ export function Sheet({
         )}
         {...aria}
       >
-        {/* 拖动把手（视觉示意；下滑手势在 E 阶段接入） */}
+        {/* 拖动把手（设计稿的视觉示意元素；关闭走背景点击/Esc/关闭钮，不做拖拽手势） */}
         <div aria-hidden className="flex justify-center pb-1 pt-3">
           <span className="h-1 w-9 rounded-pill bg-fill-3" />
         </div>
