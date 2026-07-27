@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "前端质检标准（含 next build 互斥、收藏禁做项、移动端范围）"}
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "后端质检标准"}
+{"file": "docs/design/pm-gallery-redesign/README.md", "reason": "验收对照：作者区/作者头部/联想下拉是否按稿"}
+{"file": "CONTEXT.md", "reason": "验收对照：连带/废弃语义是否符合领域定义"}

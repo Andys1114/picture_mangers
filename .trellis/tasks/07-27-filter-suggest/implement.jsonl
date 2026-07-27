@@ -1,0 +1,8 @@
+{"file": "docs/design/pm-gallery-redesign/README.md", "reason": "设计稿权威规格：前台第 1/3 屏（作者区、作者视图）与搜索联想交互"}
+{"file": "docs/design/pm-gallery-redesign/final-states.dc.html", "reason": "搜索联想下拉的精确视觉（前缀高亮/连带补全/废弃行/最近搜索）"}
+{"file": "CONTEXT.md", "reason": "术语表：标签/连带/废弃标签/搜索的领域定义"}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "令牌层/glass 工具类/chip 三件套/a11y 约定"}
+{"file": ".trellis/spec/frontend/hook-guidelines.md", "reason": "TanStack Query hook 与 queryKey 工厂约定"}
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "URL 契约模式（use-filter-params 单 hook 所有权）与 localStorage 例外"}
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "后端新端点的代码标准与禁用模式"}
+{"file": ".trellis/spec/backend/database-guidelines.md", "reason": "ORM 查询约定（批查防 N+1、ilike 用法）"}
