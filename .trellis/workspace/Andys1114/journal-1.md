@@ -555,3 +555,45 @@
 **遗留**:
 - F2 设计稿像素级截图比对（浏览器面板未显示无法截图，行为与计算样式已验证）——建议白天人工过一眼
 - login/setup 的 useEffect+api.status 自路由（legacy 继承，低优先级，可改 useQuery）
+
+
+## Session 5: 前端重设计子任务1：前台基座与切换
+
+**Date**: 2026-07-27
+**Task**: 前端重设计子任务1：前台基座与切换
+**Branch**: `main`
+
+### Summary
+
+grilling 定案后完成 07-26-front-base 全部阶段：旧前端存档 frontend-legacy，新 frontend/ 按暗房霓虹设计稿重写（令牌层/顶栏/筛选栏/瀑布流/灯箱/登录/移动端），后端 posts 加 ratings 参数，质检修复 7 项，spec 沉淀 4 处。附带修复 dev.py GBK 编码缺陷。子任务 2 PRD 草稿已备。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `a1a3482` | (see git log) |
+| `a0efa60` | (see git log) |
+| `17011e4` | (see git log) |
+| `cbcf882` | (see git log) |
+| `2c38782` | (see git log) |
+| `fc9b99b` | (see git log) |
+| `84d0904` | (see git log) |
+| `e9e07b6` | (see git log) |
+| `eab3138` | (see git log) |
+| `863420f` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
